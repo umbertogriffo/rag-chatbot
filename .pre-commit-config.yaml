@@ -1,0 +1,47 @@
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.1.0
+    hooks:
+        - id: check-yaml
+        - id: end-of-file-fixer
+        - id: trailing-whitespace
+        - id: check-merge-conflict
+        - id: debug-statements
+
+-   repo: local
+    hooks:
+      - id: black
+        name: black
+        files: \.py
+        stages: [ commit ]
+        language: system
+        entry: poetry run black --exclude=.venv .
+        verbose: true
+
+-   repo: local
+    hooks:
+      - id: flake8
+        name: flake8
+        files: \.py
+        stages: [ commit ]
+        language: system
+        entry: poetry run flake8 --exclude=.venv .
+
+-   repo: local
+    hooks:
+      - id: isort
+        name: isort
+        files: \.py
+        stages: [ commit ]
+        language: system
+        entry: poetry run isort --skip=.venv .
+
+-   repo: local
+    hooks:
+       - id: tests
+         name: Unit Tests
+         entry: poetry run test
+         language: python
+         'types': [ python ]
+         pass_filenames: false
+         stages: [ push ]
