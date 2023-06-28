@@ -1,7 +1,7 @@
 # Contextual ChatBot with GPT4All, LangChain and Chroma
 
-This project combines the power of [LangChain](https://python.langchain.com/docs/get_started/introduction.html) and 
-[GPT4All](https://gpt4all.io/index.html) to accomplish a specific task. 
+This project combines the power of [LangChain](https://python.langchain.com/docs/get_started/introduction.html), 
+[GPT4All](https://gpt4all.io/index.html) and [Chroma](https://github.com/chroma-core/chroma) to accomplish a specific task. 
 It works by taking a collection of Markdown files as input and, when asked a question, provides the corresponding answer
 based on the context provided by those files.
 
@@ -16,8 +16,7 @@ These sections are then used as context to generate the final answer using a loc
 
 Additionally, the chatbot is designed to remember previous interactions. It saves the chat history and considers the 
 relevant context from previous conversations to provide more accurate answers. However, it's important to note that 
-the GPT4All language model sometimes generates incorrect or fabricated information, 
-which can lead to false information being provided.
+the GPT4All language model sometimes generates hallucinations or false information.
 
 ## Table of contents
 
