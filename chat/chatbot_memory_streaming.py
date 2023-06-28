@@ -5,7 +5,7 @@ from pathlib import Path
 
 from conversation.question_answer import (QuestionAndAnswer,
                                           QuestionAndAnswerConfig)
-from helpers.answer import extract_answer
+from helpers.extractor import extract_answer
 from helpers.model import load_gpt4all
 from helpers.log import get_logger
 from memory.vector_memory import VectorMemory, initialize_embedding
@@ -56,7 +56,7 @@ def get_args() -> argparse.Namespace:
         type=int,
         help="Number of chunks to return from the similarity search. Defaults to 2.",
         required=False,
-        default=1,
+        default=2,
     )
 
     return parser.parse_args()

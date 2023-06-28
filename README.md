@@ -1,4 +1,4 @@
-# Local ChatBot with GPT4All, LangChain and Chroma
+# Contextual ChatBot with GPT4All, LangChain and Chroma
 
 This project combines the power of [LangChain](https://python.langchain.com/docs/get_started/introduction.html) and 
 [GPT4All](https://gpt4all.io/index.html) to accomplish a specific task. 
@@ -71,27 +71,33 @@ The authors applied Quantization and 4-bit precision. So, the model uses fewer b
 The first step is to download the weights and use a script from the `LLaMAcpp` repository to convert the weights from 
 the old format to the new one (ggml-formatted). It is a required step; otherwise, the `LangChain` library will not identify the 
 checkpoint file.
-Use the `download_model.py` Python script to breaks down the file into multiple chunks and downloads them gradually. 
+Use the `download_model.py` Python script to breaks down the file into multiple chunks and downloads them gradually.
+This process might take a while since the file size is 4GB. 
 The `local_path` variable is the destination folder.
+
+```shell
+python download_model.py
+```
 
 Transform the downloaded file to the latest format:
 ```shell
 git clone https://github.com/ggerganov/llama.cpp.git
-python3 llama.cpp/convert.py ./models/gpt4all-lora-quantized-ggml.bin
+python llama.cpp/convert.py ./models/gpt4all-lora-quantized-ggml.bin
+rm -rf llama.cpp
 ```
 
 ## Build the memory index
 
 Run:
 ```shell
-python3 chat/memory_builder.py --chunk-size 1000
+python chat/memory_builder.py --chunk-size 1000
 ```
 
 ## Run the Chatbot
 
 Run:
 ```shell
-python3 chat/chatbot_memory_streaming.py
+python chat/chatbot_memory_streaming.py
 ```
 
 ## References

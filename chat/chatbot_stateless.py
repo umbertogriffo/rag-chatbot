@@ -1,6 +1,10 @@
 import os
 from pathlib import Path
 
+from langchain.chains.summarize import load_summarize_chain
+
+from conversation.prompts import SUMMARIZATION_PROMPT
+from helpers.extractor import extract_summary
 from helpers.model import load_gpt4all
 from langchain import LLMChain, PromptTemplate
 from helpers.log import get_logger
@@ -49,6 +53,11 @@ def main():
             break
 
         matched_doc = search_most_similar_doc(question, index)
+
+        chain = load_summarize_chain(llm, chain_type="stuff", prompt=SUMMARIZATION_PROMPT)
+
+        summary = extract_summary(chain.run([matched_doc[0]]))
+
         context = matched_doc[0].page_content
         prompt = PromptTemplate(
             template=template, input_variables=["context", "question"]

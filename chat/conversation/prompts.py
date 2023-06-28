@@ -22,3 +22,11 @@ Context: {context}
 =========
 Answer:"""
 QA_PROMPT = PromptTemplate(template=template, input_variables=["question", "context"])
+
+summarization_template = """Write a concise summary of the following:
+
+{text}
+
+Concise Summary:
+"""
+SUMMARIZATION_PROMPT = PromptTemplate(template=summarization_template, input_variables=["text"])
