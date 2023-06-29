@@ -75,6 +75,8 @@ This process might take a while since the file size is 4GB.
 The `local_path` variable is the destination folder.
 `LangChain` library uses [PyLLaMAcpp](https://github.com/abdeladim-s/pyllamacpp) module (`pyllamacpp==1.0.7`) to load the converted `GPT4All` weights.
 
+> Note: The Quantized model works only with `langchain==0.0.152"`
+
 ```shell
 python download_model.py
 ```
@@ -93,11 +95,19 @@ Run:
 python chat/memory_builder.py --chunk-size 1000
 ```
 
-## Run the Chatbot
+## Run a simple Chatbot
+
+Type:
+```shell
+python chat/simple_chat.py
+```
+![simple_chat.gif](images%2Fsimple_chat.gif)
+
+## Run the Contextual Chatbot
 
 Run:
 ```shell
-python chat/chatbot_memory_streaming.py --k 1 --n-threads 10
+python chat/chatbot_memory_streaming.py --k 1 --n-threads 4
 ```
 
 ## References
@@ -109,6 +119,7 @@ python chat/chatbot_memory_streaming.py --k 1 --n-threads 10
   * [How to customize conversational memory](https://python.langchain.com/docs/modules/memory/how_to/conversational_customization)
   * [Chroma Integration](https://python.langchain.com/docs/modules/data_connection/vectorstores/integrations/chroma)
   * [Conversational Retrieval QA](https://python.langchain.com/docs/modules/chains/popular/chat_vector_db)
+  * [Streaming final agent output](https://python.langchain.com/docs/modules/agents/how_to/streaming_stdout_final_only)
   * [GPT4All](https://python.langchain.com/docs/modules/model_io/models/llms/integrations/gpt4all.html)
     * uses `pyllamacpp`
   * [Llama-cpp](https://python.langchain.com/docs/modules/model_io/models/llms/integrations/llamacpp)

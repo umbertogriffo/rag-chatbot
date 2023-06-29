@@ -25,7 +25,7 @@ def main():
 
     console = Console(color_system="windows")
 
-    llm = load_gpt4all(str(model_path), n_threads, streaming=False, verbose=False)
+    llm = load_gpt4all(str(model_path), n_threads, streaming=True, verbose=True)
 
     # Chatbot loop
     console.print(
