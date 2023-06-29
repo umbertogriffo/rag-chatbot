@@ -88,6 +88,11 @@ python llama.cpp/convert.py ./models/gpt4all-lora-quantized-ggml.bin
 rm -rf llama.cpp
 ```
 
+## Example Data
+
+You could download some Markdown pages from the [Blendle Employee Handbook](https://blendle.notion.site/Blendle-s-Employee-Handbook-7692ffe24f07450785f093b94bbe1a09) 
+and put them under `docs`.
+
 ## Build the memory index
 
 Run:
