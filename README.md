@@ -9,7 +9,8 @@ based on the context provided by those files.
 
 The `Memory Builder` component of the project loads Markdown pages from the `docs` folder.
 It then divides these pages into smaller sections, calculates the embeddings (a numerical representation) of these 
-sections, and saves them in a database called [Chroma](https://github.com/chroma-core/chroma) for later use.
+sections with [all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2), and saves them in a 
+database called [Chroma](https://github.com/chroma-core/chroma) for later use.
 
 When a user asks a question, the ChatBot retrieves the most relevant sections from the Embedding database. 
 These sections are then used as context to generate the final answer using a local language model (LLM).
@@ -63,22 +64,24 @@ To easily install the dependencies I created a make file.
 We use [GPT4All](https://gpt4all.io/index.html), a model trained on top of Facebook’s LLaMA model, which released its weights under a 
 non-commercial license. Still, running the mentioned architecture on your local PC is impossible due to the 
 large (7 billion) number of parameters. The main contribution of GPT4All models is the ability to run them on a CPU.
-The authors applied Quantization and 4-bit precision. So, the model uses fewer bits to represent the numbers.
+The authors applied Quantization and 4-bit precision using the GGML format. 
+So, the model uses fewer bits to represent the numbers.
 
 ### Convert the Model
 
-The first step is to download the weights and use a script from the `LLaMAcpp` repository to convert the weights from 
-the old format to the new one (ggml-formatted). It is a required step; otherwise, the `LangChain` library will not identify the 
-checkpoint file.
+The first step is to download the [weights](https://the-eye.eu/public/AI/models/nomic-ai/gpt4all/) and use a script from the [LLaMAcpp](https://github.com/ggerganov/llama.cpp) 
+repository to convert the weights from the old format to the new one (ggml-formatted). 
+It is a required step; otherwise, the `LangChain` library will not identify the checkpoint file.
 Use the `download_model.py` Python script to breaks down the file into multiple chunks and downloads them gradually.
 This process might take a while since the file size is 4GB. 
 The `local_path` variable is the destination folder.
+`LangChain` library uses [PyLLaMAcpp](https://github.com/abdeladim-s/pyllamacpp) module (`pyllamacpp==1.0.7`) to load the converted `GPT4All` weights.
 
 ```shell
 python download_model.py
 ```
 
-Transform the downloaded file to the latest format:
+Transform the downloaded file to the latest format as written in the LLaMAcpp [repo](https://github.com/ggerganov/llama.cpp#using-gpt4all):
 ```shell
 git clone https://github.com/ggerganov/llama.cpp.git
 python llama.cpp/convert.py ./models/gpt4all-lora-quantized-ggml.bin
@@ -96,7 +99,7 @@ python chat/memory_builder.py --chunk-size 1000
 
 Run:
 ```shell
-python chat/chatbot_memory_streaming.py
+python chat/chatbot_memory_streaming.py --k 2
 ```
 
 ## References
@@ -107,10 +110,17 @@ python chat/chatbot_memory_streaming.py
   * [MarkdownTextSplitter](https://api.python.langchain.com/en/latest/_modules/langchain/text_splitter.html#MarkdownTextSplitter)
   * [How to customize conversational memory](https://python.langchain.com/docs/modules/memory/how_to/conversational_customization)
   * [Chroma Integration](https://python.langchain.com/docs/modules/data_connection/vectorstores/integrations/chroma)
-    * https://github.com/chroma-core/chroma
   * [Conversational Retrieval QA](https://python.langchain.com/docs/modules/chains/popular/chat_vector_db)
+  * [GPT4All](https://python.langchain.com/docs/modules/model_io/models/llms/integrations/gpt4all.html)
+    * uses `pyllamacpp`
+  * [Llama-cpp](https://python.langchain.com/docs/modules/model_io/models/llms/integrations/llamacpp)
+    * uses `llama-cpp-python`
 * Embeddings:
   * [all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2)
     * This is a `sentence-transformers` model: It maps sentences & paragraphs to a 384 dimensional dense vector space and can be used for tasks like clustering or semantic search.
 * Text Cleaning:
   * [clean-text](https://github.com/jfilter/clean-text/tree/main)
+* Repos:
+  * [llama.cpp](https://github.com/ggerganov/llama.cpp)
+  * [pyllamacpp](https://github.com/abdeladim-s/pyllamacpp)
+  * [llama-cpp-python](https://github.com/abetlen/llama-cpp-python)

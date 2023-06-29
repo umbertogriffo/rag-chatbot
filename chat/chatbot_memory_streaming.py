@@ -59,6 +59,14 @@ def get_args() -> argparse.Namespace:
         default=2,
     )
 
+    parser.add_argument(
+        "--n-threads",
+        type=int,
+        help="Number of threads to use. Defaults to 4.",
+        required=False,
+        default=4,
+    )
+
     return parser.parse_args()
 
 
@@ -67,9 +75,7 @@ def main(parameters):
     model_path = root_folder / "models" / "ggml-model-q4_0.bin"
     vector_store_path = root_folder / "vector_store" / "docs_index"
 
-    n_threads = int(os.cpu_count() - 1)
-
-    llm = load_gpt4all(str(model_path), n_threads)
+    llm = load_gpt4all(str(model_path), parameters.n_threads)
     embedding = initialize_embedding()
 
     memory = VectorMemory(embedding=embedding)

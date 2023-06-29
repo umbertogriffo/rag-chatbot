@@ -58,7 +58,8 @@ def main():
 
         summary = extract_summary(chain.run([matched_doc[0]]))
 
-        context = matched_doc[0].page_content
+        context = summary
+
         prompt = PromptTemplate(
             template=template, input_variables=["context", "question"]
         ).partial(context=context)
