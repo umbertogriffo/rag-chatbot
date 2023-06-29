@@ -2,7 +2,7 @@
 from langchain import PromptTemplate
 
 _template = """Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question.
-You can assume the question about the Engineering Handbook.
+You can assume the question about the Handbook.
 
 Chat History:
 {chat_history}
@@ -11,10 +11,10 @@ Standalone question:"""
 CONDENSE_QUESTION_PROMPT = PromptTemplate.from_template(_template)
 
 
-template = """You are an AI assistant for answering questions about the Engineering Handbook.
+template = """You are an AI assistant for answering questions about the an Handbook.
 You are given a question and the following context containing the extracted parts of a long document. Provide a conversational answer.
-If you don't know the answer, say, "Hmm, I'm not sure." Don't try to make up an answer.
-If the question is not about the Engineering Handbook, please let them know you are tuned to only answer questions about the Engineering Handbook.
+If you don't know the answer, just say, "Hmm, I'm not sure." Don't try to make up an answer.
+If the question is not about the Handbook, please let them know you are tuned to only answer questions about the Handbook.
 
 Question: {question}
 =========
