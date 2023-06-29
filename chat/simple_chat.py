@@ -19,7 +19,7 @@ Answer:"""
 
 def main():
     root_folder = Path(__file__).resolve().parent.parent
-    model_path = root_folder / "models" / "ggml-model-q4_0.bin"
+    model_path = root_folder / "models" / "ggml-wizardLM-7B.q4_2.bin"
 
     n_threads = 4
 

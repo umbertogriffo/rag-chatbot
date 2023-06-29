@@ -68,7 +68,7 @@ def get_args() -> argparse.Namespace:
 
 def main(parameters):
     root_folder = Path(__file__).resolve().parent.parent
-    model_path = root_folder / "models" / "ggml-model-q4_0.bin"
+    model_path = root_folder / "models" / "ggml-wizardLM-7B.q4_2.bin"
     vector_store_path = root_folder / "vector_store" / "docs_index"
 
     llm = load_gpt4all(str(model_path), parameters.n_threads)
