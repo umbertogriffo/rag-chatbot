@@ -36,6 +36,7 @@ class QuestionAndAnswerConfig:
     verbose : bool, optional
         Whether to enable verbose mode (default is False).
     """
+
     llm: GPT4All
     index: Chroma
     condense_question_prompt: str
@@ -57,6 +58,7 @@ class QuestionAndAnswer:
         The configuration settings for the question and answer system.
 
     """
+
     def __init__(self, config: QuestionAndAnswerConfig) -> None:
         question_generator = LLMChain(
             llm=config.llm, prompt=config.condense_question_prompt

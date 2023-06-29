@@ -1,22 +1,22 @@
 # Contextual ChatBot with GPT4All, LangChain and Chroma
 
-This project combines the power of [LangChain](https://python.langchain.com/docs/get_started/introduction.html), 
-[GPT4All](https://gpt4all.io/index.html) and [Chroma](https://github.com/chroma-core/chroma) to accomplish a specific task. 
+This project combines the power of [LangChain](https://python.langchain.com/docs/get_started/introduction.html),
+[GPT4All](https://gpt4all.io/index.html) and [Chroma](https://github.com/chroma-core/chroma) to accomplish a specific task.
 It works by taking a collection of Markdown files as input and, when asked a question, provides the corresponding answer
 based on the context provided by those files.
 
 ![architecture.png](images/contextual-chatbot-gpt4all.png)
 
 The `Memory Builder` component of the project loads Markdown pages from the `docs` folder.
-It then divides these pages into smaller sections, calculates the embeddings (a numerical representation) of these 
-sections with [all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2), and saves them in a 
+It then divides these pages into smaller sections, calculates the embeddings (a numerical representation) of these
+sections with [all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2), and saves them in a
 database called [Chroma](https://github.com/chroma-core/chroma) for later use.
 
-When a user asks a question, the ChatBot retrieves the most relevant sections from the Embedding database. 
+When a user asks a question, the ChatBot retrieves the most relevant sections from the Embedding database.
 These sections are then used as context to generate the final answer using a local language model (LLM).
 
-Additionally, the chatbot is designed to remember previous interactions. It saves the chat history and considers the 
-relevant context from previous conversations to provide more accurate answers. However, it's important to note that 
+Additionally, the chatbot is designed to remember previous interactions. It saves the chat history and considers the
+relevant context from previous conversations to provide more accurate answers. However, it's important to note that
 the GPT4All language model sometimes generates hallucinations or false information.
 
 ## Table of contents
@@ -48,32 +48,30 @@ To easily install the dependencies I created a make file.
 
 * Check: ```make check```
   * Use It to check that `which pip3` and `which python3` points to the right path.
-* Setup: ```make setup```
-  * Creates an environment, installs all dependencies, initialize pre-commit.
 * Install: ```make install```
   * Creates an environment and installs all dependencies.
-* Install pre-commit: ```make install_pre_commit```
-  * Initialize pre-commit.
+* Tidy up the code: ```make tidy```
+  * Run Isort, Black and Flake8.
 * Clean: ```make clean```
   * Removes the environment and all cached files.
 
-**Note:** Run `Setup` as your init command (or after `Clean`)
+**Note:** Run `Install` as your init command (or after `Clean`)
 
 ## Using the Open-Source GPT4All Model Locally
 
-We use [GPT4All](https://gpt4all.io/index.html), a model trained on top of Facebook’s LLaMA model, which released its weights under a 
-non-commercial license. Still, running the mentioned architecture on your local PC is impossible due to the 
+We use [GPT4All](https://gpt4all.io/index.html), a model trained on top of Facebook’s LLaMA model, which released its weights under a
+non-commercial license. Still, running the mentioned architecture on your local PC is impossible due to the
 large (7 billion) number of parameters. The main contribution of GPT4All models is the ability to run them on a CPU.
-The authors applied Quantization and 4-bit precision using the GGML format. 
+The authors applied Quantization and 4-bit precision using the GGML format.
 So, the model uses fewer bits to represent the numbers.
 
 ### Convert the Model
 
-The first step is to download the [weights](https://the-eye.eu/public/AI/models/nomic-ai/gpt4all/) and use a script from the [LLaMAcpp](https://github.com/ggerganov/llama.cpp) 
-repository to convert the weights from the old format to the new one (ggml-formatted). 
+The first step is to download the [weights](https://the-eye.eu/public/AI/models/nomic-ai/gpt4all/) and use a script from the [LLaMAcpp](https://github.com/ggerganov/llama.cpp)
+repository to convert the weights from the old format to the new one (ggml-formatted).
 It is a required step; otherwise, the `LangChain` library will not identify the checkpoint file.
 Use the `download_model.py` Python script to breaks down the file into multiple chunks and downloads them gradually.
-This process might take a while since the file size is 4GB. 
+This process might take a while since the file size is 4GB.
 The `local_path` variable is the destination folder.
 `LangChain` library uses [PyLLaMAcpp](https://github.com/abdeladim-s/pyllamacpp) module (`pyllamacpp==1.0.7`) to load the converted `GPT4All` weights.
 
@@ -99,7 +97,7 @@ python chat/memory_builder.py --chunk-size 1000
 
 Run:
 ```shell
-python chat/chatbot_memory_streaming.py --k 2
+python chat/chatbot_memory_streaming.py --k 1 --n-threads 10
 ```
 
 ## References

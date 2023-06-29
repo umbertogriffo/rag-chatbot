@@ -27,4 +27,6 @@ summarization_template = """Write a concise summary of the following:
 "{text}"
 CONCISE SUMMARY:
 """
-SUMMARIZATION_PROMPT = PromptTemplate(template=summarization_template, input_variables=["text"])
+SUMMARIZATION_PROMPT = PromptTemplate(
+    template=summarization_template, input_variables=["text"]
+)

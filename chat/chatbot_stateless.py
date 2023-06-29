@@ -1,15 +1,16 @@
-import os
 from pathlib import Path
-
-from langchain.chains.summarize import load_summarize_chain
 
 from conversation.prompts import SUMMARIZATION_PROMPT
 from helpers.extractor import extract_summary
+from helpers.log import get_logger
 from helpers.model import load_gpt4all
 from langchain import LLMChain, PromptTemplate
-from helpers.log import get_logger
-from memory.vector_memory import (VectorMemory, initialize_embedding,
-                                  search_most_similar_doc)
+from langchain.chains.summarize import load_summarize_chain
+from memory.vector_memory import (
+    VectorMemory,
+    initialize_embedding,
+    search_most_similar_doc,
+)
 from rich.console import Console
 
 logger = get_logger(__name__)
@@ -30,7 +31,7 @@ def main():
     model_path = root_folder / "models" / "ggml-model-q4_0.bin"
     vector_store_path = root_folder / "vector_store" / "docs_index"
 
-    n_threads = int(os.cpu_count() - 1)
+    n_threads = 4
 
     console = Console(color_system="windows")
 
@@ -54,7 +55,9 @@ def main():
 
         matched_doc = search_most_similar_doc(question, index)
 
-        chain = load_summarize_chain(llm, chain_type="stuff", prompt=SUMMARIZATION_PROMPT)
+        chain = load_summarize_chain(
+            llm, chain_type="stuff", prompt=SUMMARIZATION_PROMPT
+        )
 
         summary = extract_summary(chain.run([matched_doc[0]]))
 
@@ -65,8 +68,8 @@ def main():
         ).partial(context=context)
         llm_chain = LLMChain(prompt=prompt, llm=llm)
 
-        console.print(f"[bold green]Question:[/bold green]{question}")
-        console.print("[bold green]Answer:[/bold green]")
+        console.print(f"\n[bold green]Question:[/bold green]{question}")
+        console.print("\n[bold green]Answer:[/bold green]")
         console.print(llm_chain.run(question))
 
 

@@ -1,9 +1,9 @@
 from typing import Any, List
 
 from cleantext import clean
+from helpers.log import get_logger
 from langchain.embeddings import HuggingFaceEmbeddings
 from langchain.vectorstores import Chroma
-from helpers.log import get_logger
 
 logger = get_logger(__name__)
 
@@ -21,6 +21,7 @@ class VectorMemory:
         Whether to enable verbose mode (default is False).
 
     """
+
     def __init__(self, embedding: Any, verbose=False) -> None:
         self.embedding = embedding
         self.verbose = verbose

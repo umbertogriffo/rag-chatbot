@@ -1,4 +1,4 @@
-.PHONY:test clean
+.PHONY: clean
 
 check:
 	which pip3
@@ -12,11 +12,10 @@ install:
 	echo "Installing sentence-transformers with pip to avoid poetry's issues in installing torch..."
 	. .venv/bin/activate && pip3 install sentence-transformers~=2.2.2
 
-install_pre_commit:
-	poetry run pre-commit install
-	poetry run pre-commit install --hook-type pre-commit
-
-setup: install install_pre_commit
+tidy:
+	poetry run isort --skip=.venv .
+	poetry run black --exclude=.venv .
+	poetry run flake8 --exclude=.venv .
 
 clean:
 	echo "Cleaning Poetry environment..."
@@ -27,6 +26,3 @@ clean:
 	find . -type f -name "*.py[co]" -delete
 	find . -type d -name "__pycache__" -delete
 	rm -rf .pytest_cache
-
-test:
-	pipenv run pytest -v
