@@ -1,5 +1,6 @@
-from langchain.callbacks import CallbackManager
-from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
+# from langchain.callbacks import CallbackManager
+from langchain.callbacks import FinalStreamingStdOutCallbackHandler
+# from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 from langchain.llms import GPT4All
 
 
@@ -40,13 +41,15 @@ def load_gpt4all(model_path: str, n_threads: int = 4, streaming: bool = True, ve
         The loaded GPT4All model.
 
     """
-    callback_manager = CallbackManager([StreamingStdOutCallbackHandler()])
+    # callback_manager = CallbackManager([StreamingStdOutCallbackHandler()])
+    callbacks = [FinalStreamingStdOutCallbackHandler(answer_prefix_tokens=["The", "answer", ":"])]
     llm = GPT4All(
         model=model_path,
         streaming=streaming,
         use_mlock=False,
         f16_kv=True,
-        callback_manager=callback_manager,
+        # callback_manager=callback_manager,
+        callbacks=callbacks,
         n_ctx=512,
         n_threads=n_threads,
         n_batch=1,

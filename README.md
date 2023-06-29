@@ -27,8 +27,11 @@ the GPT4All language model sometimes generates hallucinations or false informati
   - [How to use the make file](#how-to-use-the-make-file)
 - [Using the Open-Source GPT4All Model Locally](#using-the-open-source-gpt4all-model-locally)
   - [Convert the Model](#convert-the-model)
+  - [Use the WizardLM's WizardLM 7B GGML](#use-the-wizardlms-wizardlm-7b-ggml)
+- [Example Data](#example-data)
 - [Build the memory index](#build-the-memory-index)
-- [Run the Chatbot](#run-the-chatbot)
+- [Run a simple Chatbot](#run-a-simple-chatbot)
+- [Run the Contextual Chatbot](#run-the-contextual-chatbot)
 - [References](#references)
 
 
@@ -75,7 +78,13 @@ This process might take a while since the file size is 4GB.
 The `local_path` variable is the destination folder.
 `LangChain` library uses [PyLLaMAcpp](https://github.com/abdeladim-s/pyllamacpp) module (`pyllamacpp==1.0.7`) to load the converted `GPT4All` weights.
 
-> Note: The Quantized model works only with `langchain==0.0.152"`
+> Note: The Quantized model works only with `langchain = "^0.0.215"`
+
+### Use the WizardLM's WizardLM 7B GGML
+
+The [WizardLM's WizardLM 7B GGML](https://huggingface.co/TheBloke/wizardLM-7B-GGML) gives better answers and is also quite fast.
+To use it you need to download the `ggml-wizardLM-7B.q4_2.bin` from the GPT4ALL website and use `langchain = "^0.0.215"`
+to have also backward compatibility with the `gpt4all-lora-quantized-ggml.bin`.
 
 ```shell
 python download_model.py
@@ -125,6 +134,7 @@ python chat/chatbot_memory_streaming.py --k 1 --n-threads 4
   * [Chroma Integration](https://python.langchain.com/docs/modules/data_connection/vectorstores/integrations/chroma)
   * [Conversational Retrieval QA](https://python.langchain.com/docs/modules/chains/popular/chat_vector_db)
   * [Streaming final agent output](https://python.langchain.com/docs/modules/agents/how_to/streaming_stdout_final_only)
+  * [FinalStreamingStdOutCallbackHandler](https://python.langchain.com/docs/modules/agents/how_to/streaming_stdout_final_only)
   * [GPT4All](https://python.langchain.com/docs/modules/model_io/models/llms/integrations/gpt4all.html)
     * uses `pyllamacpp`
   * [Llama-cpp](https://python.langchain.com/docs/modules/model_io/models/llms/integrations/llamacpp)

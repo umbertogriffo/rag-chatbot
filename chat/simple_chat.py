@@ -47,7 +47,9 @@ def main():
         console.print(f"\n[bold green]Question:[/bold green] {question}")
         console.print("\n[bold green]Answer:[/bold green]")
 
-        answer = extract_answer(llm_chain.run(question))
+        # answer = extract_answer(llm_chain.run(question))
+        answer = llm_chain.run(question)
+        console.print("\n[bold magenta]Formatted Answer:[/bold magenta]")
         console.print(Markdown(answer))
 
 

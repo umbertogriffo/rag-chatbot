@@ -31,16 +31,14 @@ def run_chatbot_loop(qa: QuestionAndAnswer) -> None:
 
         # Generate the answer using the ConversationalRetrievalChain
         result = qa.generate_answer(question, chat_history)
-        console.print("\n[bold magenta]Full answer:[/bold magenta]")
-        console.print(Markdown(result["answer"]))
 
-        answer = extract_answer(result["answer"])
+        # answer = extract_answer(result["answer"])
+        answer = result["answer"]
 
         # Collect the history
         chat_history.append((question, answer))
 
-        console.print(f"\n[bold green]Question:[/bold green]{question}")
-        console.print("\n[bold green]Answer:[/bold green]")
+        console.print("\n[bold magenta]Formatted Answer:[/bold magenta]")
         if answer:
             console.print(Markdown(answer))
         else:
