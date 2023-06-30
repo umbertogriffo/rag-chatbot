@@ -30,11 +30,9 @@ def run_chatbot_loop(qa: QuestionAndAnswer) -> None:
 
         # Generate the answer using the ConversationalRetrievalChain
         result = qa.generate_answer(question, chat_history)
-
-        # answer = extract_answer(result["answer"])
         answer = result["answer"]
 
-        # Collect the history
+        # Update the history
         chat_history.append((question, answer))
 
         console.print("\n[bold magenta]Formatted Answer:[/bold magenta]")
