@@ -1,7 +1,9 @@
+import argparse
+import sys
 from pathlib import Path
 
 from helpers.log import get_logger
-from helpers.model import load_gpt4all
+from helpers.model import load_gpt4all, Model
 from langchain import LLMChain, PromptTemplate
 
 from rich.console import Console
@@ -16,15 +18,41 @@ Question: {question}
 Answer:"""
 
 
-def main():
-    root_folder = Path(__file__).resolve().parent.parent
-    model_path = root_folder / "models" / "ggml-wizardLM-7B.q4_2.bin"
+def get_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="AI Software Engineer Chatbot")
 
-    n_threads = 4
+    parser.add_argument(
+        "--model",
+        type=Model,
+        choices=list(Model),
+        help=f"Model to be used. Defaults to {Model.wizard}.",
+        required=False,
+        const=Model.wizard,
+        nargs='?',
+        default=Model.wizard,
+    )
+
+    parser.add_argument(
+        "--n-threads",
+        type=int,
+        help="Number of threads to use. Defaults to 4.",
+        required=False,
+        default=4,
+    )
+
+    return parser.parse_args()
+
+
+def main(parameters):
+    root_folder = Path(__file__).resolve().parent.parent
+    model_path = root_folder / "models" / parameters.model.value
 
     console = Console(color_system="windows")
 
-    llm = load_gpt4all(str(model_path), n_threads, streaming=True, verbose=True)
+    llm = load_gpt4all(str(model_path),
+                       n_threads=parameters.n_threads,
+                       streaming=True,
+                       verbose=True)
 
     # Chatbot loop
     console.print(
@@ -52,4 +80,9 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        args = get_args()
+        main(args)
+    except Exception as error:
+        logger.error(f"An error occurred: {str(error)}", exc_info=True, stack_info=True)
+        sys.exit(1)

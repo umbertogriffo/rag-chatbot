@@ -1,5 +1,15 @@
+from enum import Enum
+
 from langchain.callbacks import FinalStreamingStdOutCallbackHandler
 from langchain.llms import GPT4All
+
+
+class Model(Enum):
+    lora = 'ggml-model-q4_0.bin'
+    wizard = 'ggml-wizardLM-7B.q4_2.bin'
+
+    def __str__(self):
+        return self.value
 
 
 def load_gpt4all(model_path: str, n_threads: int = 4, streaming: bool = True, verbose: bool = True) -> GPT4All:
