@@ -9,7 +9,7 @@ def load_gpt4all(model_path: str, n_threads: int = 4, streaming: bool = True, ve
     The LangChain library utilizes the `PyLLaMAcpp` module to load the converted `GPT4All` weights.
 
     Notes:
-    - n_ctx=2048 is the maximum context window size for gpt4all-lora-quantized-ggml.bin.
+    - n_ctx=2048 is the maximum context window size for `gpt4all-lora-quantized-ggml.bin`.
       Refer to the following links for more information:
         - https://github.com/nomic-ai/gpt4all/issues/668#issuecomment-1556353537
         - https://github.com/hwchase17/langchain/issues/2404#issuecomment-1496615372
