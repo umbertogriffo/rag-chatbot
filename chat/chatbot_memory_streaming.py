@@ -4,7 +4,6 @@ from pathlib import Path
 
 from conversation.prompts import CONDENSE_QUESTION_PROMPT, QA_PROMPT
 from conversation.question_answer import QuestionAndAnswer, QuestionAndAnswerConfig
-from helpers.extractor import extract_answer
 from helpers.log import get_logger
 from helpers.model import load_gpt4all
 from memory.vector_memory import VectorMemory, initialize_embedding

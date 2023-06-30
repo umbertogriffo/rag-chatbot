@@ -6,6 +6,8 @@ from tqdm import tqdm
 local_path = "./models/gpt4all-lora-quantized-ggml.bin"
 Path(local_path).parent.mkdir(parents=True, exist_ok=True)
 
+# Check https://github.com/nomic-ai/gpt4all for the latest models.
+# url = "http://gpt4all.io/models/ggml-wizardLM-7B.q4_2.bin"
 url = "https://the-eye.eu/public/AI/models/nomic-ai/gpt4all/gpt4all-lora-quantized-ggml.bin"
 
 # send a GET request to the URL to download the file.

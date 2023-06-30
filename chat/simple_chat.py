@@ -1,6 +1,5 @@
 from pathlib import Path
 
-from helpers.extractor import extract_answer
 from helpers.log import get_logger
 from helpers.model import load_gpt4all
 from langchain import LLMChain, PromptTemplate

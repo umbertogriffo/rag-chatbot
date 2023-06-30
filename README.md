@@ -9,15 +9,17 @@ based on the context provided by those files.
 
 The `Memory Builder` component of the project loads Markdown pages from the `docs` folder.
 It then divides these pages into smaller sections, calculates the embeddings (a numerical representation) of these
-sections with [all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2), and saves them in a
-database called [Chroma](https://github.com/chroma-core/chroma) for later use.
+sections with the [all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2) 
+`sentence-transformer`, and saves them in an embedding database called [Chroma](https://github.com/chroma-core/chroma) 
+for later use.
 
 When a user asks a question, the ChatBot retrieves the most relevant sections from the Embedding database.
 These sections are then used as context to generate the final answer using a local language model (LLM).
 
 Additionally, the chatbot is designed to remember previous interactions. It saves the chat history and considers the
-relevant context from previous conversations to provide more accurate answers. However, it's important to note that
-the GPT4All language model sometimes generates hallucinations or false information.
+relevant context from previous conversations to provide more accurate answers. 
+
+> Note: it's important to note that the GPT4All language model sometimes generates hallucinations or false information.
 
 ## Table of contents
 
@@ -25,8 +27,8 @@ the GPT4All language model sometimes generates hallucinations or false informati
   - [Install Poetry](#install-poetry)
 - [🛠 Bootstrap Environment](#-bootstrap-environment)
   - [How to use the make file](#how-to-use-the-make-file)
-- [Using the Open-Source GPT4All Model Locally](#using-the-open-source-gpt4all-model-locally)
-  - [Convert the Model](#convert-the-model)
+- [Using the Open-Source GPT4All's Models Locally](#using-the-open-source-gpt4alls-models-locally)
+  - [Use the gpt4all-lora-quantized](#use-the-gpt4all-lora-quantized)
   - [Use the WizardLM's WizardLM 7B GGML](#use-the-wizardlms-wizardlm-7b-ggml)
 - [Example Data](#example-data)
 - [Build the memory index](#build-the-memory-index)
@@ -58,33 +60,30 @@ To easily install the dependencies I created a make file.
 * Clean: ```make clean```
   * Removes the environment and all cached files.
 
-**Note:** Run `Install` as your init command (or after `Clean`)
+> Note: Run `Install` as your init command (or after `Clean`).
 
-## Using the Open-Source GPT4All Model Locally
+## Using the Open-Source GPT4All's Models Locally
 
-We use [GPT4All](https://gpt4all.io/index.html), a model trained on top of Facebook’s LLaMA model, which released its weights under a
-non-commercial license. Still, running the mentioned architecture on your local PC is impossible due to the
-large (7 billion) number of parameters. The main contribution of GPT4All models is the ability to run them on a CPU.
-The authors applied Quantization and 4-bit precision using the GGML format.
-So, the model uses fewer bits to represent the numbers.
+We use [GPT4All](https://gpt4all.io/index.html), an open-source collection of models trained on top of Facebook’s LLaMA,
+which released its weights under a commercial/non-commercial license. 
+Still, running the mentioned architecture on your local PC is impossible due to the large (~7 billion) number of 
+parameters. The main contribution of `GPT4All` models is the ability to run them on a `CPU`.
+The authors applied `Quantization and 4-bit precision` using the [GGML](https://github.com/ggerganov/ggml) format.
+Basically, the model uses fewer bits to represent the numbers.
 
-### Convert the Model
+### Use the gpt4all-lora-quantized
 
-The first step is to download the [weights](https://the-eye.eu/public/AI/models/nomic-ai/gpt4all/) and use a script from the [LLaMAcpp](https://github.com/ggerganov/llama.cpp)
-repository to convert the weights from the old format to the new one (ggml-formatted).
+The first step is to download the [weights](https://the-eye.eu/public/AI/models/nomic-ai/gpt4all/) and use a script 
+from the [LLaMAcpp](https://github.com/ggerganov/llama.cpp) repository to convert the weights from the old format to 
+the new one (ggml-formatted).
 It is a required step; otherwise, the `LangChain` library will not identify the checkpoint file.
-Use the `download_model.py` Python script to breaks down the file into multiple chunks and downloads them gradually.
-This process might take a while since the file size is 4GB.
+Use the [download_model.py](download_model.py) Python script to breaks down the file into multiple chunks and downloads 
+them gradually. This process might take a while since the file size is 4GB.
 The `local_path` variable is the destination folder.
-`LangChain` library uses [PyLLaMAcpp](https://github.com/abdeladim-s/pyllamacpp) module (`pyllamacpp==1.0.7`) to load the converted `GPT4All` weights.
+`LangChain` library uses [PyLLaMAcpp](https://github.com/abdeladim-s/pyllamacpp) module (`pyllamacpp==1.0.7`) to load 
+the converted `GPT4All` weights.
 
-> Note: The Quantized model works only with `langchain = "^0.0.215"`
-
-### Use the WizardLM's WizardLM 7B GGML
-
-The [WizardLM's WizardLM 7B GGML](https://huggingface.co/TheBloke/wizardLM-7B-GGML) gives better answers and is also quite fast.
-To use it you need to download the `ggml-wizardLM-7B.q4_2.bin` from the GPT4ALL website and use `langchain = "^0.0.215"`
-to have also backward compatibility with the `gpt4all-lora-quantized-ggml.bin`.
+> Note: The Quantized model has been tested only with `langchain = "^0.0.215"`
 
 ```shell
 python download_model.py
@@ -96,6 +95,13 @@ git clone https://github.com/ggerganov/llama.cpp.git
 python llama.cpp/convert.py ./models/gpt4all-lora-quantized-ggml.bin
 rm -rf llama.cpp
 ```
+
+### Use the WizardLM's WizardLM 7B GGML
+
+The [WizardLM's WizardLM 7B GGML](https://huggingface.co/TheBloke/wizardLM-7B-GGML) gives better answers and is also 
+quite fast. To use it you need to download the [ggml-wizardLM-7B.q4_2.bin](http://gpt4all.io/models/ggml-wizardLM-7B.q4_2.bin) 
+from the GPT4ALL website with the [download_model.py](download_model.py) and use`langchain = "^0.0.215"` to have also 
+backward compatibility with the `gpt4all-lora-quantized`.
 
 ## Example Data
 
