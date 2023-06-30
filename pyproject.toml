@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "chat"
 version = "0.1.0"
-description = "Local ChatBot with GPT4All, LangChain and Chroma"
+description = "Contextual ChatBot with GPT4All, LangChain and Chroma"
 authors = ["Umberto Griffo <umberto.griffo@gmail.com>"]
 readme = "README.md"
 
