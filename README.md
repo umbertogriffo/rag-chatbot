@@ -126,7 +126,7 @@ Type:
 ```shell
 python chat/simple_chat.py
 ```
-![simple_chat.gif](images%2Fsimple_chat.gif)
+![python-code.gif](images/python-code.gif)
 
 ## Run the Contextual Chatbot
 
