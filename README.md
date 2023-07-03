@@ -22,7 +22,7 @@ relevant context from previous conversations to provide more accurate answers.
 > Disclaimer: The code has been tested on `Ubuntu 22.04.2 LTS` running on a Lenovo Legion 5 Pro
 > with twenty `12th Gen Intel® Core™ i7-12700H`.
 > If you are using another Operating System or different hardware and you can't load the models, please
-> take a look at the official GPT4All's GitHub [issue](https://github.com/nomic-ai/gpt4all/issues.
+> take a look at the official GPT4All's GitHub [issue](https://github.com/nomic-ai/gpt4all/issues).
 
 > Note: it's important to note that the GPT4All language model sometimes generates hallucinations or false information.
 
