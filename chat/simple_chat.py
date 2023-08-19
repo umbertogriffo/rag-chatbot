@@ -8,6 +8,7 @@ from langchain import LLMChain, PromptTemplate
 
 from rich.console import Console
 from rich.markdown import Markdown
+from pyfiglet import Figlet
 
 logger = get_logger(__name__)
 
@@ -64,8 +65,11 @@ def main(parameters):
                        verbose=True)
 
     # Chatbot loop
+    custom_fig = Figlet(font='graffiti')
+    console.print(custom_fig.renderText('ChatBot'))
     console.print(
-        "[bold magenta]Hi! 👋, I'm your friendly chatbot 🦜 here to assist you. How can I help you today? [/bold "
+        "[bold magenta]Hi! 👋, I'm your friendly chatbot 🦜 here to assist you. "
+        "\nHow can I help you today? [/bold "
         "magenta]Type 'exit' to stop."
     )
     while True:

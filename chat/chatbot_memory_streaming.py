@@ -2,6 +2,8 @@ import argparse
 import sys
 from pathlib import Path
 
+from pyfiglet import Figlet
+
 from conversation.prompts import CONDENSE_QUESTION_PROMPT, QA_PROMPT
 from conversation.question_answer import QuestionAndAnswer, QuestionAndAnswerConfig
 from helpers.log import get_logger
@@ -14,9 +16,12 @@ logger = get_logger(__name__)
 
 
 def run_chatbot_loop(qa: QuestionAndAnswer) -> None:
+    custom_fig = Figlet(font='graffiti')
     console = Console(color_system="windows")
+    console.print(custom_fig.renderText('ChatBot'))
     console.print(
-        "[bold magenta]Hi! 👋, I'm your friendly chatbot 🦜 here to assist you. How can I help you today? [/bold "
+        "[bold magenta]Hi! 👋, I'm your friendly chatbot 🦜 here to assist you. "
+        "\nHow can I help you today? [/bold "
         "magenta]Type 'exit' to stop."
     )
     chat_history = []
