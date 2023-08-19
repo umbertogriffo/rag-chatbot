@@ -46,7 +46,7 @@ def get_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="AI Chatbot")
 
     model_list = list(SUPPORTED_MODELS.keys())
-    default_model = list(SUPPORTED_MODELS.keys())[1]
+    default_model = list(SUPPORTED_MODELS.keys())[0]
 
     parser.add_argument(
         "--model",
