@@ -1,15 +1,87 @@
-from enum import Enum
-
+from abc import ABC
 from langchain.callbacks import FinalStreamingStdOutCallbackHandler
 from langchain.llms import GPT4All
+import os
+
+import requests
+from tqdm import tqdm
 
 
-class Model(Enum):
-    lora = 'ggml-model-q4_0.bin'
-    wizard = 'ggml-wizardLM-7B.q4_2.bin'
+# Check https://github.com/nomic-ai/gpt4all for the latest models.
 
-    def __str__(self):
-        return self.value
+
+class ModelSettings(ABC):
+    url: str
+    name: str
+
+
+class WizardSettings(ModelSettings):
+    url = "http://gpt4all.io/models/ggml-wizardLM-7B.q4_2.bin"
+    name = "ggml-wizardLM-7B.q4_2.bin"
+
+
+class Lama2Settings(ModelSettings):
+    url = "https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGML/resolve/main/llama-2-7b-chat.ggmlv3.q4_0.bin"
+    name = "llama-2-7b-chat.ggmlv3.q4_0.bin"
+
+
+SUPPORTED_MODELS = {
+    "wizard": WizardSettings,
+    "lama": Lama2Settings,
+}
+
+
+def get_model_setting(model_name: str):
+    model_settings = SUPPORTED_MODELS.get(model_name)
+
+    # validate input
+    if model_settings is None:
+        raise KeyError(model_name + " is a not supported model")
+
+    return model_settings
+
+
+def auto_download(model_settings: ModelSettings, download_path: str) -> None:
+    """
+    Downloads a model file based on the provided name and saves it to the specified path.
+
+    Args:
+        model_settings (ModelSettings): The settings of the model to download.
+        download_path (str): The path where the downloaded model file will be saved.
+
+    Returns:
+        None
+
+    Raises:
+        Any exceptions raised during the download process will be caught and printed, but not re-raised.
+
+    This function fetches model settings using the provided name, including the model's URL, and then downloads
+    the model file from the URL. The download is done in chunks, and a progress bar is displayed to visualize
+    the download process.
+
+    """
+    model_name = model_settings.name
+    url = model_settings.url
+
+    if not os.path.exists(download_path):
+
+        # send a GET request to the URL to download the file.
+        # Stream it while downloading, since the file is large
+
+        try:
+            response = requests.get(url, stream=True)
+            # open the file in binary mode and write the contents of the response
+            # in chunks.
+            with open(download_path, 'wb') as f:
+                for chunk in tqdm(response.iter_content(chunk_size=8912)):
+                    if chunk:
+                        f.write(chunk)
+
+        except Exception as e:
+            print(f"=> Download Failed. Error: {e}")
+            return
+
+        print(f"=> Model: {model_name} downloaded successfully 🥳")
 
 
 def load_gpt4all(model_path: str, n_threads: int = 4, streaming: bool = True, verbose: bool = True) -> GPT4All:
@@ -17,12 +89,6 @@ def load_gpt4all(model_path: str, n_threads: int = 4, streaming: bool = True, ve
     Loads the GPT4All model using the LangChain library.
 
     The LangChain library utilizes the `PyLLaMAcpp` module to load the converted `GPT4All` weights.
-
-    Notes:
-    - n_ctx=2048 is the maximum context window size for `gpt4all-lora-quantized-ggml.bin`.
-      Refer to the following links for more information:
-        - https://github.com/nomic-ai/gpt4all/issues/668#issuecomment-1556353537
-        - https://github.com/hwchase17/langchain/issues/2404#issuecomment-1496615372
 
     Parameters:
     ----------

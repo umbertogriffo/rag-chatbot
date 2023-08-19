@@ -5,7 +5,7 @@ from pathlib import Path
 from conversation.prompts import CONDENSE_QUESTION_PROMPT, QA_PROMPT
 from conversation.question_answer import QuestionAndAnswer, QuestionAndAnswerConfig
 from helpers.log import get_logger
-from helpers.model import load_gpt4all
+from helpers.model import load_gpt4all, SUPPORTED_MODELS, get_model_setting, auto_download
 from memory.vector_memory import VectorMemory, initialize_embedding
 from rich.console import Console
 from rich.markdown import Markdown
@@ -44,6 +44,21 @@ def run_chatbot_loop(qa: QuestionAndAnswer) -> None:
 
 def get_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="AI Chatbot")
+
+    model_list = list(SUPPORTED_MODELS.keys())
+    default_model = list(SUPPORTED_MODELS.keys())[1]
+
+    parser.add_argument(
+        "--model",
+        type=str,
+        choices=model_list,
+        help=f"Model to be used. Defaults to {default_model}.",
+        required=False,
+        const=default_model,
+        nargs='?',
+        default=default_model,
+    )
+
     parser.add_argument(
         "--k",
         type=int,
@@ -64,10 +79,15 @@ def get_args() -> argparse.Namespace:
 
 
 def main(parameters):
+    model_settings = get_model_setting(parameters.model)
+
     root_folder = Path(__file__).resolve().parent.parent
-    model_path = root_folder / "models" / "ggml-wizardLM-7B.q4_2.bin"
+    model_folder = root_folder / "models"
+    model_path = model_folder / model_settings.name
+
     vector_store_path = root_folder / "vector_store" / "docs_index"
 
+    auto_download(model_settings, model_path)
     llm = load_gpt4all(str(model_path), parameters.n_threads)
     embedding = initialize_embedding()
 

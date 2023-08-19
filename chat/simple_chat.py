@@ -3,7 +3,7 @@ import sys
 from pathlib import Path
 
 from helpers.log import get_logger
-from helpers.model import load_gpt4all, Model
+from helpers.model import load_gpt4all, SUPPORTED_MODELS, get_model_setting, auto_download
 from langchain import LLMChain, PromptTemplate
 
 from rich.console import Console
@@ -21,15 +21,18 @@ Answer:"""
 def get_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="AI Software Engineer Chatbot")
 
+    model_list = list(SUPPORTED_MODELS.keys())
+    default_model = list(SUPPORTED_MODELS.keys())[1]
+
     parser.add_argument(
         "--model",
-        type=Model,
-        choices=list(Model),
-        help=f"Model to be used. Defaults to {Model.wizard}.",
+        type=str,
+        choices=model_list,
+        help=f"Model to be used. Defaults to {default_model}.",
         required=False,
-        const=Model.wizard,
+        const=default_model,
         nargs='?',
-        default=Model.wizard,
+        default=default_model,
     )
 
     parser.add_argument(
@@ -44,8 +47,14 @@ def get_args() -> argparse.Namespace:
 
 
 def main(parameters):
+    model_settings = get_model_setting(parameters.model)
+
     root_folder = Path(__file__).resolve().parent.parent
-    model_path = root_folder / "models" / parameters.model.value
+    model_folder = root_folder / "models"
+    Path(model_folder).parent.mkdir(parents=True, exist_ok=True)
+    model_path = model_folder / model_settings.name
+
+    auto_download(model_settings, model_path)
 
     console = Console(color_system="windows")
 

@@ -75,38 +75,14 @@ Still, running the mentioned architecture on your local PC is impossible due to 
 parameters. The main contribution of `GPT4All` models is the ability to run them on a `CPU`.
 The authors applied `Quantization and 4-bit precision` using the [GGML](https://github.com/ggerganov/ggml) format.
 Basically, the model uses fewer bits to represent the numbers.
-
-### Use the gpt4all-lora-quantized
-
-The first step is to download the [weights](https://the-eye.eu/public/AI/models/nomic-ai/gpt4all/) and use a script 
-from the [LLaMAcpp](https://github.com/ggerganov/llama.cpp) repository to convert the weights from the old format to 
-the new one (ggml-formatted).
-It is a required step; otherwise, the `LangChain` library will not identify the checkpoint file.
-Use the [download_model.py](download_model.py) Python script to breaks down the file into multiple chunks and downloads 
-them gradually. This process might take a while since the file size is 4GB.
-The `local_path` variable is the destination folder.
 `LangChain` library uses [PyLLaMAcpp](https://github.com/abdeladim-s/pyllamacpp) module (`pyllamacpp==1.0.7`) to load 
 the converted `GPT4All` weights.
 
 > Note: The Quantized model has been tested only with `langchain = "^0.0.215"`
 
-```shell
-python download_model.py
-```
-
-Transform the downloaded file to the latest format as written in the LLaMAcpp [repo](https://github.com/ggerganov/llama.cpp#using-gpt4all):
-```shell
-git clone https://github.com/ggerganov/llama.cpp.git
-python llama.cpp/convert.py ./models/gpt4all-lora-quantized-ggml.bin
-rm -rf llama.cpp
-```
-
-### Use the WizardLM's WizardLM 7B GGML
-
-The [WizardLM's WizardLM 7B GGML](https://huggingface.co/TheBloke/wizardLM-7B-GGML) gives better answers and is also 
-quite fast. To use it you need to download the [ggml-wizardLM-7B.q4_2.bin](http://gpt4all.io/models/ggml-wizardLM-7B.q4_2.bin) 
-from the GPT4ALL website with the [download_model.py](download_model.py) and use`langchain = "^0.0.215"` to have also 
-backward compatibility with the `gpt4all-lora-quantized`.
+### Supported Models
+* [WizardLM's WizardLM 7B GGML](https://huggingface.co/TheBloke/wizardLM-7B-GGML)
+* [Llama-2-7B-Chat-GGML](https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGML)
 
 ## Example Data
 
