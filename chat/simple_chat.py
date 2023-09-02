@@ -3,20 +3,19 @@ import sys
 from pathlib import Path
 
 from helpers.log import get_logger
-from helpers.model import load_gpt4all, SUPPORTED_MODELS, get_model_setting, auto_download
+from helpers.model import (
+    SUPPORTED_MODELS,
+    auto_download,
+    get_model_setting,
+    load_gpt4all,
+)
+from helpers.reader import read_input
 from langchain import LLMChain, PromptTemplate
-
+from pyfiglet import Figlet
 from rich.console import Console
 from rich.markdown import Markdown
-from pyfiglet import Figlet
 
 logger = get_logger(__name__)
-
-template = """
-You are an exceptional Senior Software Engineer that gently answer technical questions.
----
-Question: {question}
-Answer:"""
 
 
 def get_args() -> argparse.Namespace:
@@ -32,7 +31,7 @@ def get_args() -> argparse.Namespace:
         help=f"Model to be used. Defaults to {default_model}.",
         required=False,
         const=default_model,
-        nargs='?',
+        nargs="?",
         default=default_model,
     )
 
@@ -59,14 +58,17 @@ def main(parameters):
 
     console = Console(color_system="windows")
 
-    llm = load_gpt4all(str(model_path),
-                       n_threads=parameters.n_threads,
-                       streaming=True,
-                       verbose=True)
+    llm = load_gpt4all(
+        str(model_path),
+        answer_prefix_tokens=model_settings.answer_prefix_tokens,
+        n_threads=parameters.n_threads,
+        streaming=True,
+        verbose=True,
+    )
 
     # Chatbot loop
-    custom_fig = Figlet(font='graffiti')
-    console.print(custom_fig.renderText('ChatBot'))
+    custom_fig = Figlet(font="graffiti")
+    console.print(custom_fig.renderText("ChatBot"))
     console.print(
         "[bold magenta]Hi! 👋, I'm your friendly chatbot 🦜 here to assist you. "
         "\nHow can I help you today? [/bold "
@@ -74,13 +76,13 @@ def main(parameters):
     )
     while True:
         console.print("[bold green]Please enter your question:[/bold green]")
-        question = input("")
+        question = read_input()
 
         if question.lower() == "exit":
             break
 
         prompt = PromptTemplate(
-            template=template, input_variables=["question"]
+            template=model_settings.template, input_variables=["question"]
         )
         llm_chain = LLMChain(prompt=prompt, llm=llm)
 

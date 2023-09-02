@@ -4,7 +4,6 @@ from typing import Union
 
 
 def get_logger(name: str, level: Union[int, str] = logging.INFO):
-
     logger = logging.getLogger(name)
     logger.setLevel(level)
 

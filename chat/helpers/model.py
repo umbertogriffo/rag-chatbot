@@ -1,11 +1,11 @@
-from abc import ABC
-from langchain.callbacks import FinalStreamingStdOutCallbackHandler
-from langchain.llms import GPT4All
 import os
+from abc import ABC
+from typing import List
 
 import requests
+from langchain.callbacks import FinalStreamingStdOutCallbackHandler
+from langchain.llms import GPT4All
 from tqdm import tqdm
-
 
 # Check https://github.com/nomic-ai/gpt4all for the latest models.
 
@@ -18,16 +18,38 @@ class ModelSettings(ABC):
 class WizardSettings(ModelSettings):
     url = "http://gpt4all.io/models/ggml-wizardLM-7B.q4_2.bin"
     name = "ggml-wizardLM-7B.q4_2.bin"
+    template = """
+    You are an exceptional Senior Software Engineer that gently answer technical questions.
+    ---
+    Question: {question}
+    Answer:"""
+    answer_prefix_tokens = ["The", "answer", ":"]
 
 
-class Lama2Settings(ModelSettings):
+class Llama2Settings(ModelSettings):
     url = "https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGML/resolve/main/llama-2-7b-chat.ggmlv3.q4_0.bin"
     name = "llama-2-7b-chat.ggmlv3.q4_0.bin"
+    template = """
+    <s>[INST] <<SYS>>
+    You are an exceptional Senior Software Engineer that gently answer technical questions.
+    <</SYS>>
+    
+    {question} [/INST]</s>"""
+    answer_prefix_tokens = ["", " "]
+
+
+class CodeLlamaSettings(ModelSettings):
+    url = "https://huggingface.co/TheBloke/CodeLlama-7B-Instruct-GGML/resolve/main/codellama-7b-instruct.ggmlv3.Q4_0.bin"
+    name = "codellama-7b-instruct.ggmlv3.Q4_0.bin"
+    template = """
+    [INST] {question} [/INST]"""
+    answer_prefix_tokens = ["", " "]
 
 
 SUPPORTED_MODELS = {
     "wizard": WizardSettings,
-    "lama": Lama2Settings,
+    "llama2": Llama2Settings,
+    "codellama": CodeLlamaSettings,
 }
 
 
@@ -64,7 +86,6 @@ def auto_download(model_settings: ModelSettings, download_path: str) -> None:
     url = model_settings.url
 
     if not os.path.exists(download_path):
-
         # send a GET request to the URL to download the file.
         # Stream it while downloading, since the file is large
 
@@ -72,7 +93,7 @@ def auto_download(model_settings: ModelSettings, download_path: str) -> None:
             response = requests.get(url, stream=True)
             # open the file in binary mode and write the contents of the response
             # in chunks.
-            with open(download_path, 'wb') as f:
+            with open(download_path, "wb") as f:
                 for chunk in tqdm(response.iter_content(chunk_size=8912)):
                     if chunk:
                         f.write(chunk)
@@ -84,7 +105,13 @@ def auto_download(model_settings: ModelSettings, download_path: str) -> None:
         print(f"=> Model: {model_name} downloaded successfully 🥳")
 
 
-def load_gpt4all(model_path: str, n_threads: int = 4, streaming: bool = True, verbose: bool = True) -> GPT4All:
+def load_gpt4all(
+    model_path: str,
+    answer_prefix_tokens: List[str],
+    n_threads: int = 4,
+    streaming: bool = True,
+    verbose: bool = True,
+) -> GPT4All:
     """
     Loads the GPT4All model using the LangChain library.
 
@@ -94,6 +121,9 @@ def load_gpt4all(model_path: str, n_threads: int = 4, streaming: bool = True, ve
     ----------
     model_path : str
         The path to the GPT4All model.
+
+    answer_prefix_tokens: List[str]
+        Token sequence that prefixes the anwer.
 
     n_threads : int, optional
         The number of threads to use (default is 4).
@@ -110,7 +140,9 @@ def load_gpt4all(model_path: str, n_threads: int = 4, streaming: bool = True, ve
 
     """
     # callbacks =[StreamingStdOutCallbackHandler()]
-    callbacks = [FinalStreamingStdOutCallbackHandler(answer_prefix_tokens=["The", "answer", ":"])]
+    callbacks = [
+        FinalStreamingStdOutCallbackHandler(answer_prefix_tokens=answer_prefix_tokens)
+    ]
     llm = GPT4All(
         model=model_path,
         streaming=streaming,
