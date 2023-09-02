@@ -82,12 +82,12 @@ the converted `GPT4All` weights.
 ### Supported Models
 * [WizardLM's WizardLM 7B GGML](https://huggingface.co/TheBloke/wizardLM-7B-GGML)
 
-### WIP
+#### WIP
 * [Llama2 7B Chat GGML](https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGML)
   * Supported for the simple chat only.
     * [Llama 2 loaded, but seems dumber?](https://github.com/nomic-ai/gpt4all/issues/1251)
-* Code Llama:
-  * https://www.reddit.com/r/LocalLLaMA/comments/1623yj4/codellama_prompts/
+* [CodeLlama 7B Instruct GGML](https://huggingface.co/TheBloke/CodeLlama-7B-Instruct-GGML):
+  * Having issue with the prompt template - https://www.reddit.com/r/LocalLLaMA/comments/1623yj4/codellama_prompts/
 
 ## Example Data
 
