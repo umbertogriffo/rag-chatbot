@@ -84,7 +84,6 @@ the converted `GPT4All` weights.
 ### Supported Models
 * [WizardLM's WizardLM 7B GGML](https://huggingface.co/TheBloke/wizardLM-7B-GGML)
 * [Llama2 7B Chat GGML](https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGML)
-  * Supported for the simple chat only.
 
 ## Example Data
 
@@ -138,3 +137,4 @@ python chat/chatbot_memory_streaming.py --k 1 --n-threads 4
   * [pyllamacpp](https://github.com/abdeladim-s/pyllamacpp)
   * [llama-cpp-python](https://github.com/abetlen/llama-cpp-python)
   * [api-for-open-llm](https://github.com/xusenlinzy/api-for-open-llm)
+  * [PrivateDocBot](https://github.com/Abhi5h3k/PrivateDocBot)
