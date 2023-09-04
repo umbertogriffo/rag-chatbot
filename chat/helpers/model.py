@@ -168,7 +168,7 @@ def load_gpt4all(
     llm = GPT4All(
         model=model_path,
         streaming=streaming,
-        use_mlock=False,
+        backend="llama",
         f16_kv=True,
         callbacks=callbacks,
         n_ctx=n_ctx,

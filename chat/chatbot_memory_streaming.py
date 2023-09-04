@@ -3,7 +3,7 @@ import sys
 from pathlib import Path
 
 from conversation.prompts import CONDENSE_QUESTION_PROMPT, QA_PROMPT
-from conversation.question_answer import QuestionAndAnswer, QuestionAndAnswerConfig
+from conversation.question_answer import QuestionAndAnswer, QuestionAndAnswerConfig, generate_source_links
 from helpers.log import get_logger
 from helpers.model import (
     SUPPORTED_MODELS,
@@ -41,9 +41,15 @@ def run_chatbot_loop(qa: QuestionAndAnswer) -> None:
         # Generate the answer using the ConversationalRetrievalChain
         result = qa.generate_answer(question, chat_history)
         answer = result["answer"]
+        source_links = generate_source_links(result)
 
         # Update the history
         chat_history.append((question, answer))
+
+        console.print("\n[bold magenta]Sources:[/bold magenta]")
+        if source_links:
+            for link in source_links:
+                console.print(Markdown(f"• {link}"))
 
         console.print("\n[bold magenta]Formatted Answer:[/bold magenta]")
         if answer:

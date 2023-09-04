@@ -1,3 +1,4 @@
+import os
 from dataclasses import dataclass
 from typing import List
 
@@ -46,6 +47,40 @@ class QuestionAndAnswerConfig:
     verbose: bool = False
 
 
+def generate_source_links(results: dict) -> List[str]:
+    """
+    Generate source links based on a dictionary of results.
+
+    Args:
+        results (dict): A dictionary containing source document information.
+
+    Returns:
+        list: A list of unique source links formatted as "<file_name | file_path>".
+
+    Example:
+        results = {
+            "source_documents": [
+                {
+                    "metadata": {
+                        "source": "/path/to/source/file.txt"
+                    }
+                },
+                # Add more source documents as needed
+            ]
+        }
+        links = generate_source_links(results)
+        # Sample output: ["<file.txt | /path/to/source/file.txt>"]
+    """
+    links = []
+    source_documents = results["source_documents"]
+    for source in source_documents:
+        file_path = source.metadata["source"]
+        file_name = os.path.basename(file_path).replace(" ", "-").lower()
+        links.append(f"<{file_name} | {file_path}>")
+    links = list(set(links))
+    return links
+
+
 class QuestionAndAnswer:
     """
     Question and Answer system using ConversationalRetrievalChain.
@@ -74,6 +109,7 @@ class QuestionAndAnswer:
             combine_docs_chain=doc_chain,
             question_generator=question_generator,
             max_tokens_limit=config.max_tokens_limit,
+            return_source_documents=True,
             verbose=config.verbose,
         )
 
