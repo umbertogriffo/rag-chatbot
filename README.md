@@ -137,3 +137,4 @@ python chat/chatbot_memory_streaming.py --k 1 --n-threads 4
   * [llama.cpp](https://github.com/ggerganov/llama.cpp)
   * [pyllamacpp](https://github.com/abdeladim-s/pyllamacpp)
   * [llama-cpp-python](https://github.com/abetlen/llama-cpp-python)
+  * [api-for-open-llm](https://github.com/xusenlinzy/api-for-open-llm)
