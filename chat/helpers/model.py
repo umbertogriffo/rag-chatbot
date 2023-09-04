@@ -3,9 +3,10 @@ from abc import ABC
 from typing import List
 
 import requests
-from langchain.callbacks import FinalStreamingStdOutCallbackHandler
+from langchain.callbacks import FinalStreamingStdOutCallbackHandler, StreamingStdOutCallbackHandler
 from langchain.llms import GPT4All
 from tqdm import tqdm
+
 
 # Check https://github.com/nomic-ai/gpt4all for the latest models.
 
@@ -13,6 +14,12 @@ from tqdm import tqdm
 class ModelSettings(ABC):
     url: str
     name: str
+    template: str
+    n_ctx: int = 512
+    n_predict: int = 256
+    temperature: float = 0.8
+    repeat_penalty: float = 1.3
+    answer_prefix_tokens: List[str]
 
 
 class WizardSettings(ModelSettings):
@@ -23,6 +30,10 @@ class WizardSettings(ModelSettings):
     ---
     Question: {question}
     Answer:"""
+    n_ctx = 2048
+    n_predict = 512
+    temperature: float = 0.7
+    repeat_penalty: float = 1.1
     answer_prefix_tokens = ["The", "answer", ":"]
 
 
@@ -35,21 +46,16 @@ class Llama2Settings(ModelSettings):
     <</SYS>>
     
     {question} [/INST]</s>"""
-    answer_prefix_tokens = ["", " "]
-
-
-class CodeLlamaSettings(ModelSettings):
-    url = "https://huggingface.co/TheBloke/CodeLlama-7B-Instruct-GGML/resolve/main/codellama-7b-instruct.ggmlv3.Q4_0.bin"
-    name = "codellama-7b-instruct.ggmlv3.Q4_0.bin"
-    template = """
-    [INST] {question} [/INST]"""
-    answer_prefix_tokens = ["", " "]
+    n_ctx = 2048
+    n_predict = 512
+    temperature: float = 0.7
+    repeat_penalty: float = 1.18
+    answer_prefix_tokens = [" "]
 
 
 SUPPORTED_MODELS = {
     "wizard": WizardSettings,
     "llama2": Llama2Settings,
-    "codellama": CodeLlamaSettings,
 }
 
 
@@ -106,11 +112,15 @@ def auto_download(model_settings: ModelSettings, download_path: str) -> None:
 
 
 def load_gpt4all(
-    model_path: str,
-    answer_prefix_tokens: List[str],
-    n_threads: int = 4,
-    streaming: bool = True,
-    verbose: bool = True,
+        model_path: str,
+        answer_prefix_tokens: List[str],
+        n_ctx: int,
+        n_predict: int,
+        temperature: float,
+        repeat_penalty: float,
+        n_threads: int = 4,
+        streaming: bool = True,
+        verbose: bool = True,
 ) -> GPT4All:
     """
     Loads the GPT4All model using the LangChain library.
@@ -124,6 +134,18 @@ def load_gpt4all(
 
     answer_prefix_tokens: List[str]
         Token sequence that prefixes the anwer.
+
+    n_ctx: int
+        Token context window.
+
+    n_predict: int
+        The maximum number of tokens to generate.
+
+    temperature : float
+        The temperature to use for sampling.
+
+    repeat_penalty : float
+        The penalty to apply to repeated tokens.
 
     n_threads : int, optional
         The number of threads to use (default is 4).
@@ -139,20 +161,22 @@ def load_gpt4all(
         The loaded GPT4All model.
 
     """
-    # callbacks =[StreamingStdOutCallbackHandler()]
-    callbacks = [
-        FinalStreamingStdOutCallbackHandler(answer_prefix_tokens=answer_prefix_tokens)
-    ]
+    callbacks = [StreamingStdOutCallbackHandler()]
+    # callbacks = [
+    #     FinalStreamingStdOutCallbackHandler(answer_prefix_tokens=answer_prefix_tokens)
+    # ]
     llm = GPT4All(
         model=model_path,
         streaming=streaming,
         use_mlock=False,
         f16_kv=True,
         callbacks=callbacks,
-        n_ctx=512,
+        n_ctx=n_ctx,
         n_threads=n_threads,
         n_batch=1,
-        n_predict=256,
+        n_predict=n_predict,
+        temp=temperature,
+        repeat_penalty=repeat_penalty,
         verbose=verbose,
     )
     return llm

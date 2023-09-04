@@ -101,6 +101,10 @@ def main(parameters):
     llm = load_gpt4all(
         str(model_path),
         answer_prefix_tokens=model_settings.answer_prefix_tokens,
+        n_ctx=model_settings.n_ctx,
+        n_predict=model_settings.n_predict,
+        temperature=model_settings.temperature,
+        repeat_penalty=model_settings.repeat_penalty,
         n_threads=parameters.n_threads,
     )
     embedding = initialize_embedding()

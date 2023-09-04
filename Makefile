@@ -12,6 +12,10 @@ install:
 	echo "Installing sentence-transformers with pip to avoid poetry's issues in installing torch..."
 	. .venv/bin/activate && pip3 install sentence-transformers~=2.2.2
 
+update:
+	poetry lock --no-update
+	poetry install
+
 tidy:
 	poetry run isort --skip=.venv .
 	poetry run black --exclude=.venv .

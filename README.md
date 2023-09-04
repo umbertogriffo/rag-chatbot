@@ -59,6 +59,8 @@ To easily install the dependencies I created a make file.
   * Use It to check that `which pip3` and `which python3` points to the right path.
 * Install: ```make install```
   * Creates an environment and installs all dependencies.
+* Update: ```make update```
+  * Update an environment and installs all updated dependencies.
 * Tidy up the code: ```make tidy```
   * Run Isort, Black and Flake8.
 * Clean: ```make clean```
@@ -81,13 +83,8 @@ the converted `GPT4All` weights.
 
 ### Supported Models
 * [WizardLM's WizardLM 7B GGML](https://huggingface.co/TheBloke/wizardLM-7B-GGML)
-
-#### WIP
 * [Llama2 7B Chat GGML](https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGML)
   * Supported for the simple chat only.
-    * [Llama 2 loaded, but seems dumber?](https://github.com/nomic-ai/gpt4all/issues/1251)
-* [CodeLlama 7B Instruct GGML](https://huggingface.co/TheBloke/CodeLlama-7B-Instruct-GGML):
-  * Having issue with the prompt template - https://www.reddit.com/r/LocalLLaMA/comments/1623yj4/codellama_prompts/
 
 ## Example Data
 
