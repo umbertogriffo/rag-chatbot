@@ -3,10 +3,12 @@ from abc import ABC
 from typing import List
 
 import requests
-from langchain.callbacks import FinalStreamingStdOutCallbackHandler, StreamingStdOutCallbackHandler
+from langchain.callbacks import (
+    FinalStreamingStdOutCallbackHandler,
+    StreamingStdOutCallbackHandler,
+)
 from langchain.llms import GPT4All
 from tqdm import tqdm
-
 
 # Check https://github.com/nomic-ai/gpt4all for the latest models.
 
@@ -31,7 +33,7 @@ class WizardSettings(ModelSettings):
     Question: {question}
     Answer:"""
     n_ctx = 2048
-    n_predict = 512
+    n_predict = 256
     temperature: float = 0.7
     repeat_penalty: float = 1.1
     answer_prefix_tokens = ["The", "answer", ":"]
@@ -44,10 +46,9 @@ class Llama2Settings(ModelSettings):
     <s>[INST] <<SYS>>
     You are an exceptional Senior Software Engineer that gently answer technical questions.
     <</SYS>>
-    
     {question} [/INST]</s>"""
     n_ctx = 2048
-    n_predict = 512
+    n_predict = 256
     temperature: float = 0.7
     repeat_penalty: float = 1.18
     answer_prefix_tokens = [" "]
@@ -112,15 +113,15 @@ def auto_download(model_settings: ModelSettings, download_path: str) -> None:
 
 
 def load_gpt4all(
-        model_path: str,
-        answer_prefix_tokens: List[str],
-        n_ctx: int,
-        n_predict: int,
-        temperature: float,
-        repeat_penalty: float,
-        n_threads: int = 4,
-        streaming: bool = True,
-        verbose: bool = True,
+    model_path: str,
+    answer_prefix_tokens: List[str],
+    n_ctx: int,
+    n_predict: int,
+    temperature: float,
+    repeat_penalty: float,
+    n_threads: int = 4,
+    streaming: bool = True,
+    verbose: bool = True,
 ) -> GPT4All:
     """
     Loads the GPT4All model using the LangChain library.

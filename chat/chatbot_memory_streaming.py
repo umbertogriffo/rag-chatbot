@@ -3,7 +3,7 @@ import sys
 from pathlib import Path
 
 from conversation.prompts import CONDENSE_QUESTION_PROMPT, QA_PROMPT
-from conversation.question_answer import QuestionAndAnswer, QuestionAndAnswerConfig, generate_source_links
+from conversation.question_answer import QuestionAndAnswer, QuestionAndAnswerConfig
 from helpers.log import get_logger
 from helpers.model import (
     SUPPORTED_MODELS,
@@ -29,22 +29,16 @@ def run_chatbot_loop(qa: QuestionAndAnswer) -> None:
         "\nHow can I help you today? [/bold "
         "magenta]Type 'exit' to stop."
     )
-    chat_history = []
+
     while True:
         console.print("[bold green]Please enter your question:[/bold green]")
         question = read_input()
 
         if question.lower() == "exit":
             break
-        logger.info(f"question: {question}, chat_history: {chat_history}")
+        logger.info(f"question: {question}, chat_history: {qa.get_chat_history()}")
 
-        # Generate the answer using the ConversationalRetrievalChain
-        result = qa.generate_answer(question, chat_history)
-        answer = result["answer"]
-        source_links = generate_source_links(result)
-
-        # Update the history
-        chat_history.append((question, answer))
+        answer, source_links = qa.answer(question)
 
         console.print("\n[bold magenta]Sources:[/bold magenta]")
         if source_links:
