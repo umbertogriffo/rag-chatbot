@@ -60,6 +60,10 @@ SUPPORTED_MODELS = {
 }
 
 
+def get_models():
+    return list(SUPPORTED_MODELS.keys())
+
+
 def get_model_setting(model_name: str):
     model_settings = SUPPORTED_MODELS.get(model_name)
 

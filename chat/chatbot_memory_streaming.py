@@ -6,10 +6,9 @@ from conversation.prompts import CONDENSE_QUESTION_PROMPT, QA_PROMPT
 from conversation.question_answer import QuestionAndAnswer, QuestionAndAnswerConfig
 from helpers.log import get_logger
 from helpers.model import (
-    SUPPORTED_MODELS,
     auto_download,
     get_model_setting,
-    load_gpt4all,
+    load_gpt4all, get_models,
 )
 from helpers.reader import read_input
 from memory.vector_memory import VectorMemory, initialize_embedding
@@ -55,8 +54,8 @@ def run_chatbot_loop(qa: QuestionAndAnswer) -> None:
 def get_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="AI Chatbot")
 
-    model_list = list(SUPPORTED_MODELS.keys())
-    default_model = list(SUPPORTED_MODELS.keys())[0]
+    model_list = get_models()
+    default_model = model_list[0]
 
     parser.add_argument(
         "--model",

@@ -4,10 +4,9 @@ from pathlib import Path
 
 from helpers.log import get_logger
 from helpers.model import (
-    SUPPORTED_MODELS,
     auto_download,
     get_model_setting,
-    load_gpt4all,
+    load_gpt4all, get_models,
 )
 from helpers.reader import read_input
 from langchain import LLMChain, PromptTemplate
@@ -21,8 +20,8 @@ logger = get_logger(__name__)
 def get_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="AI Software Engineer Chatbot")
 
-    model_list = list(SUPPORTED_MODELS.keys())
-    default_model = list(SUPPORTED_MODELS.keys())[0]
+    model_list = get_models()
+    default_model = model_list[0]
 
     parser.add_argument(
         "--model",
