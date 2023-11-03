@@ -127,6 +127,7 @@ python chat/chatbot_memory_streaming.py --k 1 --n-threads 4
     * uses `pyllamacpp`
   * [Llama-cpp](https://python.langchain.com/docs/modules/model_io/models/llms/integrations/llamacpp)
     * uses `llama-cpp-python`
+  * [C Transformers](https://python.langchain.com/docs/integrations/llms/ctransformers.html)
 * Embeddings:
   * [all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2)
     * This is a `sentence-transformers` model: It maps sentences & paragraphs to a 384 dimensional dense vector space and can be used for tasks like clustering or semantic search.
@@ -136,5 +137,7 @@ python chat/chatbot_memory_streaming.py --k 1 --n-threads 4
   * [llama.cpp](https://github.com/ggerganov/llama.cpp)
   * [pyllamacpp](https://github.com/abdeladim-s/pyllamacpp)
   * [llama-cpp-python](https://github.com/abetlen/llama-cpp-python)
+  * [ctransformers](https://github.com/marella/ctransformers)
+    * Python bindings for the Transformer models implemented in C/C++ using GGML/GGUF library.
   * [api-for-open-llm](https://github.com/xusenlinzy/api-for-open-llm)
   * [PrivateDocBot](https://github.com/Abhi5h3k/PrivateDocBot)
