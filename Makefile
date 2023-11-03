@@ -9,7 +9,7 @@ install:
 	mkdir -p .venv
 	poetry config virtualenvs.in-project true
 	poetry install
-	echo "Installing sentence-transformers with pip to avoid poetry's issues in installing torch..."
+	echo "Installing sentence-transformers with pip to avoid poetry's issues in installing torch... (it doesn't install CUDA dependencies)"
 	. .venv/bin/activate && pip3 install sentence-transformers~=2.2.2
 
 update:
