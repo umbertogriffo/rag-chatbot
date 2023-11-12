@@ -2,9 +2,7 @@ import time
 from pathlib import Path
 
 from gpt4all import GPT4All
-
-from model import get_model_setting, get_generate_config
-from model import auto_download
+from model import auto_download, get_generate_config, get_model_setting
 
 root_folder = Path(__file__).resolve().parent.parent.parent
 model_folder = root_folder / "models"
@@ -16,11 +14,13 @@ model_path = model_folder / model_settings.name
 
 auto_download(model_settings, model_path)
 
-model = GPT4All(model_name=model_settings.name,
-                model_path=model_folder,
-                device=model_settings.device,
-                allow_download=False,
-                verbose=False)
+model = GPT4All(
+    model_name=model_settings.name,
+    model_path=model_folder,
+    device=model_settings.device,
+    allow_download=False,
+    verbose=False,
+)
 
 system_template = model_settings.system_template
 prompt_template = model_settings.prompt_template

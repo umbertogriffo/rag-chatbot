@@ -5,11 +5,7 @@ from pathlib import Path
 from conversation.prompts import CONDENSE_QUESTION_PROMPT, QA_PROMPT
 from conversation.question_answer import QuestionAndAnswer, QuestionAndAnswerConfig
 from helpers.log import get_logger
-from helpers.model import (
-    auto_download,
-    get_model_setting,
-    load_gpt4all, get_models,
-)
+from helpers.model import auto_download, get_model_setting, get_models, load_gpt4all
 from helpers.reader import read_input
 from memory.vector_memory import VectorMemory, initialize_embedding
 from pyfiglet import Figlet

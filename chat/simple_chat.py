@@ -3,11 +3,7 @@ import sys
 from pathlib import Path
 
 from helpers.log import get_logger
-from helpers.model import (
-    auto_download,
-    get_model_setting,
-    load_gpt4all, get_models,
-)
+from helpers.model import auto_download, get_model_setting, get_models, load_gpt4all
 from helpers.reader import read_input
 from langchain import LLMChain, PromptTemplate
 from pyfiglet import Figlet

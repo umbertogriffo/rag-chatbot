@@ -7,8 +7,8 @@ from typing import Optional
 import requests
 from tqdm import tqdm
 
-
 # Check https://github.com/nomic-ai/gpt4all for the latest models.
+
 
 @dataclass
 class GenerateConfig:
@@ -38,26 +38,27 @@ class ModelSettings(ABC):
 class WizardSettings(ModelSettings):
     url = "https://huggingface.co/TheBloke/WizardLM-13B-V1.2-GGUF/resolve/main/wizardlm-13b-v1.2.Q4_0.gguf"
     name = "wizardlm-13b-v1.2.Q4_0.gguf"
-    system_template = ("A chat between a curious user and an artificial intelligence assistant. "
-                       "The assistant gives helpful, detailed, and polite answers to the user's questions.")
-    prompt_template = 'USER: {0}\nASSISTANT: '
+    system_template = (
+        "A chat between a curious user and an artificial intelligence assistant. "
+        "The assistant gives helpful, detailed, and polite answers to the user's questions."
+    )
+    prompt_template = "USER: {0}\nASSISTANT: "
 
 
 class MistralSettings(ModelSettings):
     url = "https://huggingface.co/TheBloke/Mistral-7B-OpenOrca-GGUF/resolve/main/mistral-7b-openorca.Q4_0.gguf"
     name = "mistral-7b-openorca.Q4_0.gguf"
-    system_template = ("A chat between a curious user and an artificial intelligence assistant. "
-                       "The assistant gives helpful, detailed, and polite answers to the user's questions.")
+    system_template = (
+        "A chat between a curious user and an artificial intelligence assistant. "
+        "The assistant gives helpful, detailed, and polite answers to the user's questions."
+    )
     # https://github.com/nomic-ai/gpt4all/issues/1614
     prompt_template = """### Human:\n{0}\n### Assistant:"""
     # Nomic Vulkan support for Q4_0, Q6 quantizations in GGUF.
     device = "gpu"
 
 
-SUPPORTED_MODELS = {
-    "wizard": WizardSettings,
-    "mistral": MistralSettings
-}
+SUPPORTED_MODELS = {"wizard": WizardSettings, "mistral": MistralSettings}
 
 
 def get_models():

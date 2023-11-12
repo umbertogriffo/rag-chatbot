@@ -25,22 +25,24 @@ gpu_layers="The number of layers to run on GPU."
 # Set gpu_layers to the number of layers to offload to GPU.
 # Set to 0 if no GPU acceleration is available on your system.
 
-config = Config(top_k=40,
-                top_p=0.95,
-                temperature=0.8,
-                repetition_penalty=1.1,
-                last_n_tokens=64,
-                seed=-1,
-                batch_size=8,
-                threads=-1,
-                max_new_tokens=1024,
-                stop=None,
-                stream=False,
-                reset=True,
-                context_length=2048,
-                gpu_layers=50,
-                mmap=True,
-                mlock=False)
+config = Config(
+    top_k=40,
+    top_p=0.95,
+    temperature=0.8,
+    repetition_penalty=1.1,
+    last_n_tokens=64,
+    seed=-1,
+    batch_size=8,
+    threads=-1,
+    max_new_tokens=1024,
+    stop=None,
+    stream=False,
+    reset=True,
+    context_length=2048,
+    gpu_layers=50,
+    mmap=True,
+    mlock=False,
+)
 
 
 class ModelSettings(ABC):
@@ -53,8 +55,10 @@ class ModelSettings(ABC):
 class ZephyrSettings(ModelSettings):
     url = "https://huggingface.co/TheBloke/zephyr-7B-beta-GGUF/resolve/main/zephyr-7b-beta.Q4_K_M.gguf"
     name = "zephyr-7b-beta.Q4_K_M.gguf"
-    system_template = ("You are a helpful, respectful and honest assistant. "
-                       "Answer exactly in few words from the context.")
+    system_template = (
+        "You are a helpful, respectful and honest assistant. "
+        "Answer exactly in few words from the context."
+    )
     prompt_template = """<|system|> {system}
 Answer the question below from context below:
 </s>
@@ -79,10 +83,7 @@ class MistralSettings(ModelSettings):
 """
 
 
-SUPPORTED_MODELS = {
-    "zephyr": ZephyrSettings,
-    "mistral": MistralSettings
-}
+SUPPORTED_MODELS = {"zephyr": ZephyrSettings, "mistral": MistralSettings}
 
 
 def get_models():
