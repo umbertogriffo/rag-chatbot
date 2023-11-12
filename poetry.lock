@@ -1121,15 +1121,15 @@ wcwidth = ">=0.2.5"
 
 [[package]]
 name = "gpt4all"
-version = "0.3.5"
+version = "2.0.2"
 description = "Python bindings for GPT4All"
 category = "main"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "gpt4all-0.3.5-py3-none-macosx_10_9_universal2.whl", hash = "sha256:c45940ad95e72471ab0663ccffaedcde4d92f41fa24f90d0ca94fc503ac7fb71"},
-    {file = "gpt4all-0.3.5-py3-none-manylinux1_x86_64.whl", hash = "sha256:671e6a50ba20c75d9b03d41e3a8eff37c1fb33c818dda5961b4b3a1379c0ac40"},
-    {file = "gpt4all-0.3.5-py3-none-win_amd64.whl", hash = "sha256:4dd8f369a6219c16c4536e17e7a0f631213a240c88e7184db822831509745527"},
+    {file = "gpt4all-2.0.2-py3-none-macosx_10_15_universal2.whl", hash = "sha256:f18f348d21e2ce8e45dbf8334960670660b53f69a8e47a26bb7e64924e6ed130"},
+    {file = "gpt4all-2.0.2-py3-none-manylinux1_x86_64.whl", hash = "sha256:e4c19df94f45829565563017577b299c012ebed18ebea1d6df0273ef89c92a01"},
+    {file = "gpt4all-2.0.2-py3-none-win_amd64.whl", hash = "sha256:c09440bfb3463b9e278875fc726cf1f75d2a2b19bb73d97dde5e57b0b1f6e059"},
 ]
 
 [package.dependencies]
@@ -1137,7 +1137,7 @@ requests = "*"
 tqdm = "*"
 
 [package.extras]
-dev = ["mkautodoc", "mkdocs-jupyter", "mkdocs-material", "mkdocstrings[python]", "pytest", "setuptools", "twine", "wheel"]
+dev = ["black", "isort", "mkautodoc", "mkdocs-jupyter", "mkdocs-material", "mkdocstrings[python]", "pytest", "setuptools", "twine", "wheel"]
 
 [[package]]
 name = "greenlet"
@@ -4025,4 +4025,4 @@ cffi = ["cffi (>=1.11)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10.6"
-content-hash = "6f58c95e5dfeceaa43b2273442d48d074bee0f615aaede76198886d3978d6720"
+content-hash = "60e9a4d64cbe8c7965d8bd5f5ff5bd414c485959aaf57edb2f3068052f4a9eca"
