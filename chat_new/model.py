@@ -59,15 +59,11 @@ class ZephyrSettings(ModelSettings):
         mmap=True,
         mlock=False,
     )
-    system_template = (
-        "You are a helpful, respectful and honest assistant. "
-        "Answer exactly in few words from the context."
-    )
+    system_template = "You are a helpful, respectful and honest assistant. "
     prompt_template = """<|system|> {system}
-Answer the question below from context below:
+Answer the question below:
 </s>
 <|user|>
-{context}
 {question}</s>
 <|assistant|>
 """
@@ -192,11 +188,13 @@ class Model:
             context=context,
         )
 
-    def generate_output(self, prompt: str, max_new_tokens: int = 1000):
+    def generate_answer(self, prompt: str, max_new_tokens: int = 1000):
         inputs = self.tokenizer(text=prompt, return_tensors="pt").input_ids
         streamer = TextStreamer(tokenizer=self.tokenizer, skip_prompt=True)
         output = self.llm.generate(
             inputs, streamer=streamer, max_new_tokens=max_new_tokens
         )
 
-        return output
+        text = self.tokenizer.batch_decode(output[:, inputs.shape[1] :])[0]
+
+        return text
