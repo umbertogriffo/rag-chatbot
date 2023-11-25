@@ -4,7 +4,7 @@ from pathlib import Path
 
 import requests
 from ctransformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer, Config
-from exp_ctransformers.prompts import generate_prompt
+from exp_ctransformers.prompts import generate_prompt, generate_contextual_prompt
 from tqdm import tqdm
 from transformers import TextStreamer
 
@@ -34,6 +34,7 @@ class ModelSettings(ABC):
     model_type: str
     system_template: str
     prompt_template: str
+    qa_prompt: str
     config: Config
 
 
@@ -64,6 +65,17 @@ class ZephyrSettings(ModelSettings):
 Answer the question below:
 </s>
 <|user|>
+{question}</s>
+<|assistant|>
+"""
+    qa_prompt = """<|system|> {system}
+Context information is below.
+---------------------
+{context}
+---------------------
+</s>
+<|user|>
+Given the context information and not prior knowledge, answer the question below:
 {question}</s>
 <|assistant|>
 """
@@ -100,6 +112,19 @@ class MistralSettings(ModelSettings):
 <|im_start|>assistant
 <|im_start|>system
 """
+    qa_prompt = """<|im_start|>system
+{system}
+<|im_end|>
+<|im_start|>user
+Context information is below.
+---------------------
+{context}
+---------------------
+Given the context information and not prior knowledge, answer the question below:
+{question}<|im_end|>
+<|im_start|>assistant
+<|im_start|>system
+"""
 
 
 SUPPORTED_MODELS = {"zephyr": ZephyrSettings, "mistral": MistralSettings}
@@ -131,6 +156,7 @@ class Model:
         self.model_path = model_folder / self.model_settings.file_name
         self.prompt_template = self.model_settings.prompt_template
         self.system_template = self.model_settings.system_template
+        self.qa_prompt = self.model_settings.qa_prompt
 
         self._auto_download()
 
@@ -180,8 +206,15 @@ class Model:
 
             print(f"=> Model: {file_name} downloaded successfully 🥳")
 
-    def generate_prompt(self, question, context):
+    def generate_prompt(self, question):
         return generate_prompt(
+            template=self.prompt_template,
+            system=self.system_template,
+            question=question
+        )
+
+    def generate_contextual_prompt(self, question, context):
+        return generate_contextual_prompt(
             template=self.prompt_template,
             system=self.system_template,
             question=question,

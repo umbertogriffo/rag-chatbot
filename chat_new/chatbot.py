@@ -50,7 +50,7 @@ def run_chatbot_loop(llm):
         if question.lower() == "exit":
             break
 
-        prompt = llm.generate_prompt(question=question, context="")
+        prompt = llm.generate_prompt(question=question)
 
         console.print(f"\n[bold green]Question:[/bold green] {question}")
         console.print("\n[bold green]Answer:[/bold green]")
