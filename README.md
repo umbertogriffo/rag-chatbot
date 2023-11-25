@@ -128,6 +128,7 @@ python chat/chatbot_memory_streaming.py --k 1 --n-threads 4
   * [Llama-cpp](https://python.langchain.com/docs/modules/model_io/models/llms/integrations/llamacpp)
     * uses `llama-cpp-python`
   * [C Transformers](https://python.langchain.com/docs/integrations/llms/ctransformers.html)
+* [Building Response Synthesis from Scratch](https://gpt-index.readthedocs.io/en/latest/examples/low_level/response_synthesis.html#)
 * Embeddings:
   * [all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2)
     * This is a `sentence-transformers` model: It maps sentences & paragraphs to a 384 dimensional dense vector space and can be used for tasks like clustering or semantic search.

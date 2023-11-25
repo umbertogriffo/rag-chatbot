@@ -2,6 +2,7 @@ import argparse
 import sys
 from pathlib import Path
 
+from bot.model import get_models, get_model_setting, Model
 from helpers.log import get_logger
 from helpers.reader import read_input
 from memory.vector_memory import VectorMemory, initialize_embedding
@@ -9,7 +10,6 @@ from pyfiglet import Figlet
 from rich.console import Console
 from rich.markdown import Markdown
 
-from model import Model, get_models, get_model_setting
 
 logger = get_logger(__name__)
 

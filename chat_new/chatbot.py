@@ -2,13 +2,13 @@ import argparse
 import sys
 from pathlib import Path
 
+from bot.model import get_models, get_model_setting, Model
 from helpers.log import get_logger
 from helpers.reader import read_input
 from pyfiglet import Figlet
 from rich.console import Console
 from rich.markdown import Markdown
 
-from chat_new.model import Model, get_model_setting, get_models
 
 logger = get_logger(__name__)
 

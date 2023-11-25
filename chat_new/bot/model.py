@@ -215,7 +215,7 @@ class Model:
 
     def generate_contextual_prompt(self, question, context):
         return generate_contextual_prompt(
-            template=self.prompt_template,
+            template=self.qa_prompt,
             system=self.system_template,
             question=question,
             context=context,
@@ -223,11 +223,11 @@ class Model:
 
     def generate_answer(self, prompt: str, max_new_tokens: int = 1000):
         inputs = self.tokenizer(text=prompt, return_tensors="pt").input_ids
-        streamer = TextStreamer(tokenizer=self.tokenizer, skip_prompt=True)
+        streamer = TextStreamer(tokenizer=self.tokenizer, skip_prompt=False)
         output = self.llm.generate(
             inputs, streamer=streamer, max_new_tokens=max_new_tokens
         )
 
-        text = self.tokenizer.batch_decode(output[:, inputs.shape[1] :])[0]
+        text = self.tokenizer.batch_decode(output[:, inputs.shape[1]:])[0]
 
         return text
