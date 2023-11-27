@@ -12,12 +12,14 @@ logger = get_logger(__name__)
 
 def gui(llm):
     with gr.Blocks() as demo:
-        chatbot = gr.Chatbot(layout="bubble",
-                             height=800,
-                             show_copy_button=True)
-        msg = gr.Textbox(value="Create a regex to extract dates from logs in Python",
-                         max_lines=100,
-                         show_copy_button=True)
+        chatbot = gr.Chatbot(
+            layout="bubble",
+            height=800,
+            show_copy_button=True
+        )
+        msg = gr.Textbox(
+            show_copy_button=True
+        )
         clear = gr.Button("Clear")
 
         def user(user_message, history):
