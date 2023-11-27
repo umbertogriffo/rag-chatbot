@@ -4,9 +4,10 @@ from pathlib import Path
 
 import requests
 from ctransformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer, Config
-from exp_ctransformers.prompts import generate_prompt, generate_contextual_prompt
 from tqdm import tqdm
 from transformers import TextStreamer
+
+from bot.prompts import generate_prompt, generate_contextual_prompt, generate_cr_prompt
 
 
 class ModelSettings(ABC):
@@ -35,6 +36,7 @@ class ModelSettings(ABC):
     system_template: str
     prompt_template: str
     qa_prompt: str
+    refine_prompt: str
     config: Config
 
 
@@ -77,6 +79,21 @@ Context information is below.
 <|user|>
 Given the context information and not prior knowledge, answer the question below:
 {question}</s>
+<|assistant|>
+"""
+    refine_prompt = """<|system|> {system}
+The original query is as follows: {question}
+We have provided an existing answer: {existing_answer}
+We have the opportunity to refine the existing answer
+(only if needed) with some more context below.
+---------------------
+{context}
+---------------------
+</s>
+<|user|>
+Given the new context, refine the original answer to better answer the query.
+If the context isn't useful, return the original answer.
+Refined Answer:</s>
 <|assistant|>
 """
 
@@ -157,6 +174,7 @@ class Model:
         self.prompt_template = self.model_settings.prompt_template
         self.system_template = self.model_settings.system_template
         self.qa_prompt = self.model_settings.qa_prompt
+        self.refine_prompt = self.model_settings.refine_prompt
 
         self._auto_download()
 
@@ -221,11 +239,30 @@ class Model:
             context=context,
         )
 
-    def generate_answer(self, prompt: str, max_new_tokens: int = 1000):
+    def generate_cr_prompt(self, question, context, existing_answer):
+        return generate_cr_prompt(
+            template=self.refine_prompt,
+            system=self.system_template,
+            question=question,
+            context=context,
+            existing_answer=existing_answer
+        )
+
+    def generate_answer_streaming(self, prompt: str, skip_prompt: bool = True, max_new_tokens: int = 1000):
         inputs = self.tokenizer(text=prompt, return_tensors="pt").input_ids
-        streamer = TextStreamer(tokenizer=self.tokenizer, skip_prompt=False)
+        streamer = TextStreamer(tokenizer=self.tokenizer, skip_prompt=skip_prompt)
         output = self.llm.generate(
             inputs, streamer=streamer, max_new_tokens=max_new_tokens
+        )
+
+        text = self.tokenizer.batch_decode(output[:, inputs.shape[1]:])[0]
+
+        return text
+
+    def generate_answer(self, prompt: str, max_new_tokens: int = 1000):
+        inputs = self.tokenizer(text=prompt, return_tensors="pt").input_ids
+        output = self.llm.generate(
+            inputs, max_new_tokens=max_new_tokens
         )
 
         text = self.tokenizer.batch_decode(output[:, inputs.shape[1]:])[0]

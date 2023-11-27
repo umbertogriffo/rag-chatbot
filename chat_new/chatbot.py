@@ -1,5 +1,6 @@
 import argparse
 import sys
+import time
 from pathlib import Path
 
 from bot.model import get_models, get_model_setting, Model
@@ -33,7 +34,7 @@ def get_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def run_chatbot_loop(llm):
+def loop(llm):
     console = Console(color_system="windows")
     # Chatbot loop
     custom_fig = Figlet(font="graffiti")
@@ -50,14 +51,19 @@ def run_chatbot_loop(llm):
         if question.lower() == "exit":
             break
 
+        start_time = time.time()
+
         prompt = llm.generate_prompt(question=question)
 
         console.print(f"\n[bold green]Question:[/bold green] {question}")
         console.print("\n[bold green]Answer:[/bold green]")
 
-        answer = llm.generate_answer(prompt, max_new_tokens=1000)
+        answer = llm.generate_answer_streaming(prompt, max_new_tokens=1000)
         console.print("\n[bold magenta]Formatted Answer:[/bold magenta]")
         console.print(Markdown(answer))
+
+        took = time.time() - start_time
+        print(f"--- Took {took:.2f} seconds ---")
 
 
 def main(parameters):
@@ -68,7 +74,7 @@ def main(parameters):
     Path(model_folder).parent.mkdir(parents=True, exist_ok=True)
 
     llm = Model(model_folder, model_settings)
-    run_chatbot_loop(llm)
+    loop(llm)
 
 
 if __name__ == "__main__":

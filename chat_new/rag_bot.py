@@ -2,6 +2,7 @@ import argparse
 import sys
 from pathlib import Path
 
+from bot.conversation import generate_response_cr, generate_response_hs
 from bot.model import get_models, get_model_setting, Model
 from helpers.log import get_logger
 from helpers.reader import read_input
@@ -40,17 +41,17 @@ def get_args() -> argparse.Namespace:
     )
 
     parser.add_argument(
-        "--n-threads",
+        "--max-new-tokens",
         type=int,
-        help="Number of threads to use. Defaults to 4.",
+        help="The maximum number of new tokens to generate.. Defaults to 512.",
         required=False,
-        default=4,
+        default=512,
     )
 
     return parser.parse_args()
 
 
-def run_chatbot_loop(llm, index) -> None:
+def loop(llm, index, parameters) -> None:
     custom_fig = Figlet(font="graffiti")
     console = Console(color_system="windows")
     console.print(custom_fig.renderText("ChatBot"))
@@ -67,18 +68,22 @@ def run_chatbot_loop(llm, index) -> None:
         if question.lower() == "exit":
             break
 
-        docs = index.similarity_search(query=question, k=2)
+        contents = index.similarity_search(query=question, k=parameters.k)
 
         console.print("\n[bold magenta]Sources:[/bold magenta]")
-        for doc in docs:
+        sources = []
+        for content in contents:
+            sources.append(content.metadata.get('source', ''))
             # logger.info(doc.page_content)
-            console.print(Markdown(f"- {doc.metadata.get('source', '')}"))
+
+        for source in sources:
+            console.print(Markdown(f"- {source}"))
 
         console.print("\n[bold magenta]Answer:[/bold magenta]")
-        context = "\n\n".join([doc.page_content for doc in docs])
 
-        prompt = llm.generate_contextual_prompt(question=question, context=context)
-        answer = llm.generate_answer(prompt, max_new_tokens=1000)
+        answer, fmt_prompts = generate_response_cr(
+            contents, question, llm
+        )
 
         console.print("\n[bold magenta]Formatted Answer:[/bold magenta]")
         if answer:
@@ -101,7 +106,7 @@ def main(parameters):
     memory = VectorMemory(embedding=embedding)
     index = memory.load_memory_index(str(vector_store_path))
 
-    run_chatbot_loop(llm, index)
+    loop(llm, index, parameters)
 
 
 if __name__ == "__main__":
