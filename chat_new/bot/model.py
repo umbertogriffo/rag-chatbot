@@ -1,11 +1,13 @@
 import os
 from abc import ABC
 from pathlib import Path
+from typing import Optional
+from threading import Thread
 
 import requests
 from ctransformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer, Config
 from tqdm import tqdm
-from transformers import TextStreamer
+from transformers import TextStreamer, TextIteratorStreamer
 
 from bot.prompts import generate_prompt, generate_contextual_prompt, generate_cr_prompt
 
@@ -167,6 +169,7 @@ class Model:
     prompts and outputs.
     You can create an instance of this class and use its methods to handle the specific tasks you need.
     """
+    streamer: Optional[TextIteratorStreamer] = None
 
     def __init__(self, model_folder: Path, model_settings: ModelSettings):
         self.model_settings = model_settings
@@ -258,6 +261,15 @@ class Model:
         text = self.tokenizer.batch_decode(output[:, inputs.shape[1]:])[0]
 
         return text
+
+    def generate_answer_iterator_streamer(self, prompt: str, skip_prompt: bool = True, max_new_tokens: int = 1000):
+
+        self.streamer = TextIteratorStreamer(self.tokenizer, skip_prompt=skip_prompt)
+        inputs = self.tokenizer(prompt, return_tensors="pt")
+        kwargs = dict(input_ids=inputs["input_ids"], streamer=self.streamer, max_new_tokens=max_new_tokens)
+        thread = Thread(target=self.llm.generate, kwargs=kwargs)
+        thread.start()
+        return ""
 
     def generate_answer(self, prompt: str, max_new_tokens: int = 1000):
         inputs = self.tokenizer(text=prompt, return_tensors="pt").input_ids
