@@ -71,7 +71,8 @@ To easily install the dependencies I created a make file.
 * Clean: ```make clean```
   * Removes the environment and all cached files.
 
-> Note: Run `Install` as your init command (or after `Clean`).
+> [!NOTE]
+> Run `Install` as your init command (or after `Clean`).
 
 ## Using the Open-Source GPT4All's Models Locally
 
@@ -100,7 +101,13 @@ python chat/memory_builder.py --chunk-size 1000
 
 ## Run a simple Chatbot
 
-Type:
+To interact with a CLI type:
+```shell
+python chat/chatbot.py
+```
+![python-code.gif](images/python-code.gif)
+
+To interact with a GUI type:
 ```shell
 python chat/app.py
 ```
