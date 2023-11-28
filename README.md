@@ -117,7 +117,7 @@ python chat/app.py
 
 Run:
 ```shell
-python chat/rag_bot.py --k 1
+python chat/rag_bot.py
 ```
 
 ## References
