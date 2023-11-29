@@ -4,7 +4,8 @@ from pathlib import Path
 
 import gradio as gr
 
-from bot.model import get_model_setting, Model, get_models
+from bot.model import Model
+from bot.model_settings import get_models, get_model_setting
 from helpers.log import get_logger
 
 logger = get_logger(__name__)
@@ -27,8 +28,8 @@ def gui(llm):
 
         def bot(history):
             print("Question: ", history[-1][0])
-            prompt = llm.generate_prompt(question=history[-1][0])
-            bot_message = llm.generate_answer_iterator_streamer(prompt, max_new_tokens=1000)
+            prompt = llm.generate_qa_prompt(question=history[-1][0])
+            bot_message = llm.start_answer_iterator_streamer(prompt, max_new_tokens=1000)
             print("Response: ", bot_message)
             history[-1][1] = ""
             for character in llm.streamer:

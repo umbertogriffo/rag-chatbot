@@ -3,7 +3,8 @@ import sys
 import time
 from pathlib import Path
 
-from bot.model import get_models, get_model_setting, Model
+from bot.model import Model
+from bot.model_settings import get_models, get_model_setting
 from helpers.log import get_logger
 from helpers.reader import read_input
 from pyfiglet import Figlet
@@ -53,12 +54,12 @@ def loop(llm):
 
         start_time = time.time()
 
-        prompt = llm.generate_prompt(question=question)
+        prompt = llm.generate_qa_prompt(question=question)
 
         console.print(f"\n[bold green]Question:[/bold green] {question}")
         console.print("\n[bold green]Answer:[/bold green]")
 
-        answer = llm.generate_answer_streaming(prompt, max_new_tokens=1000)
+        answer = llm.stream_answer(prompt, max_new_tokens=1000)
         console.print("\n[bold magenta]Formatted Answer:[/bold magenta]")
         console.print(Markdown(answer))
 

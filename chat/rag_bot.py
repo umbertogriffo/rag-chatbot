@@ -2,11 +2,12 @@ import argparse
 import sys
 from pathlib import Path
 
-from bot.conversation import generate_response_cr, generate_response_hs
-from bot.model import get_models, get_model_setting, Model
+from bot.conversation import Conversation
+from bot.memory.vector_memory import initialize_embedding, VectorMemory
+from bot.model import Model
+from bot.model_settings import get_models, get_model_setting
 from helpers.log import get_logger
 from helpers.reader import read_input
-from memory.vector_memory import VectorMemory, initialize_embedding
 from pyfiglet import Figlet
 from rich.console import Console
 from rich.markdown import Markdown
@@ -51,7 +52,7 @@ def get_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def loop(llm, index, parameters) -> None:
+def loop(conversation, index, parameters) -> None:
     custom_fig = Figlet(font="graffiti")
     console = Console(color_system="windows")
     console.print(custom_fig.renderText("ChatBot"))
@@ -76,13 +77,14 @@ def loop(llm, index, parameters) -> None:
             sources.append(content.metadata.get('source', ''))
             # logger.info(doc.page_content)
 
+        sources = list(dict.fromkeys(sources))
         for source in sources:
             console.print(Markdown(f"- {source}"))
 
         console.print("\n[bold magenta]Answer:[/bold magenta]")
 
-        answer, fmt_prompts = generate_response_cr(
-            contents, question, llm
+        answer = conversation.answer(
+            question, contents
         )
 
         console.print("\n[bold magenta]Formatted Answer:[/bold magenta]")
@@ -100,13 +102,14 @@ def main(parameters):
     vector_store_path = root_folder / "vector_store" / "docs_index"
 
     llm = Model(model_folder, model_settings)
+    conversation = Conversation(llm)
 
     embedding = initialize_embedding()
 
     memory = VectorMemory(embedding=embedding)
     index = memory.load_memory_index(str(vector_store_path))
 
-    loop(llm, index, parameters)
+    loop(conversation, index, parameters)
 
 
 if __name__ == "__main__":

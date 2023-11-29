@@ -1,166 +1,15 @@
 import os
-from abc import ABC
 from pathlib import Path
 from typing import Optional
 from threading import Thread
 
 import requests
-from ctransformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer, Config
+from ctransformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer
 from tqdm import tqdm
 from transformers import TextStreamer, TextIteratorStreamer
 
-from bot.prompts import generate_prompt, generate_contextual_prompt, generate_cr_prompt
-
-
-class ModelSettings(ABC):
-    """
-    top_k="The top-k value to use for sampling."
-    top_p="The top-p value to use for sampling."
-    temperature="The temperature to use for sampling."
-    repetition_penalty="The repetition penalty to use for sampling."
-    last_n_tokens="The number of last tokens to use for repetition penalty."
-    seed="The seed value to use for sampling tokens."
-    max_new_tokens="The maximum number of new tokens to generate."
-    stop="A list of sequences to stop generation when encountered."
-    stream="Whether to stream the generated text."
-    reset="Whether to reset the model state before generating text."
-    batch_size="The batch size to use for evaluating tokens in a single prompt."
-    threads="The number of threads to use for evaluating tokens."
-    context_length="The maximum context length to use."
-    gpu_layers="The number of layers to run on GPU."
-        Set gpu_layers to the number of layers to offload to GPU.
-        Set to 0 if no GPU acceleration is available on your system.
-    """
-
-    url: str
-    file_name: str
-    model_type: str
-    system_template: str
-    prompt_template: str
-    qa_prompt: str
-    refine_prompt: str
-    config: Config
-
-
-class ZephyrSettings(ModelSettings):
-    url = "https://huggingface.co/TheBloke/zephyr-7B-beta-GGUF/resolve/main/zephyr-7b-beta.Q4_K_M.gguf"
-    file_name = "zephyr-7b-beta.Q4_K_M.gguf"
-    model_type = "mistral"
-    config = Config(
-        top_k=40,
-        top_p=0.95,
-        temperature=0.8,
-        repetition_penalty=1.1,
-        last_n_tokens=64,
-        seed=-1,
-        batch_size=8,
-        threads=-1,
-        max_new_tokens=1024,
-        stop=None,
-        stream=False,
-        reset=True,
-        context_length=2048,
-        gpu_layers=50,
-        mmap=True,
-        mlock=False,
-    )
-    system_template = "You are a helpful, respectful and honest assistant. "
-    prompt_template = """<|system|> {system}
-Answer the question below:
-</s>
-<|user|>
-{question}</s>
-<|assistant|>
-"""
-    qa_prompt = """<|system|> {system}
-Context information is below.
----------------------
-{context}
----------------------
-</s>
-<|user|>
-Given the context information and not prior knowledge, answer the question below:
-{question}</s>
-<|assistant|>
-"""
-    refine_prompt = """<|system|> {system}
-The original query is as follows: {question}
-We have provided an existing answer: {existing_answer}
-We have the opportunity to refine the existing answer
-(only if needed) with some more context below.
----------------------
-{context}
----------------------
-</s>
-<|user|>
-Given the new context, refine the original answer to better answer the query.
-If the context isn't useful, return the original answer.
-Refined Answer:</s>
-<|assistant|>
-"""
-
-
-class MistralSettings(ModelSettings):
-    url = "https://huggingface.co/TheBloke/Mistral-7B-OpenOrca-GGUF/resolve/main/mistral-7b-openorca.Q4_K_M.gguf"
-    file_name = "mistral-7b-openorca.Q4_K_M.gguf"
-    model_type = "mistral"
-    config = Config(
-        top_k=40,
-        top_p=0.95,
-        temperature=0.8,
-        repetition_penalty=1.1,
-        last_n_tokens=64,
-        seed=-1,
-        batch_size=8,
-        threads=-1,
-        max_new_tokens=1024,
-        stop=None,
-        stream=False,
-        reset=True,
-        context_length=2048,
-        gpu_layers=50,
-        mmap=True,
-        mlock=False,
-    )
-    system_template = "You are a helpful, respectful and honest assistant."
-    prompt_template = """<|im_start|>system
-{system}
-<|im_end|>
-<|im_start|>user
-{question}<|im_end|>
-<|im_start|>assistant
-<|im_start|>system
-"""
-    qa_prompt = """<|im_start|>system
-{system}
-<|im_end|>
-<|im_start|>user
-Context information is below.
----------------------
-{context}
----------------------
-Given the context information and not prior knowledge, answer the question below:
-{question}<|im_end|>
-<|im_start|>assistant
-<|im_start|>system
-"""
-
-
-SUPPORTED_MODELS = {"zephyr": ZephyrSettings, "mistral": MistralSettings}
-
-
-def get_models():
-    return list(SUPPORTED_MODELS.keys())
-
-
-def get_model_setting(model_name: str):
-    model_settings = SUPPORTED_MODELS.get(model_name)
-
-    # validate input
-    if model_settings is None:
-        raise KeyError(model_name + " is a not supported model")
-
-    return model_settings
+from bot.model_settings import ModelSettings
+from bot.prompt import generate_qa_prompt, generate_ctx_prompt, generate_refine_prompt
 
 
 class Model:
@@ -174,17 +23,17 @@ class Model:
     def __init__(self, model_folder: Path, model_settings: ModelSettings):
         self.model_settings = model_settings
         self.model_path = model_folder / self.model_settings.file_name
-        self.prompt_template = self.model_settings.prompt_template
         self.system_template = self.model_settings.system_template
-        self.qa_prompt = self.model_settings.qa_prompt
-        self.refine_prompt = self.model_settings.refine_prompt
+        self.qa_prompt_template = self.model_settings.qa_prompt_template
+        self.ctx_prompt_template = self.model_settings.ctx_prompt_template
+        self.refine_prompt_template = self.model_settings.refine_prompt_template
 
         self._auto_download()
 
         self.llm = AutoModelForCausalLM.from_pretrained(
             model_path_or_repo_id=str(model_folder),
             model_file=self.model_settings.file_name,
-            model_type=self.model_settings.model_type,
+            model_type=self.model_settings.type,
             config=AutoConfig(config=self.model_settings.config),
             hf=True,
         )
@@ -227,56 +76,144 @@ class Model:
 
             print(f"=> Model: {file_name} downloaded successfully 🥳")
 
-    def generate_prompt(self, question):
-        return generate_prompt(
-            template=self.prompt_template,
+    def generate_qa_prompt(self, question):
+        """
+        Generates a question-answering (QA) prompt using predefined templates.
+
+        Args:
+            question (str): The question for which the prompt is generated.
+
+        Returns:
+            str: The generated QA prompt.
+        """
+        return generate_qa_prompt(
+            template=self.qa_prompt_template,
             system=self.system_template,
             question=question
         )
 
-    def generate_contextual_prompt(self, question, context):
-        return generate_contextual_prompt(
-            template=self.qa_prompt,
+    def generate_ctx_prompt(self, question, context):
+        """
+        Generates a context-based prompt using predefined templates.
+
+        Args:
+            question (str): The question for which the prompt is generated.
+            context (str): The context information for the prompt.
+
+        Returns:
+            str: The generated context-based prompt.
+        """
+        return generate_ctx_prompt(
+            template=self.ctx_prompt_template,
             system=self.system_template,
             question=question,
             context=context,
         )
 
-    def generate_cr_prompt(self, question, context, existing_answer):
-        return generate_cr_prompt(
-            template=self.refine_prompt,
+    def generate_refine_prompt(self, question, context, existing_answer):
+        """
+        Generates a refined prompt for question-answering with existing answer.
+
+        Args:
+            question (str): The question for which the prompt is generated.
+            context (str): The context information for the prompt.
+            existing_answer (str): The existing answer to be refined.
+
+        Returns:
+            str: The generated refined prompt.
+        """
+        return generate_refine_prompt(
+            template=self.refine_prompt_template,
             system=self.system_template,
             question=question,
             context=context,
             existing_answer=existing_answer
         )
 
-    def generate_answer_streaming(self, prompt: str, skip_prompt: bool = True, max_new_tokens: int = 1000):
-        inputs = self.tokenizer(text=prompt, return_tensors="pt").input_ids
+    def encode_prompt(self, prompt: str):
+        """
+        Encodes the given prompt using the model's tokenizer.
+
+        Args:
+            prompt (str): The input prompt to be encoded.
+
+        Returns:
+            torch.Tensor: The input IDs tensor generated by the tokenizer.
+        """
+        return self.tokenizer(text=prompt, return_tensors="pt").input_ids
+
+    def decode_answer(self, prompt_ids, answer_ids):
+        """
+        Decodes the answer IDs tensor into a human-readable answer using the model's tokenizer.
+
+        Args:
+            prompt_ids (torch.Tensor): The prompt IDs tensor used for generating the answer.
+            answer_ids (torch.Tensor): The answer IDs tensor generated by the language model.
+
+        Returns:
+            str: The decoded answer.
+        """
+        return self.tokenizer.batch_decode(answer_ids[:, prompt_ids.shape[1]:])[0]
+
+    def generate_answer(self, prompt: str, max_new_tokens: int = 1000):
+        """
+        Generates an answer based on the given prompt using the language model.
+
+        Args:
+            prompt (str): The input prompt for generating the answer.
+            max_new_tokens (int): The maximum number of new tokens to generate (default is 1000).
+
+        Returns:
+            str: The generated answer.
+        """
+        prompt_ids = self.encode_prompt(prompt)
+        answer_ids = self.llm.generate(
+            prompt_ids, max_new_tokens=max_new_tokens
+        )
+        answer = self.decode_answer(prompt_ids, answer_ids)
+
+        return answer
+
+    def stream_answer(self, prompt: str, skip_prompt: bool = True, max_new_tokens: int = 1000):
+        """
+        Generates an answer by streaming tokens using the TextStreamer.
+
+        Args:
+            prompt (str): The input prompt for generating the answer.
+            skip_prompt (bool): Whether to skip the prompt tokens during streaming (default is True).
+            max_new_tokens (int): The maximum number of new tokens to generate (default is 1000).
+
+        Returns:
+            str: The generated answer.
+        """
         streamer = TextStreamer(tokenizer=self.tokenizer, skip_prompt=skip_prompt)
-        output = self.llm.generate(
-            inputs, streamer=streamer, max_new_tokens=max_new_tokens
+
+        prompt_ids = self.encode_prompt(prompt)
+        answer_ids = self.llm.generate(
+            prompt_ids, streamer=streamer, max_new_tokens=max_new_tokens
         )
 
-        text = self.tokenizer.batch_decode(output[:, inputs.shape[1]:])[0]
+        answer = self.decode_answer(prompt_ids, answer_ids)
 
-        return text
+        return answer
 
-    def generate_answer_iterator_streamer(self, prompt: str, skip_prompt: bool = True, max_new_tokens: int = 1000):
+    def start_answer_iterator_streamer(self, prompt: str, skip_prompt: bool = True, max_new_tokens: int = 1000):
+        """
+        Starts an answer iterator streamer thread for generating answers asynchronously.
 
+        Args:
+            prompt (str): The input prompt for generating the answer.
+            skip_prompt (bool): Whether to skip the prompt tokens during streaming (default is True).
+            max_new_tokens (int): The maximum number of new tokens to generate (default is 1000).
+
+        Returns:
+            str: An empty string as a placeholder for the return value.
+        """
         self.streamer = TextIteratorStreamer(self.tokenizer, skip_prompt=skip_prompt)
+
         inputs = self.tokenizer(prompt, return_tensors="pt")
         kwargs = dict(input_ids=inputs["input_ids"], streamer=self.streamer, max_new_tokens=max_new_tokens)
         thread = Thread(target=self.llm.generate, kwargs=kwargs)
         thread.start()
+
         return ""
-
-    def generate_answer(self, prompt: str, max_new_tokens: int = 1000):
-        inputs = self.tokenizer(text=prompt, return_tensors="pt").input_ids
-        output = self.llm.generate(
-            inputs, max_new_tokens=max_new_tokens
-        )
-
-        text = self.tokenizer.batch_decode(output[:, inputs.shape[1]:])[0]
-
-        return text

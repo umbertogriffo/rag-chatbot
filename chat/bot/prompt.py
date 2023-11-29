@@ -1,4 +1,4 @@
-def generate_prompt(template: str, system: str, question: str):
+def generate_qa_prompt(template: str, system: str, question: str):
     """
     Generate a prompt by formatting a template with provided parameters.
 
@@ -15,7 +15,7 @@ def generate_prompt(template: str, system: str, question: str):
     return prompt
 
 
-def generate_contextual_prompt(template: str, system: str, question: str, context: str = ""):
+def generate_ctx_prompt(template: str, system: str, question: str, context: str = ""):
     """
     Generate a prompt by formatting a template with provided parameters.
 
@@ -33,7 +33,7 @@ def generate_contextual_prompt(template: str, system: str, question: str, contex
     return prompt
 
 
-def generate_cr_prompt(template: str, system: str, question: str, existing_answer: str, context: str = ""):
+def generate_refine_prompt(template: str, system: str, question: str, existing_answer: str, context: str = ""):
     """
     Generate a prompt by formatting a template with provided parameters.
 
@@ -41,6 +41,7 @@ def generate_cr_prompt(template: str, system: str, question: str, existing_answe
         template (str): The template string with placeholders for 'system', 'context', and 'question'.
         system (str): The system information to be inserted into the template.
         question (str): The question to be inserted into the template.
+        existing_answer (str): The existing answer to be inserted into the template.
         context (str): The context information to be inserted into the template.
 
     Returns:
