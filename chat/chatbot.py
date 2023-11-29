@@ -4,13 +4,12 @@ import time
 from pathlib import Path
 
 from bot.model import Model
-from bot.model_settings import get_models, get_model_setting
+from bot.model_settings import get_model_setting, get_models
 from helpers.log import get_logger
 from helpers.reader import read_input
 from pyfiglet import Figlet
 from rich.console import Console
 from rich.markdown import Markdown
-
 
 logger = get_logger(__name__)
 

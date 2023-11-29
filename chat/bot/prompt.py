@@ -33,7 +33,9 @@ def generate_ctx_prompt(template: str, system: str, question: str, context: str 
     return prompt
 
 
-def generate_refine_prompt(template: str, system: str, question: str, existing_answer: str, context: str = ""):
+def generate_refine_prompt(
+    template: str, system: str, question: str, existing_answer: str, context: str = ""
+):
     """
     Generate a prompt by formatting a template with provided parameters.
 
@@ -48,5 +50,10 @@ def generate_refine_prompt(template: str, system: str, question: str, existing_a
         str: The formatted prompt string.
     """
 
-    prompt = template.format(system=system, context=context, existing_answer=existing_answer, question=question)
+    prompt = template.format(
+        system=system,
+        context=context,
+        existing_answer=existing_answer,
+        question=question,
+    )
     return prompt

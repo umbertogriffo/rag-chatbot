@@ -3,9 +3,8 @@ import sys
 from pathlib import Path
 
 import gradio as gr
-
 from bot.model import Model
-from bot.model_settings import get_models, get_model_setting
+from bot.model_settings import get_model_setting, get_models
 from helpers.log import get_logger
 
 logger = get_logger(__name__)
@@ -13,14 +12,8 @@ logger = get_logger(__name__)
 
 def gui(llm):
     with gr.Blocks() as demo:
-        chatbot = gr.Chatbot(
-            layout="bubble",
-            height=800,
-            show_copy_button=True
-        )
-        msg = gr.Textbox(
-            show_copy_button=True
-        )
+        chatbot = gr.Chatbot(layout="bubble", height=800, show_copy_button=True)
+        msg = gr.Textbox(show_copy_button=True)
         clear = gr.Button("Clear")
 
         def user(user_message, history):
@@ -29,7 +22,9 @@ def gui(llm):
         def bot(history):
             print("Question: ", history[-1][0])
             prompt = llm.generate_qa_prompt(question=history[-1][0])
-            bot_message = llm.start_answer_iterator_streamer(prompt, max_new_tokens=1000)
+            bot_message = llm.start_answer_iterator_streamer(
+                prompt, max_new_tokens=1000
+            )
             print("Response: ", bot_message)
             history[-1][1] = ""
             for character in llm.streamer:
@@ -37,7 +32,9 @@ def gui(llm):
                 history[-1][1] += character
                 yield history
 
-        msg.submit(user, [msg, chatbot], [msg, chatbot], queue=False).then(bot, chatbot, chatbot)
+        msg.submit(user, [msg, chatbot], [msg, chatbot], queue=False).then(
+            bot, chatbot, chatbot
+        )
         clear.click(lambda: None, None, chatbot, queue=False)
 
     demo.queue()

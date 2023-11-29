@@ -15,7 +15,9 @@ def generate_prompt(template: str, system: str, question: str):
     return prompt
 
 
-def generate_contextual_prompt(template: str, system: str, question: str, context: str = ""):
+def generate_contextual_prompt(
+    template: str, system: str, question: str, context: str = ""
+):
     """
     Generate a prompt by formatting a template with provided parameters.
 

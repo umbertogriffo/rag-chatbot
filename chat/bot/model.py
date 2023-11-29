@@ -1,15 +1,14 @@
 import os
 from pathlib import Path
-from typing import Optional
 from threading import Thread
+from typing import Optional
 
 import requests
+from bot.model_settings import ModelSettings
+from bot.prompt import generate_ctx_prompt, generate_qa_prompt, generate_refine_prompt
 from ctransformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer
 from tqdm import tqdm
-from transformers import TextStreamer, TextIteratorStreamer
-
-from bot.model_settings import ModelSettings
-from bot.prompt import generate_qa_prompt, generate_ctx_prompt, generate_refine_prompt
+from transformers import TextIteratorStreamer, TextStreamer
 
 
 class Model:
@@ -18,6 +17,7 @@ class Model:
     prompts and outputs.
     You can create an instance of this class and use its methods to handle the specific tasks you need.
     """
+
     streamer: Optional[TextIteratorStreamer] = None
 
     def __init__(self, model_folder: Path, model_settings: ModelSettings):
@@ -89,7 +89,7 @@ class Model:
         return generate_qa_prompt(
             template=self.qa_prompt_template,
             system=self.system_template,
-            question=question
+            question=question,
         )
 
     def generate_ctx_prompt(self, question, context):
@@ -127,7 +127,7 @@ class Model:
             system=self.system_template,
             question=question,
             context=context,
-            existing_answer=existing_answer
+            existing_answer=existing_answer,
         )
 
     def encode_prompt(self, prompt: str):
@@ -153,7 +153,7 @@ class Model:
         Returns:
             str: The decoded answer.
         """
-        return self.tokenizer.batch_decode(answer_ids[:, prompt_ids.shape[1]:])[0]
+        return self.tokenizer.batch_decode(answer_ids[:, prompt_ids.shape[1] :])[0]
 
     def generate_answer(self, prompt: str, max_new_tokens: int = 1000):
         """
@@ -167,14 +167,14 @@ class Model:
             str: The generated answer.
         """
         prompt_ids = self.encode_prompt(prompt)
-        answer_ids = self.llm.generate(
-            prompt_ids, max_new_tokens=max_new_tokens
-        )
+        answer_ids = self.llm.generate(prompt_ids, max_new_tokens=max_new_tokens)
         answer = self.decode_answer(prompt_ids, answer_ids)
 
         return answer
 
-    def stream_answer(self, prompt: str, skip_prompt: bool = True, max_new_tokens: int = 1000):
+    def stream_answer(
+        self, prompt: str, skip_prompt: bool = True, max_new_tokens: int = 1000
+    ):
         """
         Generates an answer by streaming tokens using the TextStreamer.
 
@@ -197,7 +197,9 @@ class Model:
 
         return answer
 
-    def start_answer_iterator_streamer(self, prompt: str, skip_prompt: bool = True, max_new_tokens: int = 1000):
+    def start_answer_iterator_streamer(
+        self, prompt: str, skip_prompt: bool = True, max_new_tokens: int = 1000
+    ):
         """
         Starts an answer iterator streamer thread for generating answers asynchronously.
 
@@ -212,7 +214,11 @@ class Model:
         self.streamer = TextIteratorStreamer(self.tokenizer, skip_prompt=skip_prompt)
 
         inputs = self.tokenizer(prompt, return_tensors="pt")
-        kwargs = dict(input_ids=inputs["input_ids"], streamer=self.streamer, max_new_tokens=max_new_tokens)
+        kwargs = dict(
+            input_ids=inputs["input_ids"],
+            streamer=self.streamer,
+            max_new_tokens=max_new_tokens,
+        )
         thread = Thread(target=self.llm.generate, kwargs=kwargs)
         thread.start()
 

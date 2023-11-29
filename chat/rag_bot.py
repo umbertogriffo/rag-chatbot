@@ -3,15 +3,14 @@ import sys
 from pathlib import Path
 
 from bot.conversation import Conversation
-from bot.memory.vector_memory import initialize_embedding, VectorMemory
+from bot.memory.vector_memory import VectorMemory, initialize_embedding
 from bot.model import Model
-from bot.model_settings import get_models, get_model_setting
+from bot.model_settings import get_model_setting, get_models
 from helpers.log import get_logger
 from helpers.reader import read_input
 from pyfiglet import Figlet
 from rich.console import Console
 from rich.markdown import Markdown
-
 
 logger = get_logger(__name__)
 
@@ -74,7 +73,7 @@ def loop(conversation, index, parameters) -> None:
         console.print("\n[bold magenta]Sources:[/bold magenta]")
         sources = []
         for content in contents:
-            sources.append(content.metadata.get('source', ''))
+            sources.append(content.metadata.get("source", ""))
             # logger.info(doc.page_content)
 
         sources = list(dict.fromkeys(sources))
@@ -83,9 +82,7 @@ def loop(conversation, index, parameters) -> None:
 
         console.print("\n[bold magenta]Answer:[/bold magenta]")
 
-        answer = conversation.answer(
-            question, contents
-        )
+        answer = conversation.answer(question, contents)
 
         console.print("\n[bold magenta]Formatted Answer:[/bold magenta]")
         if answer:
