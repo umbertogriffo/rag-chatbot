@@ -1,9 +1,10 @@
 import logging
+import os
 import sys
-from typing import Union
 
 
-def get_logger(name: str, level: Union[int, str] = logging.INFO):
+def get_logger(name: str):
+    level = os.environ.get("LOGLEVEL", "INFO").upper()
     logger = logging.getLogger(name)
     logger.setLevel(level)
 
@@ -14,4 +15,6 @@ def get_logger(name: str, level: Union[int, str] = logging.INFO):
     )
     handler.setFormatter(formatter)
     logger.addHandler(handler)
+    # Stop propagation
+    logger.propagate = False
     return logger
