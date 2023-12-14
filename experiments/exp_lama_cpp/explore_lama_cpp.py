@@ -10,16 +10,20 @@ llm = Llama(
     # Download the model file first
     n_ctx=4096,  # The max sequence length to use - note that longer sequence lengths require much more resources
     n_threads=8,  # The number of CPU threads to use, tailor to your system and the resulting performance
-    n_gpu_layers=35,  # The number of layers to offload to GPU, if you have GPU acceleration available
-    seed=0
+    n_gpu_layers=35  # The number of layers to offload to GPU, if you have GPU acceleration available
 )
 
 prompt = "<|user|>\nCreate a regex to extract dates from logs in Python<|endoftext|>\n<|assistant|>"
 
 start_time = time.time()
-
 output = llm(prompt, max_tokens=256, echo=True)
-took = time.time() - start_time
 print(output["choices"][0]["text"].split("<|assistant|>")[-1])
+took = time.time() - start_time
+print(f"\n--- Took {took:.2f} seconds ---")
 
-print(f"--- Took {took:.2f} seconds ---")
+start_time = time.time()
+stream = llm.create_completion(prompt, max_tokens=1024, temperature=0.8, stream=True)
+for output in stream:
+    print(output["choices"][0]["text"], end='', flush=True)
+took = time.time() - start_time
+print(f"\n--- Took {took:.2f} seconds ---")
