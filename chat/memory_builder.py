@@ -3,10 +3,10 @@ import sys
 from pathlib import Path
 from typing import List
 
+from bot.memory.vector_memory import initialize_embedding, VectorMemory
 from helpers.log import get_logger
 from langchain.document_loaders import DirectoryLoader, UnstructuredMarkdownLoader
 from langchain.text_splitter import MarkdownTextSplitter
-from memory.vector_memory import VectorMemory, initialize_embedding
 
 logger = get_logger(__name__)
 

@@ -16,11 +16,9 @@ if __name__ == "__main__":
     # context_p = """ On August 10 said that its arm JSW Neo Energy has agreed to buy a portfolio of 1753 mega watt
     # renewable energy generation capacity from Mytrah Energy India Pvt Ltd for Rs 10,530 crore."""
 
-    question_p = """Create a regex to extract dates from logs in Python
-    """
-    context_p = """ """
+    question_p = """Create a regex to extract dates from logs in Python"""
 
-    prompt = llm.generate_prompt(question=question_p, context=context_p)
+    prompt = llm.generate_prompt(question=question_p)
 
     start_time = time.time()
     _ = llm.generate_output(prompt, max_new_tokens=1000)

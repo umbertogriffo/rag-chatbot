@@ -61,13 +61,11 @@ class ZephyrSettings(ModelSettings):
     )
     system_template = (
         "You are a helpful, respectful and honest assistant. "
-        "Answer exactly in few words from the context."
     )
     prompt_template = """<|system|> {system}
-Answer the question below from context below:
+Answer the question below:
 </s>
 <|user|>
-{context}
 {question}</s>
 <|assistant|>
 """
@@ -184,12 +182,11 @@ class Model:
 
             print(f"=> Model: {file_name} downloaded successfully 🥳")
 
-    def generate_prompt(self, question, context):
+    def generate_prompt(self, question):
         return generate_prompt(
             template=self.prompt_template,
             system=self.system_template,
-            question=question,
-            context=context,
+            question=question
         )
 
     def generate_output(self, prompt: str, max_new_tokens: int = 1000):
