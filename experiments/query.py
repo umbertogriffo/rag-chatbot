@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from memory.vector_memory import VectorMemory, initialize_embedding
+from bot.memory.vector_memory import initialize_embedding, VectorMemory
 
 if __name__ == "__main__":
     root_folder = Path(__file__).resolve().parent.parent

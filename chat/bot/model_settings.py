@@ -30,7 +30,7 @@ class ModelSettings(ABC):
     system_template: str
     qa_prompt_template: str
     ctx_prompt_template: str
-    refine_prompt_template: str
+    refined_ctx_prompt_template: str
     config: Config
 
 
@@ -75,7 +75,7 @@ Given the context information and not prior knowledge, answer the question below
 {question}</s>
 <|assistant|>
 """
-    refine_prompt_template = """<|system|> {system}
+    refined_ctx_prompt_template = """<|system|> {system}
 The original query is as follows: {question}
 We have provided an existing answer: {existing_answer}
 We have the opportunity to refine the existing answer
@@ -136,7 +136,7 @@ Given the context information and not prior knowledge, answer the question below
 <|im_start|>assistant
 <|im_start|>system
 """
-    refine_prompt_template = """<|im_start|>system
+    refined_ctx_prompt_template = """<|im_start|>system
 {system}
 <|im_end|>
 <|im_start|>user

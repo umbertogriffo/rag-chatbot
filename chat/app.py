@@ -12,7 +12,7 @@ logger = get_logger(__name__)
 
 def gui(llm):
     with gr.Blocks() as demo:
-        chatbot = gr.Chatbot(layout="bubble", height=800, show_copy_button=True)
+        chatbot = gr.Chatbot(layout="bubble", height=750, show_copy_button=True)
         msg = gr.Textbox(show_copy_button=True)
         clear = gr.Button("Clear")
 
@@ -20,15 +20,14 @@ def gui(llm):
             return "", history + [[user_message, None]]
 
         def bot(history):
-            print("Question: ", history[-1][0])
+            logger.info("Question: ", history[-1][0])
             prompt = llm.generate_qa_prompt(question=history[-1][0])
             bot_message = llm.start_answer_iterator_streamer(
                 prompt, max_new_tokens=1000
             )
-            print("Response: ", bot_message)
+            logger.info("Response: ", bot_message)
             history[-1][1] = ""
             for character in llm.streamer:
-                print(character)
                 history[-1][1] += character
                 yield history
 

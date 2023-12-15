@@ -33,7 +33,7 @@ class ContextSynthesisStrategy:
                     question=question, context=context
                 )
             else:
-                fmt_prompt = self.llm.generate_refine_prompt(
+                fmt_prompt = self.llm.generate_refined_ctx__prompt(
                     context=context,
                     question=question,
                     existing_answer=str(cur_response),

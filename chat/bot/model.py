@@ -26,7 +26,7 @@ class Model:
         self.system_template = self.model_settings.system_template
         self.qa_prompt_template = self.model_settings.qa_prompt_template
         self.ctx_prompt_template = self.model_settings.ctx_prompt_template
-        self.refine_prompt_template = self.model_settings.refine_prompt_template
+        self.refined_ctx_prompt_template = self.model_settings.refined_ctx_prompt_template
 
         self._auto_download()
 
@@ -76,7 +76,7 @@ class Model:
 
             print(f"=> Model: {file_name} downloaded successfully 🥳")
 
-    def generate_qa_prompt(self, question):
+    def generate_qa_prompt(self, question) -> str:
         """
         Generates a question-answering (QA) prompt using predefined templates.
 
@@ -92,7 +92,7 @@ class Model:
             question=question,
         )
 
-    def generate_ctx_prompt(self, question, context):
+    def generate_ctx_prompt(self, question, context) -> str:
         """
         Generates a context-based prompt using predefined templates.
 
@@ -110,7 +110,7 @@ class Model:
             context=context,
         )
 
-    def generate_refine_prompt(self, question, context, existing_answer):
+    def generate_refined_ctx__prompt(self, question, context, existing_answer) -> str:
         """
         Generates a refined prompt for question-answering with existing answer.
 
@@ -123,7 +123,7 @@ class Model:
             str: The generated refined prompt.
         """
         return generate_refine_prompt(
-            template=self.refine_prompt_template,
+            template=self.refined_ctx_prompt_template,
             system=self.system_template,
             question=question,
             context=context,
@@ -153,9 +153,9 @@ class Model:
         Returns:
             str: The decoded answer.
         """
-        return self.tokenizer.batch_decode(answer_ids[:, prompt_ids.shape[1] :])[0]
+        return self.tokenizer.batch_decode(answer_ids[:, prompt_ids.shape[1]:])[0]
 
-    def generate_answer(self, prompt: str, max_new_tokens: int = 1000):
+    def generate_answer(self, prompt: str, max_new_tokens: int = 1000) -> str:
         """
         Generates an answer based on the given prompt using the language model.
 
@@ -173,8 +173,8 @@ class Model:
         return answer
 
     def stream_answer(
-        self, prompt: str, skip_prompt: bool = True, max_new_tokens: int = 1000
-    ):
+            self, prompt: str, skip_prompt: bool = True, max_new_tokens: int = 1000
+    ) -> str:
         """
         Generates an answer by streaming tokens using the TextStreamer.
 
@@ -198,8 +198,8 @@ class Model:
         return answer
 
     def start_answer_iterator_streamer(
-        self, prompt: str, skip_prompt: bool = True, max_new_tokens: int = 1000
-    ):
+            self, prompt: str, skip_prompt: bool = True, max_new_tokens: int = 1000
+    ) -> str:
         """
         Starts an answer iterator streamer thread for generating answers asynchronously.
 
