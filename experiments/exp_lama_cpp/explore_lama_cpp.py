@@ -1,56 +1,38 @@
 import time
+from pathlib import Path
 
-from llama_cpp import Llama
+from exp_lama_cpp.model import get_model_setting, Model
+from exp_lama_cpp.texts import text_only, text_and_code
 
 # CMAKE_ARGS="-DLLAMA_CUBLAS=on" pip install llama-cpp-python
 
-# Set gpu_layers to the number of layers to offload to GPU. Set to 0 if no GPU acceleration is available on your system.
-llm = Llama(
-    model_path="/home/umberto/PycharmProjects/contextual-chatbot-gpt4all/models/stablelm-zephyr-3b.Q4_K_M.gguf",
-    # Download the model file first
-    n_ctx=4096,  # The max sequence length to use - note that longer sequence lengths require much more resources
-    n_threads=8,  # The number of CPU threads to use, tailor to your system and the resulting performance
-    n_gpu_layers=35  # The number of layers to offload to GPU, if you have GPU acceleration available
-)
-summarization_template = """Write a concise summary of the following:
-"{text}"
-CONCISE SUMMARY:
-"""
-prompt = ("""<|user|>\nWrite a concise summary of the following:"""
-          """In the rapidly evolving landscape of technology, artificial intelligence (AI) stands out as a driving force that has the potential to revolutionize various facets of our lives. From enhancing efficiency in industries to influencing the way we make decisions, the impact of AI is profound and multifaceted.
+if __name__ == "__main__":
+    root_folder = Path(__file__).resolve().parent.parent.parent
+    model_folder = root_folder / "models"
+    Path(model_folder).parent.mkdir(parents=True, exist_ok=True)
 
-One of the key areas where AI is making significant strides is in the field of healthcare. Machine learning algorithms are being employed to analyze massive datasets, aiding in the identification of patterns and trends that might elude human observation. This has transformative implications for diagnostics, enabling earlier detection of diseases and more personalized treatment plans.
+    model_settings = get_model_setting("stablelm-zephyr")
 
-However, the integration of AI in healthcare is not without its challenges. Concerns about data privacy, security, and the ethical implications of relying on algorithms for critical medical decisions have sparked intense debates. Striking a balance between leveraging the benefits of AI in healthcare and addressing these ethical considerations is crucial for its responsible implementation.
+    llm = Model(model_folder, model_settings)
 
-In the realm of ethics, AI poses a complex set of questions that society must grapple with. The very nature of machine learning, which involves algorithms learning from vast datasets, raises concerns about bias. If the data used to train AI models contain biases, the algorithms may perpetuate and even exacerbate existing inequalities. Recognizing and mitigating bias in AI systems is an ongoing challenge that requires interdisciplinary collaboration and thoughtful regulation.
+    start_time = time.time()
+    prompt = llm.generate_summarization_prompt(text=text_only)
+    output = llm.generate_answer(prompt, max_new_tokens=512)
+    print(output)
+    took = time.time() - start_time
+    print(f"\n--- Took {took:.2f} seconds ---")
 
-Moreover, the deployment of AI in decision-making processes, from hiring to criminal justice, raises questions about accountability. When algorithms influence outcomes, who bears responsibility for any adverse consequences? Establishing clear frameworks for the ethical use of AI, along with mechanisms for accountability, is paramount in navigating this evolving landscape.
+    start_time = time.time()
+    prompt = llm.generate_summarization_prompt(text=text_and_code)
+    output = llm.generate_answer(prompt, max_new_tokens=512)
+    print(output)
+    took = time.time() - start_time
+    print(f"\n--- Took {took:.2f} seconds ---")
 
-The impact of AI on employment is another area of intense scrutiny. While automation driven by AI has the potential to streamline processes and boost productivity, it also raises concerns about job displacement. The shift in the job market towards roles that require a blend of technical and soft skills underscores the importance of education and workforce development in preparing for an AI-dominated future.
+    start_time = time.time()
+    stream = llm.start_answer_iterator_streamer(prompt, max_new_tokens=256)
+    for output in stream:
+        print(output["choices"][0]["text"], end='', flush=True)
+    took = time.time() - start_time
 
-In education itself, AI is being harnessed to provide personalized learning experiences. Adaptive learning platforms use algorithms to tailor educational content to individual student needs, offering a customized approach that can enhance comprehension and retention. However, ethical considerations also come into play, such as ensuring that the data collected on students is handled responsibly and that the algorithms do not inadvertently reinforce educational inequalities.
-
-The business landscape is witnessing a paradigm shift with the integration of AI. From optimizing supply chains to enhancing customer experiences, organizations are leveraging AI to gain a competitive edge. However, the adoption of AI comes with challenges, including the need for a skilled workforce, ethical considerations in data usage, and the potential for job displacement.
-
-As AI technologies advance, the field of robotics is also experiencing notable developments. Robotics and AI are converging to create intelligent systems that can perform tasks ranging from simple chores to complex surgeries. The ethical dimensions of AI in robotics include considerations of safety, accountability, and the potential societal impact of widespread automation.
-
-In the realm of entertainment and creativity, AI is being employed to generate content, from music compositions to artworks. The intersection of AI and creativity raises philosophical questions about the nature of art and the role of human intuition and emotion in creative expression. The collaborative possibilities between humans and AI in creative endeavors open up new frontiers for exploration.
-
-The development of AI is not confined to individual nations; it is a global phenomenon. International collaboration and the establishment of ethical standards are crucial to ensuring that AI benefits humanity as a whole. The responsible development and deployment of AI require a shared commitment to addressing challenges such as bias, accountability, and the societal impact of automation.
-
-In conclusion, the rise of artificial intelligence is reshaping our world in unprecedented ways. From healthcare and ethics to employment and creativity, the influence of AI permeates diverse aspects of society. Navigating the ethical considerations, addressing challenges, and fostering global collaboration are imperative in harnessing the full potential of AI for the betterment of humanity."""
-          """CONCISE SUMMARY:<|endoftext|>\n<|assistant|>""")
-
-start_time = time.time()
-output = llm(prompt, max_tokens=256, echo=True)
-print(output["choices"][0]["text"].split("<|assistant|>")[-1])
-took = time.time() - start_time
-print(f"\n--- Took {took:.2f} seconds ---")
-
-start_time = time.time()
-stream = llm.create_completion(prompt, max_tokens=256, temperature=0.8, stream=True)
-for output in stream:
-    print(output["choices"][0]["text"], end='', flush=True)
-took = time.time() - start_time
-print(f"\n--- Took {took:.2f} seconds ---")
+    print(f"\n--- Took {took:.2f} seconds ---")
