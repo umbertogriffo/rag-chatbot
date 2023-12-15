@@ -131,6 +131,7 @@ def similarity_search(query: str, index: Chroma, k: int = 4):
 def search_most_similar_doc(query: str, index: Chroma, k: int = 4):
     """
     Searches for the most similar document to the given query using the specified index.
+    The returned distance score is cosine distance. Therefore, a lower score is better.
 
     Parameters:
     -----------
@@ -150,6 +151,6 @@ def search_most_similar_doc(query: str, index: Chroma, k: int = 4):
 
     """
     matched_docs = index.similarity_search_with_score(query, k=k)
-    matched_doc = max(matched_docs, key=lambda x: x[1])
+    matched_doc = min(matched_docs, key=lambda x: x[1])
 
     return matched_doc

@@ -31,7 +31,7 @@ relevant context from previous conversations to provide more accurate answers.
 
 - [Prerequisites](#prerequisites)
   - [Install Poetry](#install-poetry)
-- [🛠 Bootstrap Environment](#-bootstrap-environment)
+- [Bootstrap Environment](#-bootstrap-environment)
   - [How to use the make file](#how-to-use-the-make-file)
 - [Using the Open-Source GPT4All's Models Locally](#using-the-open-source-gpt4alls-models-locally)
   - [Supported Models](#supported-models)
@@ -50,7 +50,7 @@ Python 3.10+ and Poetry.
 
 Install Poetry by following this [link](https://python-poetry.org/docs/).
 
-## 🛠 Bootstrap Environment
+## Bootstrap Environment
 
 To easily install the dependencies I created a make file.
 
@@ -137,6 +137,8 @@ python chat/rag_bot.py
       * uses `llama-cpp-python`
     * [C Transformers](https://python.langchain.com/docs/integrations/llms/ctransformers.html)
     * [The Problem With LangChain](https://minimaxir.com/2023/07/langchain-problem/#:~:text=The%20problem%20with%20LangChain%20is,don't%20start%20with%20LangChain)
+* Vector Database:
+  * [Chroma](https://www.trychroma.com/)
 * Embeddings:
   * [all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2)
     * This is a `sentence-transformers` model: It maps sentences & paragraphs to a 384 dimensional dense vector space and can be used for tasks like clustering or semantic search.
@@ -148,8 +150,9 @@ python chat/rag_bot.py
   * [CTransformers](https://github.com/marella/ctransformers)
   * [GPT4All](https://github.com/nomic-ai/gpt4all)
   * [llama.cpp](https://github.com/ggerganov/llama.cpp)
-  * [pyllamacpp](https://github.com/abdeladim-s/pyllamacpp)
   * [llama-cpp-python](https://github.com/abetlen/llama-cpp-python)
+  * [pyllamacpp](https://github.com/abdeladim-s/pyllamacpp)
+  * [chroma](https://github.com/chroma-core/chroma)
   * [lit-gpt](https://github.com/Lightning-AI/lit-gpt)
   * [api-for-open-llm](https://github.com/xusenlinzy/api-for-open-llm)
   * [PrivateDocBot](https://github.com/Abhi5h3k/PrivateDocBot)
