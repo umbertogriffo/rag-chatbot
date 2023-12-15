@@ -38,4 +38,16 @@ if __name__ == "__main__":
         collection_name="episodic_memory",
         embedding_function=embedding,
     )
-    s = langchain_chroma.similarity_search("a")
+    docs = langchain_chroma.similarity_search("a")
+    docs_with_score = langchain_chroma.similarity_search_with_score("a")
+    docs_with_relevance_score = langchain_chroma.similarity_search_with_relevance_scores("a")
+    matched_doc = max(docs_with_relevance_score, key=lambda x: x[1])
+
+    # The returned distance score is cosine distance. Therefore, a lower score is better.
+    results = collection.query(
+        query_texts=["a"],
+        n_results=2,
+        # where={"metadata_field": "is_equal_to_this"}, # optional filter
+        # where_document={"$contains":"search_string"}  # optional filter
+    )
+    print(results)
