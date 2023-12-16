@@ -154,6 +154,7 @@ python chat/rag_bot.py
   * [Rewrite-Retrieve-Read](https://github.com/langchain-ai/langchain/blob/master/cookbook/rewrite.ipynb)
     * > Because the original query can not be always optimal to retrieve for the LLM, especially in the real world, we first prompt an LLM to rewrite the queries, then conduct retrieval-augmented reading.
   * [Rerank](https://txt.cohere.com/rag-chatbot/#implement-reranking)
+  * [Conversational awareness](https://langstream.ai/2023/10/13/rag-chatbot-with-conversation/)
 * Chatbot Development:
   * [How to Create a Custom Chatbot with Gradio Blocks](https://www.gradio.app/guides/creating-a-custom-chatbot-with-blocks#add-streaming-to-your-chatbot)
 * Text Processing and Cleaning:
