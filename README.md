@@ -126,6 +126,7 @@ python chat/rag_bot.py
   * [Calculating GPU memory for serving LLMs](https://www.substratus.ai/blog/calculating-gpu-memory-for-llm/)
   * [Building Response Synthesis from Scratch](https://gpt-index.readthedocs.io/en/latest/examples/low_level/response_synthesis.html#)
   * [Attention Sinks in LLMs for endless fluency](https://huggingface.co/blog/tomaarsen/attention-sinks)
+  * [GPT in 60 Lines of NumPy](https://jaykmody.com/blog/gpt-from-scratch/)
 * LLM integration and Modules:
   * [LangChain](https://python.langchain.com/docs/get_started/introduction.html):
     * [Memory](https://python.langchain.com/docs/modules/memory.html)
@@ -137,11 +138,22 @@ python chat/rag_bot.py
       * uses `llama-cpp-python`
     * [C Transformers](https://python.langchain.com/docs/integrations/llms/ctransformers.html)
     * [The Problem With LangChain](https://minimaxir.com/2023/07/langchain-problem/#:~:text=The%20problem%20with%20LangChain%20is,don't%20start%20with%20LangChain)
-* Vector Database:
-  * [Chroma](https://www.trychroma.com/)
 * Embeddings:
   * [all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2)
     * This is a `sentence-transformers` model: It maps sentences & paragraphs to a 384 dimensional dense vector space and can be used for tasks like clustering or semantic search.
+* Vector Databases:
+  * [Chroma](https://www.trychroma.com/)
+  * Indexing algorithms:
+    * There are many algorithms for building indexes to optimize vector search. Most vector databases implement `Hierarchical Navigable Small World (HNSW)` and/or `Inverted File Index (IVF)`. Here are some great articles explaining them, and the trade-off between `speed`, `memory` and `quality`:
+      * [Nearest Neighbor Indexes for Similarity Search](https://www.pinecone.io/learn/series/faiss/vector-indexes/)
+      * [Hierarchical Navigable Small World (HNSW)](https://towardsdatascience.com/similarity-search-part-4-hierarchical-navigable-small-world-hnsw-2aad4fe87d37)
+      * [From NVIDIA - Accelerating Vector Search: Using GPU-Powered Indexes with RAPIDS RAFT](https://developer.nvidia.com/blog/accelerating-vector-search-using-gpu-powered-indexes-with-rapids-raft/)
+      * [From NVIDIA - Accelerating Vector Search: Fine-Tuning GPU Index Algorithms](https://developer.nvidia.com/blog/accelerating-vector-search-fine-tuning-gpu-index-algorithms/)
+      * > PS: Flat indexes (i.e. no optimisation) can be used to maintain 100% recall and precision, at the expense of speed.
+* Retrieval Augmented Generation (RAG):
+  * [Rewrite-Retrieve-Read](https://github.com/langchain-ai/langchain/blob/master/cookbook/rewrite.ipynb)
+    * > Because the original query can not be always optimal to retrieve for the LLM, especially in the real world, we first prompt an LLM to rewrite the queries, then conduct retrieval-augmented reading.
+  * [Rerank](https://txt.cohere.com/rag-chatbot/#implement-reranking)
 * Chatbot Development:
   * [How to Create a Custom Chatbot with Gradio Blocks](https://www.gradio.app/guides/creating-a-custom-chatbot-with-blocks#add-streaming-to-your-chatbot)
 * Text Processing and Cleaning:
@@ -153,6 +165,7 @@ python chat/rag_bot.py
   * [llama-cpp-python](https://github.com/abetlen/llama-cpp-python)
   * [pyllamacpp](https://github.com/abdeladim-s/pyllamacpp)
   * [chroma](https://github.com/chroma-core/chroma)
-  * [lit-gpt](https://github.com/Lightning-AI/lit-gpt)
-  * [api-for-open-llm](https://github.com/xusenlinzy/api-for-open-llm)
-  * [PrivateDocBot](https://github.com/Abhi5h3k/PrivateDocBot)
+  * Inspirational repos:
+    * [lit-gpt](https://github.com/Lightning-AI/lit-gpt)
+    * [api-for-open-llm](https://github.com/xusenlinzy/api-for-open-llm)
+    * [PrivateDocBot](https://github.com/Abhi5h3k/PrivateDocBot)
