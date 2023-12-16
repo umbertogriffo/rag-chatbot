@@ -5,7 +5,8 @@ from typing import Optional
 
 import requests
 from bot.model_settings import ModelSettings
-from bot.prompt import generate_ctx_prompt, generate_qa_prompt, generate_refine_prompt
+from bot.prompt import generate_ctx_prompt, generate_qa_prompt, generate_refined_ctx_prompt, \
+    generate_conversation_awareness_prompt
 from ctransformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer
 from tqdm import tqdm
 from transformers import TextIteratorStreamer, TextStreamer
@@ -27,6 +28,7 @@ class Model:
         self.qa_prompt_template = self.model_settings.qa_prompt_template
         self.ctx_prompt_template = self.model_settings.ctx_prompt_template
         self.refined_ctx_prompt_template = self.model_settings.refined_ctx_prompt_template
+        self.conversation_awareness_prompt_template = self.model_settings.conversation_awareness_prompt_template
 
         self._auto_download()
 
@@ -110,7 +112,7 @@ class Model:
             context=context,
         )
 
-    def generate_refined_ctx__prompt(self, question, context, existing_answer) -> str:
+    def generate_refined_ctx_prompt(self, question, context, existing_answer) -> str:
         """
         Generates a refined prompt for question-answering with existing answer.
 
@@ -122,12 +124,21 @@ class Model:
         Returns:
             str: The generated refined prompt.
         """
-        return generate_refine_prompt(
+        return generate_refined_ctx_prompt(
             template=self.refined_ctx_prompt_template,
             system=self.system_template,
             question=question,
             context=context,
             existing_answer=existing_answer,
+        )
+
+    def generate_conversation_awareness_prompt(self, question, chat_history) -> str:
+
+        return generate_conversation_awareness_prompt(
+            template=self.conversation_awareness_prompt_template,
+            system=self.system_template,
+            question=question,
+            chat_history=chat_history
         )
 
     def encode_prompt(self, prompt: str):

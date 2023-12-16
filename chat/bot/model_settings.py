@@ -31,6 +31,7 @@ class ModelSettings(ABC):
     qa_prompt_template: str
     ctx_prompt_template: str
     refined_ctx_prompt_template: str
+    conversation_awareness_prompt_template: str
     config: Config
 
 
@@ -88,6 +89,16 @@ We have the opportunity to refine the existing answer
 Given the new context, refine the original answer to better answer the query.
 If the context isn't useful, return the original answer.
 Refined Answer:</s>
+<|assistant|>
+"""
+    conversation_awareness_prompt_template = """<|system|> {system}
+Chat History:
+{chat_history}
+Follow Up Question: {question}
+</s>
+<|user|>
+Given the above conversation and a follow up question, rephrase the follow up question to be a standalone question.
+Standalone question:</s>
 <|assistant|>
 """
 
@@ -150,6 +161,18 @@ We have the opportunity to refine the existing answer
 Given the new context, refine the original answer to better answer the query.
 If the context isn't useful, return the original answer.
 Refined Answer:<|im_end|>
+<|im_start|>assistant
+<|im_start|>system
+"""
+    conversation_awareness_prompt_template = """<|im_start|>system
+{system}
+<|im_end|>
+<|im_start|>user
+Chat History:
+{chat_history}
+Follow Up Question: {question}
+Given the above conversation and a follow up question, rephrase the follow up question to be a standalone question.
+Standalone question:<|im_end|>
 <|im_start|>assistant
 <|im_start|>system
 """

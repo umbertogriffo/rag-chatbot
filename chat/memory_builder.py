@@ -3,7 +3,8 @@ import sys
 from pathlib import Path
 from typing import List
 
-from bot.memory.vector_memory import initialize_embedding, VectorMemory
+from bot.memory.embedder import EmbedderHuggingFace
+from bot.memory.vector_memory import VectorMemory
 from helpers.log import get_logger
 from langchain.document_loaders import DirectoryLoader, UnstructuredMarkdownLoader
 from langchain.text_splitter import MarkdownTextSplitter
@@ -63,9 +64,8 @@ def build_memory_index(
     logger.info(f"Number of Documents: {len(sources)}")
     chunks = split_chunks(sources, chunk_size=chunk_size, chunk_overlap=chunk_overlap)
     logger.info(f"Number of Chunks: {len(chunks)}")
-    embedding = initialize_embedding()
-    memory = VectorMemory(embedding=embedding)
-    memory.create_memory_index(chunks, vector_store_path)
+    embedding = EmbedderHuggingFace()
+    VectorMemory.create_memory_index(embedding, chunks, vector_store_path)
     logger.info("Memory Index has been created successfully!")
 
 

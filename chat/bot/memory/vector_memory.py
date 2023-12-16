@@ -2,7 +2,7 @@ from typing import Any, List
 
 from cleantext import clean
 from helpers.log import get_logger
-from langchain.embeddings import HuggingFaceEmbeddings
+
 from langchain.vectorstores import Chroma
 
 logger = get_logger(__name__)
@@ -22,7 +22,7 @@ class VectorMemory:
 
     """
 
-    def __init__(self, embedding: Any, verbose=False) -> None:
+    def __init__(self, vector_store_path: str, embedding: Any, verbose=False) -> None:
         self.embedding = embedding
         self.verbose = verbose
 
@@ -30,34 +30,7 @@ class VectorMemory:
             logger.error("No embedder passed to VectorMemory")
             raise Exception("No embedder passed to VectorMemory")
 
-    def create_memory_index(self, chunks: List, vector_store_path: str) -> Chroma:
-        """
-        Creates a Chroma memory index from the given chunks.
-
-        Parameters:
-        -----------
-        chunks : List
-            The list of document chunks.
-
-        vector_store_path : str
-            The path to store the vector store.
-
-        Returns:
-        -------
-        Chroma
-            The created Chroma memory index.
-
-        """
-        texts = [clean(doc.page_content, no_emoji=True) for doc in chunks]
-        metadatas = [doc.metadata for doc in chunks]
-        memory_index = Chroma.from_texts(
-            texts,
-            self.embedding,
-            metadatas=metadatas,
-            persist_directory=vector_store_path,
-        )
-        memory_index.persist()
-        return memory_index
+        self.index = self.load_memory_index(vector_store_path)
 
     def load_memory_index(self, vector_store_path: str) -> Chroma:
         """
@@ -74,83 +47,84 @@ class VectorMemory:
             The loaded Chroma memory index.
 
         """
-        # Load the vector store to use as the index
         index = Chroma(
             persist_directory=str(vector_store_path), embedding_function=self.embedding
         )
         return index
 
+    def similarity_search(self, query: str, k: int = 4):
+        """
+        Performs similarity search on the given query.
 
-def initialize_embedding() -> HuggingFaceEmbeddings:
-    """
-    Initializes the HuggingFaceEmbeddings object with the specified model.
+        Parameters:
+        -----------
+        query : str
+            The query string.
 
-    Returns:
-    -------
-    HuggingFaceEmbeddings
-        The initialized HuggingFaceEmbeddings object.
+        index : Chroma
+            The Chroma index to perform the search on.
 
-    """
-    return HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+        k : int, optional
+            The number of retrievals to consider (default is 4).
 
+        Returns:
+        -------
+        Tuple[List[Document]], List[Dict[str, Any]]
+            A tuple containing the list of matched documents and a list of their sources.
 
-def similarity_search(query: str, index: Chroma, k: int = 4):
-    """
-    Performs similarity search on the given query using the specified index.
+        """
+        # `similarity_search_with_relevance_scores` return docs and relevance scores in the range [0, 1].
+        # 0 is dissimilar, 1 is most similar.
+        matched_docs = self.index.similarity_search_with_relevance_scores(query, k=k)
+        sorted_matched_docs_by_relevance_score = sorted(matched_docs, key=lambda x: x[1], reverse=True)
+        retrieved_contents = [doc[0] for doc in sorted_matched_docs_by_relevance_score]
+        sources = []
+        for doc, score in sorted_matched_docs_by_relevance_score:
+            sources.append(
+                {
+                    "score": round(score, 3),
+                    "source": doc.metadata.get("source"),
+                    "content": f"{doc.page_content[0:150]}...",
+                }
+            )
 
-    Parameters:
-    -----------
-    query : str
-        The query string.
+        return retrieved_contents, sources
 
-    index : Chroma
-        The Chroma index to perform the search on.
+    def search_most_similar_doc(self, query: str, k: int = 4):
+        """
+        Searches for the most similar document to the given query using the specified index.
+        The returned distance score is cosine distance. Therefore, a lower score is better.
 
-    k : int, optional
-        The number of retrievals to consider (default is 4).
+        Parameters:
+        -----------
+        query : str
+            The query string.
 
-    Returns:
-    -------
-    Tuple[List[Document]], List[Dict[str, Any]]
-        A tuple containing the list of matched documents and a list of their sources.
+        index : Chroma
+            The Chroma index to perform the search on.
 
-    """
-    matched_docs = index.similarity_search(query, k=k)
-    sources = []
-    for doc in matched_docs:
-        sources.append(
-            {
-                "page_content": doc.page_content,
-                "metadata": doc.metadata,
-            }
+        k : int, optional
+            The number of retrievals to consider (default is 4).
+
+        Returns:
+        -------
+        Tuple[Document, float]
+            A tuple containing the most similar document and its similarity score.
+
+        """
+        matched_docs = self.index.similarity_search_with_score(query, k=k)
+        matched_doc = min(matched_docs, key=lambda x: x[1])
+
+        return matched_doc
+
+    @staticmethod
+    def create_memory_index(embedding: Any, chunks: List, vector_store_path: str):
+        texts = [clean(doc.page_content, no_emoji=True) for doc in chunks]
+        metadatas = [doc.metadata for doc in chunks]
+        memory_index = Chroma.from_texts(
+            texts=texts,
+            embedding=embedding,
+            metadatas=metadatas,
+            persist_directory=vector_store_path,
         )
-
-    return matched_docs, sources
-
-
-def search_most_similar_doc(query: str, index: Chroma, k: int = 4):
-    """
-    Searches for the most similar document to the given query using the specified index.
-    The returned distance score is cosine distance. Therefore, a lower score is better.
-
-    Parameters:
-    -----------
-    query : str
-        The query string.
-
-    index : Chroma
-        The Chroma index to perform the search on.
-
-    k : int, optional
-        The number of retrievals to consider (default is 4).
-
-    Returns:
-    -------
-    Tuple[Document, float]
-        A tuple containing the most similar document and its similarity score.
-
-    """
-    matched_docs = index.similarity_search_with_score(query, k=k)
-    matched_doc = min(matched_docs, key=lambda x: x[1])
-
-    return matched_doc
+        memory_index.persist()

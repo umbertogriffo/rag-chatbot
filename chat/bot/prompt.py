@@ -33,7 +33,7 @@ def generate_ctx_prompt(template: str, system: str, question: str, context: str 
     return prompt
 
 
-def generate_refine_prompt(
+def generate_refined_ctx_prompt(
     template: str, system: str, question: str, existing_answer: str, context: str = ""
 ):
     """
@@ -54,6 +54,18 @@ def generate_refine_prompt(
         system=system,
         context=context,
         existing_answer=existing_answer,
+        question=question,
+    )
+    return prompt
+
+
+def generate_conversation_awareness_prompt(
+    template: str, system: str, question: str, chat_history: str
+):
+
+    prompt = template.format(
+        system=system,
+        chat_history=chat_history,
         question=question,
     )
     return prompt

@@ -3,7 +3,8 @@ from pathlib import Path
 import chromadb
 from langchain_community.vectorstores.chroma import Chroma
 
-from bot.memory.vector_memory import initialize_embedding, VectorMemory, similarity_search, search_most_similar_doc
+from bot.memory.embedder import EmbedderHuggingFace
+from bot.memory.vector_memory import VectorMemory
 
 if __name__ == "__main__":
     root_folder = Path(__file__).resolve().parent.parent
@@ -12,19 +13,16 @@ if __name__ == "__main__":
     # Contains an extract of things the user said in the past;
     episodic_vector_store_path = root_folder / "vector_store" / "episodic_index"
 
-    embedding = initialize_embedding()
-    memory = VectorMemory(embedding=embedding)
-    index = memory.load_memory_index(str(declarative_vector_store_path))
+    embedding = EmbedderHuggingFace().get_embedding()
+    index = VectorMemory(vector_store_path=str(declarative_vector_store_path), embedding=embedding)
 
     # query = "<write_your_query_here>"
     query = "tell me a joke about ClearML"
 
-    matched_docs, sources = similarity_search(query, index)
-    matched_doc = search_most_similar_doc(query, index)
+    matched_docs, sources = index.similarity_search(query)
+    matched_doc = index.search_most_similar_doc(query)
 
-    docs = index.similarity_search(query=query, k=4)
-
-    for doc in docs:
+    for doc, score in matched_docs:
         print("-- PAGE CONTENT --")
         print(doc.page_content)
         print("-- METADATA --")

@@ -1,9 +1,11 @@
 import argparse
 import sys
+import time
 from pathlib import Path
 
-from bot.conversation import Conversation
-from bot.memory.vector_memory import VectorMemory, initialize_embedding
+from bot.conversation.conversation import Conversation
+from bot.memory.embedder import EmbedderHuggingFace
+from bot.memory.vector_memory import VectorMemory
 from bot.model import Model
 from bot.model_settings import get_model_setting, get_models
 from helpers.log import get_logger
@@ -68,25 +70,28 @@ def loop(conversation, index, parameters) -> None:
         if question.lower() == "exit":
             break
 
-        contents = index.similarity_search(query=question, k=parameters.k)
+        logger.info(f"--- Question: {question}, Chat_history: {conversation.get_chat_history()} ---")
+
+        start_time = time.time()
+        question = conversation.refine_question(question)
+
+        retrieved_contents, sources = index.similarity_search(query=question, k=parameters.k)
 
         console.print("\n[bold magenta]Sources:[/bold magenta]")
-        sources = []
-        for content in contents:
-            sources.append(content.metadata.get("source", ""))
-            # logger.info(doc.page_content)
-
-        sources = list(dict.fromkeys(sources))
         for source in sources:
             console.print(Markdown(f"- {source}"))
 
         console.print("\n[bold magenta]Answer:[/bold magenta]")
 
-        answer = conversation.answer(question, contents)
+        answer = conversation.answer(question, retrieved_contents)
+
+        conversation.update_chat_history(question, answer)
 
         console.print("\n[bold magenta]Formatted Answer:[/bold magenta]")
         if answer:
             console.print(Markdown(answer))
+            took = time.time() - start_time
+            print(f"\n--- Took {took:.2f} seconds ---")
         else:
             console.print("[bold red]Something went wrong![/bold red]")
 
@@ -101,10 +106,8 @@ def main(parameters):
     llm = Model(model_folder, model_settings)
     conversation = Conversation(llm)
 
-    embedding = initialize_embedding()
-
-    memory = VectorMemory(embedding=embedding)
-    index = memory.load_memory_index(str(vector_store_path))
+    embedding = EmbedderHuggingFace().get_embedding()
+    index = VectorMemory(vector_store_path=str(vector_store_path), embedding=embedding)
 
     loop(conversation, index, parameters)
 
