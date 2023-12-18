@@ -157,6 +157,7 @@ python chat/rag_bot.py
   * [Conversational awareness](https://langstream.ai/2023/10/13/rag-chatbot-with-conversation/)
 * Chatbot Development:
   * [How to Create a Custom Chatbot with Gradio Blocks](https://www.gradio.app/guides/creating-a-custom-chatbot-with-blocks#add-streaming-to-your-chatbot)
+  * [Build a basic LLM chat app](https://docs.streamlit.io/knowledge-base/tutorials/build-conversational-apps#build-a-chatgpt-like-app)
 * Text Processing and Cleaning:
   * [clean-text](https://github.com/jfilter/clean-text/tree/main)
 * Open Source Repositories:

@@ -10,22 +10,32 @@ from helpers.log import get_logger
 logger = get_logger(__name__)
 
 
-def gui(llm):
+def run(llm):
     with gr.Blocks() as demo:
-        chatbot = gr.Chatbot(layout="bubble", height=750, show_copy_button=True)
-        msg = gr.Textbox(show_copy_button=True)
+        # gr.Image("/home/umberto/PycharmProjects/contextual-chatbot-gpt4all/images/download.png",
+        #          height=10,
+        #          width=200,
+        #          scale=2)
+        chatbot = gr.Chatbot(layout="bubble",
+                             height=750,
+                             label="Chatbot",
+                             show_copy_button=True)
+        msg = gr.Textbox(label="",
+                         placeholder="Message Chatbot...",
+                         autofocus=True,
+                         show_copy_button=True)
         clear = gr.Button("Clear")
 
         def user(user_message, history):
             return "", history + [[user_message, None]]
 
         def bot(history):
-            logger.info("Question: ", history[-1][0])
+            logger.info(f"Question: {history[-1][0]}")
             prompt = llm.generate_qa_prompt(question=history[-1][0])
             bot_message = llm.start_answer_iterator_streamer(
                 prompt, max_new_tokens=1000
             )
-            logger.info("Response: ", bot_message)
+            logger.info(f"Response:  {bot_message}")
             history[-1][1] = ""
             for character in llm.streamer:
                 history[-1][1] += character
@@ -68,7 +78,7 @@ def main(parameters):
     Path(model_folder).parent.mkdir(parents=True, exist_ok=True)
 
     llm = Model(model_folder, model_settings)
-    gui(llm)
+    run(llm)
 
 
 if __name__ == "__main__":

@@ -58,15 +58,13 @@ class ZephyrSettings(ModelSettings):
         mlock=False,
     )
     system_template = "You are a helpful, respectful and honest assistant. "
-    qa_prompt_template = """<|system|> {system}
-Answer the question below:
+    qa_prompt_template = """<|system|>{system} Answer the question below:
 </s>
 <|user|>
 {question}</s>
 <|assistant|>
 """
-    ctx_prompt_template = """<|system|> {system}
-Context information is below.
+    ctx_prompt_template = """<|system|>{system} Context information is below.
 ---------------------
 {context}
 ---------------------
@@ -76,8 +74,7 @@ Given the context information and not prior knowledge, answer the question below
 {question}</s>
 <|assistant|>
 """
-    refined_ctx_prompt_template = """<|system|> {system}
-The original query is as follows: {question}
+    refined_ctx_prompt_template = """<|system|>{system} The original query is as follows: {question}
 We have provided an existing answer: {existing_answer}
 We have the opportunity to refine the existing answer
 (only if needed) with some more context below.
@@ -91,8 +88,7 @@ If the context isn't useful, return the original answer.
 Refined Answer:</s>
 <|assistant|>
 """
-    conversation_awareness_prompt_template = """<|system|> {system}
-Chat History:
+    conversation_awareness_prompt_template = """<|system|>{system} Chat History:
 {chat_history}
 Follow Up Question: {question}
 </s>
@@ -126,17 +122,14 @@ class MistralSettings(ModelSettings):
         mlock=False,
     )
     system_template = "You are a helpful, respectful and honest assistant."
-    prompt_template = """<|im_start|>system
-{system}
-<|im_end|>
+    qa_prompt_template = """<|im_start|>system
+{system}<|im_end|>
 <|im_start|>user
 {question}<|im_end|>
 <|im_start|>assistant
-<|im_start|>system
 """
     ctx_prompt_template = """<|im_start|>system
-{system}
-<|im_end|>
+{system}<|im_end|>
 <|im_start|>user
 Context information is below.
 ---------------------
@@ -145,11 +138,9 @@ Context information is below.
 Given the context information and not prior knowledge, answer the question below:
 {question}<|im_end|>
 <|im_start|>assistant
-<|im_start|>system
 """
     refined_ctx_prompt_template = """<|im_start|>system
-{system}
-<|im_end|>
+{system}<|im_end|>
 <|im_start|>user
 The original query is as follows: {question}
 We have provided an existing answer: {existing_answer}
@@ -162,11 +153,9 @@ Given the new context, refine the original answer to better answer the query.
 If the context isn't useful, return the original answer.
 Refined Answer:<|im_end|>
 <|im_start|>assistant
-<|im_start|>system
 """
     conversation_awareness_prompt_template = """<|im_start|>system
-{system}
-<|im_end|>
+{system}<|im_end|>
 <|im_start|>user
 Chat History:
 {chat_history}
@@ -174,7 +163,6 @@ Follow Up Question: {question}
 Given the above conversation and a follow up question, rephrase the follow up question to be a standalone question.
 Standalone question:<|im_end|>
 <|im_start|>assistant
-<|im_start|>system
 """
 
 
