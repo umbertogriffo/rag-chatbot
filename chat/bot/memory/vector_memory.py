@@ -83,8 +83,8 @@ class VectorMemory:
             sources.append(
                 {
                     "score": round(score, 3),
-                    "source": doc.metadata.get("source"),
-                    "content": f"{doc.page_content[0:150]}...",
+                    "document": doc.metadata.get("source"),
+                    "content_preview": f"{doc.page_content[0:150]}...",
                 }
             )
 

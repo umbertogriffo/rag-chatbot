@@ -156,8 +156,13 @@ python chat/rag_bot.py
   * [Rerank](https://txt.cohere.com/rag-chatbot/#implement-reranking)
   * [Conversational awareness](https://langstream.ai/2023/10/13/rag-chatbot-with-conversation/)
 * Chatbot Development:
-  * [How to Create a Custom Chatbot with Gradio Blocks](https://www.gradio.app/guides/creating-a-custom-chatbot-with-blocks#add-streaming-to-your-chatbot)
-  * [Build a basic LLM chat app](https://docs.streamlit.io/knowledge-base/tutorials/build-conversational-apps#build-a-chatgpt-like-app)
+  * [Streamlit](https://discuss.streamlit.io/):
+    * [Build a basic LLM chat app](https://docs.streamlit.io/knowledge-base/tutorials/build-conversational-apps#build-a-chatgpt-like-app)
+    * [Layouts and Containers](https://docs.streamlit.io/library/api-reference/layout)
+    * [st.chat_message](https://docs.streamlit.io/library/api-reference/chat/st.chat_message)
+    * [Add statefulness to apps](https://docs.streamlit.io/library/advanced-features/session-state)
+      * [Why session state is not persisting between refresh?](https://discuss.streamlit.io/t/why-session-state-is-not-persisting-between-refresh/32020)
+    * [st.cache_resource](https://docs.streamlit.io/library/api-reference/performance/st.cache_resource)
 * Text Processing and Cleaning:
   * [clean-text](https://github.com/jfilter/clean-text/tree/main)
 * Open Source Repositories:

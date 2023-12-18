@@ -1,4 +1,6 @@
-from typing import List, Tuple
+from typing import List, Tuple, Union
+
+from transformers import TextIteratorStreamer
 
 from bot.conversation.ctx_strategy import ContextSynthesisStrategy
 from bot.model import Model
@@ -72,7 +74,7 @@ class Conversation:
         else:
             return question
 
-    def answer(self, question: str, retrieved_contents) -> str:
+    def answer(self, question: str, retrieved_contents, return_generator=False) -> Union[str | TextIteratorStreamer]:
         """
         Generates an answer using the `ContextSynthesisStrategy` for the given question.
 
@@ -90,7 +92,7 @@ class Conversation:
         strategy = ContextSynthesisStrategy(self.llm)
 
         answer, fmt_prompts = strategy.generate_response_cr(
-            retrieved_contents, question
+            retrieved_contents, question, return_generator=return_generator
         )
 
         return answer

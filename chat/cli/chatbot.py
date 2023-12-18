@@ -69,7 +69,7 @@ def loop(llm):
 def main(parameters):
     model_settings = get_model_setting(parameters.model)
 
-    root_folder = Path(__file__).resolve().parent.parent
+    root_folder = Path(__file__).resolve().parent.parent.parent
     model_folder = root_folder / "models"
     Path(model_folder).parent.mkdir(parents=True, exist_ok=True)
 

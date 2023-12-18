@@ -1,3 +1,4 @@
+import sys
 from pathlib import Path
 
 import streamlit as st
@@ -53,10 +54,10 @@ def display_messages_from_history():
 
 def get_answer(llm, messages) -> tuple[str, float]:
     prompt = llm.generate_qa_prompt(question=messages)
-    _ = llm.start_answer_iterator_streamer(
+    streamer = llm.start_answer_iterator_streamer(
         prompt, max_new_tokens=1000
     )
-    for character in llm.streamer:
+    for character in streamer:
         yield character
 
 
@@ -84,13 +85,17 @@ def main() -> None:
             message_placeholder = st.empty()
             full_response = ""
             for chunk in get_answer(llm, user_input):
-                full_response += chunk + " "
+                full_response += chunk
                 message_placeholder.markdown(full_response + "▌")
             message_placeholder.markdown(full_response)
         # Add assistant response to chat history
         st.session_state.messages.append({"role": "assistant", "content": full_response})
 
 
-# streamlit run app.py
+# streamlit run chatbot_app.py
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as error:
+        logger.error(f"An error occurred: {str(error)}", exc_info=True, stack_info=True)
+        sys.exit(1)

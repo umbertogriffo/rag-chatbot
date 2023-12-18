@@ -9,6 +9,7 @@ from bot.memory.vector_memory import VectorMemory
 from bot.model import Model
 from bot.model_settings import get_model_setting, get_models
 from helpers.log import get_logger
+from helpers.prettier import prettify_source
 from helpers.reader import read_input
 from pyfiglet import Figlet
 from rich.console import Console
@@ -79,7 +80,7 @@ def loop(conversation, index, parameters) -> None:
 
         console.print("\n[bold magenta]Sources:[/bold magenta]")
         for source in sources:
-            console.print(Markdown(f"- {source}"))
+            console.print(Markdown(prettify_source(source)))
 
         console.print("\n[bold magenta]Answer:[/bold magenta]")
 
@@ -99,7 +100,7 @@ def loop(conversation, index, parameters) -> None:
 def main(parameters):
     model_settings = get_model_setting(parameters.model)
 
-    root_folder = Path(__file__).resolve().parent.parent
+    root_folder = Path(__file__).resolve().parent.parent.parent
     model_folder = root_folder / "models"
     vector_store_path = root_folder / "vector_store" / "docs_index"
 

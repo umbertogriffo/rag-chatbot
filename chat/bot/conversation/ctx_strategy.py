@@ -1,5 +1,6 @@
 from helpers.log import get_logger
 from bot.model import Model
+
 logger = get_logger(__name__)
 
 
@@ -7,7 +8,7 @@ class ContextSynthesisStrategy:
     def __init__(self, llm: Model) -> None:
         self.llm = llm
 
-    def generate_response_cr(self, retrieved_contents, question):
+    def generate_response_cr(self, retrieved_contents, question, return_generator=False):
         """
         Generate a response using create and refine strategy.
 
@@ -37,12 +38,16 @@ class ContextSynthesisStrategy:
                 )
 
             if idx == num_of_contents - 1:
-                cur_response = self.llm.stream_answer(fmt_prompt, max_new_tokens=512)
+                if return_generator:
+                    cur_response = self.llm.start_answer_iterator_streamer(fmt_prompt, max_new_tokens=512)
+                else:
+                    cur_response = self.llm.stream_answer(fmt_prompt, max_new_tokens=512)
+
             else:
                 cur_response = self.llm.generate_answer(fmt_prompt, max_new_tokens=512)
             fmt_prompts.append(fmt_prompt)
 
-        return str(cur_response), fmt_prompts
+        return cur_response, fmt_prompts
 
     def generate_response_hs(self, retrieved_contents, question, num_children=10):
         """
@@ -71,15 +76,15 @@ class ContextSynthesisStrategy:
         return response_txt, fmt_prompts
 
     def combine_results(
-        self,
-        texts,
-        question,
-        cur_prompt_list,
-        num_children=10,
+            self,
+            texts,
+            question,
+            cur_prompt_list,
+            num_children=10,
     ):
         new_texts = []
         for idx in range(0, len(texts), num_children):
-            text_batch = texts[idx : idx + num_children]
+            text_batch = texts[idx: idx + num_children]
             context = "\n\n".join([t for t in text_batch])
             fmt_qa_prompt = self.llm.generate_ctx_prompt(
                 question=question, context=context

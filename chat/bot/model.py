@@ -210,7 +210,7 @@ class Model:
 
     def start_answer_iterator_streamer(
             self, prompt: str, skip_prompt: bool = True, max_new_tokens: int = 1000
-    ) -> str:
+    ) -> TextIteratorStreamer:
         """
         Starts an answer iterator streamer thread for generating answers asynchronously.
 
@@ -233,4 +233,4 @@ class Model:
         thread = Thread(target=self.llm.generate, kwargs=kwargs)
         thread.start()
 
-        return ""
+        return self.streamer
