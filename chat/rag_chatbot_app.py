@@ -62,7 +62,7 @@ def init_page() -> None:
         page_icon="💬",
         initial_sidebar_state="collapsed"
     )
-    st.header("Personal ChatGPT")
+    st.header("RAG Chatbot")
     st.sidebar.title("Options")
 
 

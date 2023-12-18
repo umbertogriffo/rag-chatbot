@@ -101,24 +101,21 @@ python chat/memory_builder.py --chunk-size 1000
 
 ## Run a simple Chatbot
 
-To interact with a CLI type:
-```shell
-python chat/chatbot.py
-```
-![python-code.gif](images/python-code.gif)
-
 To interact with a GUI type:
 ```shell
-python chat/app.py
+streamlit run chat/chatbot_app.py
 ```
-![app.gif](images/app.gif)
+
+![simple.gif](images/simple_chat.gif)
 
 ## Run the RAG Chatbot
 
-Run:
+To interact with a GUI type:
 ```shell
-python chat/rag_bot.py
+streamlit run chat/rag_chatbot_app.py
 ```
+
+![rag_chatbot_example.gif](images%2Frag_chatbot_example.gif)
 
 ## References
 

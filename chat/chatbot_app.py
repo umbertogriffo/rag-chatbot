@@ -22,11 +22,11 @@ def load_llm(model_folder: Path) -> Model:
 
 def init_page() -> None:
     st.set_page_config(
-        page_title="Personal ChatGPT",
+        page_title="Chatbot",
         page_icon="💬",
         initial_sidebar_state="collapsed"
     )
-    st.header("Personal ChatGPT")
+    st.header("Chatbot")
     st.sidebar.title("Options")
 
 
