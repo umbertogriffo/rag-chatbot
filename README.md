@@ -31,14 +31,14 @@ relevant context from previous conversations to provide more accurate answers.
 
 - [Prerequisites](#prerequisites)
   - [Install Poetry](#install-poetry)
-- [Bootstrap Environment](#-bootstrap-environment)
+- [Bootstrap Environment](#bootstrap-environment)
   - [How to use the make file](#how-to-use-the-make-file)
-- [Using the Open-Source GPT4All's Models Locally](#using-the-open-source-gpt4alls-models-locally)
+- [Using the Open-Source Models Locally](#using-the-open-source-models-locally)
   - [Supported Models](#supported-models)
 - [Example Data](#example-data)
 - [Build the memory index](#build-the-memory-index)
 - [Run a simple Chatbot](#run-a-simple-chatbot)
-- [Run the Contextual Chatbot](#run-the-contextual-chatbot)
+- [Run the RAG Chatbot](#run-the-rag-chatbot)
 - [References](#references)
 
 
@@ -74,7 +74,7 @@ To easily install the dependencies I created a make file.
 > [!NOTE]
 > Run `Install` as your init command (or after `Clean`).
 
-## Using the Open-Source GPT4All's Models Locally
+## Using the Open-Source Models Locally
 
 We use [CTransformers](https://github.com/marella/ctransformers), an open-source library that allows working with 
 transformer-based models efficiently.
