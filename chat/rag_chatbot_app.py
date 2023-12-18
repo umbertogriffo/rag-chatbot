@@ -142,7 +142,9 @@ def main(parameters) -> None:
         with st.chat_message("assistant"):
             message_placeholder = st.empty()
             full_response = ""
-            with st.spinner(text="Refining the question and Retrieving the docs – hang tight! This should take seconds."):
+            with st.spinner(text="Refining the question and Retrieving the docs – hang tight! "
+                                 "This should take seconds."
+                            ):
                 user_input = conversational_retrieval.refine_question(user_input)
                 retrieved_contents, sources = index.similarity_search(query=user_input, k=parameters.k)
 
