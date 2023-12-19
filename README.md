@@ -1,7 +1,7 @@
 # RAG(Retrieval-augmented generation) ChatBot with CTransformers, LangChain and Chroma
 
-This project combines the power of [CTransformers](https://github.com/marella/ctransformers), [LangChain](https://python.langchain.com/docs/get_started/introduction.html) and 
-[Chroma](https://github.com/chroma-core/chroma) to accomplish a specific task.
+This project combines the power of [CTransformers](https://github.com/marella/ctransformers), [Lama.cpp](https://github.com/abetlen/llama-cpp-python),
+[LangChain](https://python.langchain.com/docs/get_started/introduction.html) and [Chroma](https://github.com/chroma-core/chroma) to accomplish a specific task.
 It works by taking a collection of Markdown files as input and, when asked a question, provides the corresponding answer
 based on the context provided by those files.
 
@@ -76,16 +76,17 @@ To easily install the dependencies I created a make file.
 
 ## Using the Open-Source Models Locally
 
-We use [CTransformers](https://github.com/marella/ctransformers), an open-source library that allows working with 
-transformer-based models efficiently.
-Running the LLMs architecture on your local PC is impossible due to the large (~7 billion) number of 
-parameters. The main contribution of `CTransformers` models is the ability to run them either on a `CPU` or `GPU`.
-The authors applied `Quantization and 4-bit precision` using the [GGML/GGUF](https://medium.com/@phillipgimmi/what-is-gguf-and-ggml-e364834d241c) format.
-Basically, the model uses fewer bits to represent the numbers.
+We utilize two open-source libraries, [CTransformers](https://github.com/marella/ctransformers) and [Lama.cpp](https://github.com/abetlen/llama-cpp-python), 
+which allow us to work efficiently with transformer-based models efficiently.
+Running the LLMs architecture on a local PC is impossible due to the large (~7 billion) number of 
+parameters. These libraries enable us to run them either on a `CPU` or `GPU`.
+Additionally, we use the `Quantization and 4-bit precision` to reduce number of bits required to represent the numbers. 
+The quantized models are stored in [GGML/GGUF](https://medium.com/@phillipgimmi/what-is-gguf-and-ggml-e364834d241c) format.
 
 ### Supported Models
 * [Zephyr 7B Beta - GGUF](https://huggingface.co/TheBloke/zephyr-7B-beta-GGUF)
 * [Mistral 7B OpenOrca - GGUF](https://huggingface.co/TheBloke/Mistral-7B-OpenOrca-GGUF)
+* [StableLM Zephyr 3B - GGUF](https://huggingface.co/TheBloke/stablelm-zephyr-3b-GGUF)
 
 ## Example Data
 
@@ -126,14 +127,8 @@ streamlit run chat/rag_chatbot_app.py
   * [GPT in 60 Lines of NumPy](https://jaykmody.com/blog/gpt-from-scratch/)
 * LLM integration and Modules:
   * [LangChain](https://python.langchain.com/docs/get_started/introduction.html):
-    * [Memory](https://python.langchain.com/docs/modules/memory.html)
     * [MarkdownTextSplitter](https://api.python.langchain.com/en/latest/_modules/langchain/text_splitter.html#MarkdownTextSplitter)
     * [Chroma Integration](https://python.langchain.com/docs/modules/data_connection/vectorstores/integrations/chroma)
-    * [GPT4All](https://python.langchain.com/docs/modules/model_io/models/llms/integrations/gpt4all.html)
-      * uses `pyllamacpp`
-    * [Llama-cpp](https://python.langchain.com/docs/modules/model_io/models/llms/integrations/llamacpp)
-      * uses `llama-cpp-python`
-    * [C Transformers](https://python.langchain.com/docs/integrations/llms/ctransformers.html)
     * [The Problem With LangChain](https://minimaxir.com/2023/07/langchain-problem/#:~:text=The%20problem%20with%20LangChain%20is,don't%20start%20with%20LangChain)
 * Embeddings:
   * [all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2)

@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "chat"
-version = "0.1.0"
-description = "RAG ChatBot with CTransformers, LangChain and Chroma"
+version = "0.2.0"
+description = "RAG ChatBot"
 authors = ["Umberto Griffo <umberto.griffo@gmail.com>"]
 readme = "README.md"
 

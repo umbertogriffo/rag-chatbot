@@ -22,14 +22,16 @@ logger = get_logger(__name__)
 @st.cache_resource()
 def load_conversational_retrieval(llm_client: Client, model_folder: Path, model_name: str) -> Conversation:
     """
-    Loads a Conversational Retrieval model based on the specified folder and model name.
+    Loads a conversational retrieval model based on the specified language model client, model folder, and model name.
 
     Args:
-        model_folder (Path): The path to the folder containing the model.
-        model_name (str): The name of the model.
+        llm_client (Client): The language model client to use for conversational retrieval.
+        model_folder (Path): The folder path where the model is stored.
+        model_name (str): The name of the conversational retrieval model.
 
     Returns:
-        Conversation: An instance of the Conversation class with the loaded model.
+        Conversation: A Conversation object initialized with the loaded language model.
+
     """
     model_settings = get_model_setting(model_name)
     clients = [client.value for client in model_settings.clients]
