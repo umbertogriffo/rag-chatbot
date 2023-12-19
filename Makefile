@@ -11,6 +11,8 @@ install:
 	poetry install
 	echo "Installing sentence-transformers with pip to avoid poetry's issues in installing torch... (it doesn't install CUDA dependencies)"
 	. .venv/bin/activate && pip3 install sentence-transformers~=2.2.2
+	echo "Installing llama-cpp-python with pip to get NVidia CUDA acceleration"
+	. .venv/bin/activate && CMAKE_ARGS="-DLLAMA_CUBLAS=on" pip3 install llama-cpp-python~=0.2.23
 
 update:
 	poetry lock --no-update

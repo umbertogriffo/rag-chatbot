@@ -155,6 +155,7 @@ streamlit run chat/rag_chatbot_app.py
     * [Add statefulness to apps](https://docs.streamlit.io/library/advanced-features/session-state)
       * [Why session state is not persisting between refresh?](https://discuss.streamlit.io/t/why-session-state-is-not-persisting-between-refresh/32020)
     * [st.cache_resource](https://docs.streamlit.io/library/api-reference/performance/st.cache_resource)
+    * [Handling External Command Line Arguments](https://github.com/streamlit/streamlit/issues/337)
 * Text Processing and Cleaning:
   * [clean-text](https://github.com/jfilter/clean-text/tree/main)
 * Open Source Repositories:
