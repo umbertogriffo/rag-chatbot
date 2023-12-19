@@ -3,8 +3,8 @@ import sys
 import time
 from pathlib import Path
 
-from bot.model import Model
-from bot.model_settings import get_model_setting, get_models
+from bot.model.client.client_settings import get_clients, get_client
+from bot.model.model_settings import get_model_setting, get_models
 from helpers.log import get_logger
 from helpers.reader import read_input
 from pyfiglet import Figlet
@@ -17,8 +17,22 @@ logger = get_logger(__name__)
 def get_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Chatbot")
 
+    client_list = get_clients()
+    default_client = client_list[0]
+
     model_list = get_models()
     default_model = model_list[0]
+
+    parser.add_argument(
+        "--client",
+        type=str,
+        choices=client_list,
+        help=f"Client to be used. Defaults to {default_client}.",
+        required=False,
+        const=default_client,
+        nargs="?",
+        default=default_client,
+    )
 
     parser.add_argument(
         "--model",
@@ -73,7 +87,12 @@ def main(parameters):
     model_folder = root_folder / "models"
     Path(model_folder).parent.mkdir(parents=True, exist_ok=True)
 
-    llm = Model(model_folder, model_settings)
+    client = parameters.client
+    clients = [client.value for client in model_settings.clients]
+    if parameters.client not in clients:
+        client = clients[0]
+
+    llm = get_client(client, model_folder=model_folder, model_settings=model_settings)
     loop(llm)
 
 

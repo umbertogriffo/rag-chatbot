@@ -1,11 +1,11 @@
+from bot.model.client.client import Client
 from helpers.log import get_logger
-from bot.model import Model
 
 logger = get_logger(__name__)
 
 
 class ContextSynthesisStrategy:
-    def __init__(self, llm: Model) -> None:
+    def __init__(self, llm: Client) -> None:
         self.llm = llm
 
     def generate_response_cr(self, retrieved_contents, question, return_generator=False):

@@ -1,22 +1,27 @@
+import argparse
 import sys
 from pathlib import Path
 
 import streamlit as st
 
-from bot.model import Model
-from bot.model_settings import get_model_setting
+from bot.model.client.client import Client
+from bot.model.client.client_settings import get_client, get_clients
+from bot.model.model_settings import get_model_setting, get_models
 from helpers.log import get_logger
 
 logger = get_logger(__name__)
 
 
 @st.cache_resource(experimental_allow_widgets=True)
-def load_llm(model_folder: Path) -> Model:
+def load_llm(llm_client: Client, model_name: str, model_folder: Path) -> Client:
     """
     Create a LLM session object that points to the model.
     """
-    model_settings = get_model_setting("zephyr")
-    llm = Model(model_folder, model_settings)
+    model_settings = get_model_setting(model_name)
+    clients = [client.value for client in model_settings.clients]
+    if llm_client not in clients:
+        llm_client = clients[0]
+    llm = get_client(llm_client, model_folder=model_folder, model_settings=model_settings)
     return llm
 
 
@@ -58,16 +63,19 @@ def get_answer(llm, messages) -> tuple[str, float]:
         prompt, max_new_tokens=1000
     )
     for character in streamer:
-        yield character
+        yield llm.parse_token(character)
 
 
-def main() -> None:
+def main(parameters) -> None:
     root_folder = Path(__file__).resolve().parent.parent
     model_folder = root_folder / "models"
     Path(model_folder).parent.mkdir(parents=True, exist_ok=True)
 
+    client = parameters.client
+    model = parameters.model
+
     init_page()
-    llm = load_llm(model_folder)
+    llm = load_llm(client, model, model_folder)
     init_messages()
     init_welcome_message()
     display_messages_from_history()
@@ -92,10 +100,45 @@ def main() -> None:
         st.session_state.messages.append({"role": "assistant", "content": full_response})
 
 
+def get_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Chatbot")
+
+    client_list = get_clients()
+    default_client = client_list[0]
+
+    model_list = get_models()
+    default_model = model_list[0]
+
+    parser.add_argument(
+        "--client",
+        type=str,
+        choices=client_list,
+        help=f"Client to be used. Defaults to {default_client}.",
+        required=False,
+        const=default_client,
+        nargs="?",
+        default=default_client,
+    )
+
+    parser.add_argument(
+        "--model",
+        type=str,
+        choices=model_list,
+        help=f"Model to be used. Defaults to {default_model}.",
+        required=False,
+        const=default_model,
+        nargs="?",
+        default=default_model,
+    )
+
+    return parser.parse_args()
+
+
 # streamlit run chatbot_app.py
 if __name__ == "__main__":
     try:
-        main()
+        args = get_args()
+        main(args)
     except Exception as error:
         logger.error(f"An error occurred: {str(error)}", exc_info=True, stack_info=True)
         sys.exit(1)

@@ -3,7 +3,7 @@ from typing import List, Tuple, Union
 from transformers import TextIteratorStreamer
 
 from bot.conversation.ctx_strategy import ContextSynthesisStrategy
-from bot.model import Model
+from bot.model.client.client import Client
 from helpers.log import get_logger
 
 logger = get_logger(__name__)
@@ -14,7 +14,7 @@ class Conversation:
     Question and Answer system using ContextSynthesisStrategy.
     """
 
-    def __init__(self, llm: Model) -> None:
+    def __init__(self, llm: Client) -> None:
         self.llm = llm
         self.chat_history = []
 

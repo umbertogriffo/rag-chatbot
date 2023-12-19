@@ -6,8 +6,9 @@ from pathlib import Path
 from bot.conversation.conversation import Conversation
 from bot.memory.embedder import EmbedderHuggingFace
 from bot.memory.vector_memory import VectorMemory
-from bot.model import Model
-from bot.model_settings import get_model_setting, get_models
+
+from bot.model.client.client_settings import get_client, get_clients
+from bot.model.model_settings import get_models, get_model_setting
 from helpers.log import get_logger
 from helpers.prettier import prettify_source
 from helpers.reader import read_input
@@ -21,8 +22,22 @@ logger = get_logger(__name__)
 def get_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="AI Chatbot")
 
+    client_list = get_clients()
+    default_client = client_list[0]
+
     model_list = get_models()
     default_model = model_list[0]
+
+    parser.add_argument(
+        "--client",
+        type=str,
+        choices=client_list,
+        help=f"Client to be used. Defaults to {default_client}.",
+        required=False,
+        const=default_client,
+        nargs="?",
+        default=default_client,
+    )
 
     parser.add_argument(
         "--model",
@@ -104,7 +119,12 @@ def main(parameters):
     model_folder = root_folder / "models"
     vector_store_path = root_folder / "vector_store" / "docs_index"
 
-    llm = Model(model_folder, model_settings)
+    client = parameters.client
+    clients = [client.value for client in model_settings.clients]
+    if parameters.client not in clients:
+        client = clients[0]
+
+    llm = get_client(client, model_folder=model_folder, model_settings=model_settings)
     conversation = Conversation(llm)
 
     embedding = EmbedderHuggingFace().get_embedding()

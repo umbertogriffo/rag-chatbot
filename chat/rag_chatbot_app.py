@@ -9,8 +9,10 @@ from langchain_core.documents import Document
 from bot.conversation.conversation import Conversation
 from bot.memory.embedder import EmbedderHuggingFace
 from bot.memory.vector_memory import VectorMemory
-from bot.model import Model
-from bot.model_settings import get_model_setting, get_models
+from bot.model.client.client import Client
+
+from bot.model.client.client_settings import get_clients, get_client
+from bot.model.model_settings import get_model_setting, get_models
 from helpers.log import get_logger
 from helpers.prettier import prettify_source
 
@@ -18,7 +20,7 @@ logger = get_logger(__name__)
 
 
 @st.cache_resource()
-def load_conversational_retrieval(model_folder: Path, model_name: str) -> Conversation:
+def load_conversational_retrieval(llm_client: Client, model_folder: Path, model_name: str) -> Conversation:
     """
     Loads a Conversational Retrieval model based on the specified folder and model name.
 
@@ -30,7 +32,10 @@ def load_conversational_retrieval(model_folder: Path, model_name: str) -> Conver
         Conversation: An instance of the Conversation class with the loaded model.
     """
     model_settings = get_model_setting(model_name)
-    llm = Model(model_folder, model_settings)
+    clients = [client.value for client in model_settings.clients]
+    if llm_client not in clients:
+        llm_client = clients[0]
+    llm = get_client(llm_client, model_folder=model_folder, model_settings=model_settings)
 
     conversation_retrieval = Conversation(llm)
     return conversation_retrieval
@@ -107,7 +112,7 @@ def get_answer(conversational_retrieval: Conversation, question: str, retrieved_
     """
     streamer = conversational_retrieval.answer(question, retrieved_contents, return_generator=True)
     for character in streamer:
-        yield character
+        yield conversational_retrieval.llm.parse_token(character)
 
 
 def main(parameters) -> None:
@@ -122,8 +127,11 @@ def main(parameters) -> None:
     vector_store_path = root_folder / "vector_store" / "docs_index"
     Path(model_folder).parent.mkdir(parents=True, exist_ok=True)
 
+    client = parameters.client
+    model = parameters.model
+
     init_page()
-    conversational_retrieval = load_conversational_retrieval(model_folder, parameters.model)
+    conversational_retrieval = load_conversational_retrieval(client, model_folder, model)
     index = load_index(vector_store_path)
     init_messages()
     init_welcome_message()
@@ -180,8 +188,22 @@ def main(parameters) -> None:
 def get_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="RAG Chatbot")
 
+    client_list = get_clients()
+    default_client = client_list[0]
+
     model_list = get_models()
     default_model = model_list[0]
+
+    parser.add_argument(
+        "--client",
+        type=str,
+        choices=client_list,
+        help=f"Client to be used. Defaults to {default_client}.",
+        required=False,
+        const=default_client,
+        nargs="?",
+        default=default_client,
+    )
 
     parser.add_argument(
         "--model",
