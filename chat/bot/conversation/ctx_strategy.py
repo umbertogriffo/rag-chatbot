@@ -1,14 +1,25 @@
+from typing import Union, Any
+
 from bot.model.client.client import Client
 from helpers.log import get_logger
 
 logger = get_logger(__name__)
 
 
-class ContextSynthesisStrategy:
+class BaseSynthesisStrategy:
     def __init__(self, llm: Client) -> None:
         self.llm = llm
 
-    def generate_response_cr(self, retrieved_contents, question, return_generator=False):
+    def answer(self, retrieved_contents, question, max_new_tokens=512, return_generator=False):
+        raise NotImplementedError("Subclasses must implement generate_response method")
+
+
+class CreateAndRefineStrategy(BaseSynthesisStrategy):
+    def __init__(self, llm: Client):
+        super().__init__(llm)
+
+    def answer(self, retrieved_contents, question, max_new_tokens=512,
+               return_generator=False) -> Union[str, Any]:
         """
         Generate a response using create and refine strategy.
 
@@ -39,17 +50,24 @@ class ContextSynthesisStrategy:
 
             if idx == num_of_contents - 1:
                 if return_generator:
-                    cur_response = self.llm.start_answer_iterator_streamer(fmt_prompt, max_new_tokens=512)
+                    cur_response = self.llm.start_answer_iterator_streamer(fmt_prompt, max_new_tokens=max_new_tokens)
                 else:
-                    cur_response = self.llm.stream_answer(fmt_prompt, max_new_tokens=512)
+                    cur_response = self.llm.stream_answer(fmt_prompt, max_new_tokens=max_new_tokens)
 
             else:
-                cur_response = self.llm.generate_answer(fmt_prompt, max_new_tokens=512)
+                cur_response = self.llm.generate_answer(fmt_prompt, max_new_tokens=max_new_tokens)
             fmt_prompts.append(fmt_prompt)
 
         return cur_response, fmt_prompts
 
-    def generate_response_hs(self, retrieved_contents, question, num_children=10):
+
+class TreeSummarizationStrategy(BaseSynthesisStrategy):
+
+    def __init__(self, llm: Client):
+        super().__init__(llm)
+
+    def answer(self, retrieved_contents, question, max_new_tokens=512, num_children=10,
+               return_generator=False) -> Union[str, Any]:
         """
         Generate a response using hierarchical summarization strategy.
 
@@ -62,7 +80,7 @@ class ContextSynthesisStrategy:
             fmt_qa_prompt = self.llm.generate_ctx_prompt(
                 question=question, context=context
             )
-            node_response = self.llm.stream_answer(fmt_qa_prompt, max_new_tokens=512)
+            node_response = self.llm.stream_answer(fmt_qa_prompt, max_new_tokens=max_new_tokens)
             node_responses.append(node_response)
             fmt_prompts.append(fmt_qa_prompt)
 
@@ -70,6 +88,7 @@ class ContextSynthesisStrategy:
             [str(r) for r in node_responses],
             question,
             fmt_prompts,
+            max_new_tokens=max_new_tokens,
             num_children=num_children,
         )
 
@@ -80,6 +99,7 @@ class ContextSynthesisStrategy:
             texts,
             question,
             cur_prompt_list,
+            max_new_tokens=512,
             num_children=10,
     ):
         new_texts = []
@@ -90,7 +110,7 @@ class ContextSynthesisStrategy:
                 question=question, context=context
             )
             combined_response = self.llm.stream_answer(
-                fmt_qa_prompt, max_new_tokens=512
+                fmt_qa_prompt, max_new_tokens=max_new_tokens
             )
             new_texts.append(str(combined_response))
             cur_prompt_list.append(fmt_qa_prompt)
@@ -99,3 +119,20 @@ class ContextSynthesisStrategy:
             return new_texts[0]
         else:
             return self.combine_results(new_texts, question, num_children=num_children)
+
+
+STRATEGIES = {"create_and_refine": CreateAndRefineStrategy, "tree_summarization": TreeSummarizationStrategy}
+
+
+def get_synthesis_strategies():
+    return list(STRATEGIES.keys())
+
+
+def get_synthesis_strategy(strategy_name: str, **kwargs):
+    strategy = STRATEGIES.get(strategy_name)
+
+    # validate input
+    if strategy is None:
+        raise KeyError(strategy_name + " is a not supported synthesis strategy")
+
+    return strategy(**kwargs)

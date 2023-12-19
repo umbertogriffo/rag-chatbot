@@ -6,7 +6,8 @@ from typing import List
 import streamlit as st
 from langchain_core.documents import Document
 
-from bot.conversation.conversation import Conversation
+from bot.conversation.conversation_retrieval import ConversationRetrieval
+from bot.conversation.ctx_strategy import get_synthesis_strategies, get_synthesis_strategy, BaseSynthesisStrategy
 from bot.memory.embedder import EmbedderHuggingFace
 from bot.memory.vector_memory import VectorMemory
 from bot.model.client.client import Client
@@ -20,27 +21,27 @@ logger = get_logger(__name__)
 
 
 @st.cache_resource()
-def load_conversational_retrieval(llm_client: Client, model_folder: Path, model_name: str) -> Conversation:
-    """
-    Loads a conversational retrieval model based on the specified language model client, model folder, and model name.
+def load_llm_client(llm_client_name: str, model_folder: Path, model_name: str) -> Client:
 
-    Args:
-        llm_client (Client): The language model client to use for conversational retrieval.
-        model_folder (Path): The folder path where the model is stored.
-        model_name (str): The name of the conversational retrieval model.
-
-    Returns:
-        Conversation: A Conversation object initialized with the loaded language model.
-
-    """
     model_settings = get_model_setting(model_name)
     clients = [client.value for client in model_settings.clients]
-    if llm_client not in clients:
-        llm_client = clients[0]
-    llm = get_client(llm_client, model_folder=model_folder, model_settings=model_settings)
+    if llm_client_name not in clients:
+        llm_client_name = clients[0]
+    llm = get_client(llm_client_name, model_folder=model_folder, model_settings=model_settings)
 
-    conversation_retrieval = Conversation(llm)
+    return llm
+
+
+@st.cache_resource()
+def load_conversational_retrieval(_llm: Client) -> ConversationRetrieval:
+    conversation_retrieval = ConversationRetrieval(_llm)
     return conversation_retrieval
+
+
+@st.cache_resource()
+def load_synthesis_strategy(synthesis_strategy_name: str, _llm: Client) -> BaseSynthesisStrategy:
+    synthesis_strategy = get_synthesis_strategy(synthesis_strategy_name, llm=_llm)
+    return synthesis_strategy
 
 
 @st.cache_resource()
@@ -100,21 +101,11 @@ def display_messages_from_history():
             st.markdown(message["content"])
 
 
-def get_answer(conversational_retrieval: Conversation, question: str, retrieved_contents: List[Document]) -> str:
-    """
-    Retrieves the answer from the Conversational Retrieval model for the given question and retrieved contents.
+def get_answer(synthesis_strategy: BaseSynthesisStrategy, question: str, retrieved_contents: List[Document]) -> str:
 
-    Args:
-        conversational_retrieval (Conversation): An instance of the Conversational Retrieval model.
-        question (str): The user's question.
-        retrieved_contents: Retrieved contents relevant to the user's question.
-
-    Yields:
-        str: A character of the generated answer.
-    """
-    streamer = conversational_retrieval.answer(question, retrieved_contents, return_generator=True)
+    streamer, fmt_prompts = synthesis_strategy.answer(retrieved_contents, question, return_generator=True)
     for character in streamer:
-        yield conversational_retrieval.llm.parse_token(character)
+        yield synthesis_strategy.llm.parse_token(character)
 
 
 def main(parameters) -> None:
@@ -129,11 +120,14 @@ def main(parameters) -> None:
     vector_store_path = root_folder / "vector_store" / "docs_index"
     Path(model_folder).parent.mkdir(parents=True, exist_ok=True)
 
-    client = parameters.client
-    model = parameters.model
+    client_name = parameters.client
+    model_name = parameters.model
+    synthesis_strategy_name = parameters.synthesis_strategy
 
     init_page()
-    conversational_retrieval = load_conversational_retrieval(client, model_folder, model)
+    llm = load_llm_client(client_name, model_folder, model_name)
+    conversational_retrieval = load_conversational_retrieval(_llm=llm)
+    synthesis_strategy = load_synthesis_strategy(synthesis_strategy_name, _llm=llm)
     index = load_index(vector_store_path)
     init_messages()
     init_welcome_message()
@@ -176,7 +170,7 @@ def main(parameters) -> None:
                     text="Refining the context and Generating the answer for each text chunk – hang tight! "
                          "This should take 1 minute."
             ):
-                for chunk in get_answer(conversational_retrieval, user_input, retrieved_contents):
+                for chunk in get_answer(synthesis_strategy, user_input, retrieved_contents):
                     full_response += chunk
                     message_placeholder.markdown(full_response + "▌")
 
@@ -195,6 +189,9 @@ def get_args() -> argparse.Namespace:
 
     model_list = get_models()
     default_model = model_list[0]
+
+    synthesis_strategy_list = get_synthesis_strategies()
+    default_synthesis_strategy = synthesis_strategy_list[0]
 
     parser.add_argument(
         "--client",
@@ -216,6 +213,17 @@ def get_args() -> argparse.Namespace:
         const=default_model,
         nargs="?",
         default=default_model,
+    )
+
+    parser.add_argument(
+        "--synthesis-strategy",
+        type=str,
+        choices=synthesis_strategy_list,
+        help=f"Model to be used. Defaults to {default_synthesis_strategy}.",
+        required=False,
+        const=default_synthesis_strategy,
+        nargs="?",
+        default=default_synthesis_strategy,
     )
 
     parser.add_argument(

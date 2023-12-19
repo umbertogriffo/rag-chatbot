@@ -3,7 +3,8 @@ import sys
 import time
 from pathlib import Path
 
-from bot.conversation.conversation import Conversation
+from bot.conversation.conversation_retrieval import ConversationRetrieval
+from bot.conversation.ctx_strategy import get_synthesis_strategy, get_synthesis_strategies
 from bot.memory.embedder import EmbedderHuggingFace
 from bot.memory.vector_memory import VectorMemory
 
@@ -28,6 +29,9 @@ def get_args() -> argparse.Namespace:
     model_list = get_models()
     default_model = model_list[0]
 
+    synthesis_strategy_list = get_synthesis_strategies()
+    default_synthesis_strategy = synthesis_strategy_list[0]
+
     parser.add_argument(
         "--client",
         type=str,
@@ -51,6 +55,17 @@ def get_args() -> argparse.Namespace:
     )
 
     parser.add_argument(
+        "--synthesis-strategy",
+        type=str,
+        choices=synthesis_strategy_list,
+        help=f"Model to be used. Defaults to {default_synthesis_strategy}.",
+        required=False,
+        const=default_synthesis_strategy,
+        nargs="?",
+        default=default_synthesis_strategy,
+    )
+
+    parser.add_argument(
         "--k",
         type=int,
         help="Number of chunks to return from the similarity search. Defaults to 2.",
@@ -69,7 +84,7 @@ def get_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def loop(conversation, index, parameters) -> None:
+def loop(conversation, synthesis_strategy, index, parameters) -> None:
     custom_fig = Figlet(font="graffiti")
     console = Console(color_system="windows")
     console.print(custom_fig.renderText("ChatBot"))
@@ -99,7 +114,11 @@ def loop(conversation, index, parameters) -> None:
 
         console.print("\n[bold magenta]Answer:[/bold magenta]")
 
-        answer = conversation.answer(question, retrieved_contents)
+        answer, fmt_prompts = synthesis_strategy.answer(
+            retrieved_contents=retrieved_contents,
+            question=question,
+            max_new_tokens=parameters.max_new_tokens
+        )
 
         conversation.update_chat_history(question, answer)
 
@@ -125,12 +144,15 @@ def main(parameters):
         client = clients[0]
 
     llm = get_client(client, model_folder=model_folder, model_settings=model_settings)
-    conversation = Conversation(llm)
+
+    synthesis_strategy = get_synthesis_strategy(parameters.synthesis_strategy, llm=llm)
+
+    conversation = ConversationRetrieval(llm)
 
     embedding = EmbedderHuggingFace().get_embedding()
     index = VectorMemory(vector_store_path=str(vector_store_path), embedding=embedding)
 
-    loop(conversation, index, parameters)
+    loop(conversation, synthesis_strategy, index, parameters)
 
 
 if __name__ == "__main__":

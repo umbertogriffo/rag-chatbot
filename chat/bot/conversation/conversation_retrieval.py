@@ -1,20 +1,27 @@
-from typing import List, Tuple, Union
+from typing import List, Tuple
 
-from transformers import TextIteratorStreamer
-
-from bot.conversation.ctx_strategy import ContextSynthesisStrategy
 from bot.model.client.client import Client
 from helpers.log import get_logger
 
 logger = get_logger(__name__)
 
 
-class Conversation:
+class ConversationRetrieval:
     """
-    Question and Answer system using ContextSynthesisStrategy.
+    A class for managing conversation retrieval using a language model.
+
+    Attributes:
+        llm (Client): The language model client for conversation-related tasks.
+        chat_history (List[Tuple[str, str]]): A list to store the conversation history as tuples of questions and answers.
     """
 
     def __init__(self, llm: Client) -> None:
+        """
+        Initializes a new instance of the ConversationRetrieval class.
+
+        Args:
+            llm (Client): The language model client for conversation-related tasks.
+        """
         self.llm = llm
         self.chat_history = []
 
@@ -61,38 +68,26 @@ class Conversation:
         return self.chat_history
 
     def refine_question(self, question: str) -> str:
+        """
+        Refines the given question based on the conversation history.
+
+        Args:
+            question (str): The original question.
+
+        Returns:
+            str: The refined question.
+        """
         if self.get_chat_history():
             questions_and_answers = ["\n".join([qa[0], qa[1]]) for qa in self.get_chat_history()]
             chat_history = "\n".join(questions_and_answers)
+
             logger.info(f"--- Refining the question based on the chat history... ---")
-            conversation_awareness_prompt = self.llm.generate_conversation_awareness_prompt(question,
-                                                                                            chat_history)
+
+            conversation_awareness_prompt = self.llm.generate_conversation_awareness_prompt(question, chat_history)
             refined_question = self.llm.generate_answer(conversation_awareness_prompt, max_new_tokens=128)
+
             logger.info(f"--- Refined Question: {refined_question} ---")
 
             return refined_question
         else:
             return question
-
-    def answer(self, question: str, retrieved_contents, return_generator=False) -> Union[str | TextIteratorStreamer]:
-        """
-        Generates an answer using the `ContextSynthesisStrategy` for the given question.
-
-        Parameters:
-        -----------
-        question : str
-            The question to generate an answer for.
-
-        Returns:
-        -------
-        str
-            The generated answer for the question.
-
-        """
-        strategy = ContextSynthesisStrategy(self.llm)
-
-        answer, fmt_prompts = strategy.generate_response_cr(
-            retrieved_contents, question, return_generator=return_generator
-        )
-
-        return answer
