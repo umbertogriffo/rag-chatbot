@@ -1,4 +1,4 @@
-# RAG(Retrieval-augmented generation) ChatBot with CTransformers, LangChain and Chroma
+# RAG(Retrieval-augmented generation) ChatBot
 
 This project combines the power of [CTransformers](https://github.com/marella/ctransformers), [Lama.cpp](https://github.com/abetlen/llama-cpp-python),
 [LangChain](https://python.langchain.com/docs/get_started/introduction.html) and [Chroma](https://github.com/chroma-core/chroma) to accomplish a specific task.
