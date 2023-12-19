@@ -78,7 +78,8 @@ class ConversationRetrieval:
             str: The refined question.
         """
         if self.get_chat_history():
-            questions_and_answers = ["\n".join([qa[0], qa[1]]) for qa in self.get_chat_history()]
+            questions_and_answers = ["\n".join([f"question: {qa[0]}", f"answer: {qa[1]}"]) for qa in
+                                     self.get_chat_history()]
             chat_history = "\n".join(questions_and_answers)
 
             logger.info(f"--- Refining the question based on the chat history... ---")

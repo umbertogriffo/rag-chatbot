@@ -4,6 +4,7 @@ from pathlib import Path
 
 import streamlit as st
 
+from bot.conversation.conversation_retrieval import ConversationRetrieval
 from bot.model.client.client import Client
 from bot.model.client.client_settings import get_client, get_clients
 from bot.model.model_settings import get_model_setting, get_models
@@ -23,6 +24,12 @@ def load_llm(llm_client: Client, model_name: str, model_folder: Path) -> Client:
         llm_client = clients[0]
     llm = get_client(llm_client, model_folder=model_folder, model_settings=model_settings)
     return llm
+
+
+@st.cache_resource()
+def load_conversational_retrieval(_llm: Client) -> ConversationRetrieval:
+    conversation_retrieval = ConversationRetrieval(_llm)
+    return conversation_retrieval
 
 
 def init_page() -> None:
@@ -76,6 +83,7 @@ def main(parameters) -> None:
 
     init_page()
     llm = load_llm(client, model, model_folder)
+    conversational_retrieval = load_conversational_retrieval(_llm=llm)
     init_messages()
     init_welcome_message()
     display_messages_from_history()
@@ -88,6 +96,11 @@ def main(parameters) -> None:
         with st.chat_message("user"):
             st.markdown(user_input)
 
+        with st.spinner(text="Refining the question – hang tight! "
+                             "This should take seconds."
+                        ):
+            user_input = conversational_retrieval.refine_question(user_input)
+
         # Display assistant response in chat message container
         with st.chat_message("assistant"):
             message_placeholder = st.empty()
@@ -96,7 +109,9 @@ def main(parameters) -> None:
                 full_response += chunk
                 message_placeholder.markdown(full_response + "▌")
             message_placeholder.markdown(full_response)
+
         # Add assistant response to chat history
+        conversational_retrieval.update_chat_history(user_input, full_response)
         st.session_state.messages.append({"role": "assistant", "content": full_response})
 
 
