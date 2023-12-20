@@ -35,8 +35,8 @@ class LamaCppClient(Client):
         output = self.llm(
             prompt, max_tokens=max_new_tokens, temperature=0.7, echo=False
         )
-        # TODO put the split string a parameter because it changes for every LLM
-        answer = output["choices"][0]["text"].split("<|assistant|>")[-1]
+
+        answer = output["choices"][0]["text"]
 
         return answer
 

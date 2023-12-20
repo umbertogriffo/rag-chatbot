@@ -94,7 +94,7 @@ def main(parameters) -> None:
             message_placeholder = st.empty()
             full_response = ""
             for chunk in conversational_retrieval.answer(user_input):
-                full_response += chunk
+                full_response += llm.parse_token(chunk)
                 message_placeholder.markdown(full_response + "▌")
             message_placeholder.markdown(full_response)
 
