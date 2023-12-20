@@ -1,5 +1,6 @@
 import argparse
 import sys
+import time
 from pathlib import Path
 from typing import List
 
@@ -167,6 +168,7 @@ def main(parameters) -> None:
                     st.session_state.messages.append({"role": "assistant", "content": full_response})
 
         # Display assistant response in chat message container
+        start_time = time.time()
         with st.chat_message("assistant"):
             message_placeholder = st.empty()
             full_response = ""
@@ -174,6 +176,7 @@ def main(parameters) -> None:
                     text="Refining the context and Generating the answer for each text chunk – hang tight! "
                          "This should take 1 minute."
             ):
+                start_time = time.time()
                 for chunk in get_answer(synthesis_strategy, refined_user_input, retrieved_contents):
                     full_response += chunk
                     message_placeholder.markdown(full_response + "▌")
@@ -183,6 +186,8 @@ def main(parameters) -> None:
                 conversational_retrieval.update_chat_history(refined_user_input, full_response)
         # Add assistant response to chat history
         st.session_state.messages.append({"role": "assistant", "content": full_response})
+        took = time.time() - start_time
+        logger.info(f"\n--- Took {took:.2f} seconds ---")
 
 
 def get_args() -> argparse.Namespace:

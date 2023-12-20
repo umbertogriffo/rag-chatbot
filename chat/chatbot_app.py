@@ -1,5 +1,6 @@
 import argparse
 import sys
+import time
 from pathlib import Path
 
 import streamlit as st
@@ -102,6 +103,7 @@ def main(parameters) -> None:
             refined_user_input = conversational_retrieval.refine_question(user_input)
 
         # Display assistant response in chat message container
+        start_time = time.time()
         with st.chat_message("assistant"):
             message_placeholder = st.empty()
             full_response = ""
@@ -113,6 +115,9 @@ def main(parameters) -> None:
         # Add assistant response to chat history
         conversational_retrieval.update_chat_history(refined_user_input, full_response)
         st.session_state.messages.append({"role": "assistant", "content": full_response})
+
+        took = time.time() - start_time
+        logger.info(f"\n--- Took {took:.2f} seconds ---")
 
 
 def get_args() -> argparse.Namespace:
