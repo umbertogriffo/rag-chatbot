@@ -149,8 +149,8 @@ def main(parameters) -> None:
             with st.spinner(text="Refining the question and Retrieving the docs – hang tight! "
                                  "This should take seconds."
                             ):
-                user_input = conversational_retrieval.refine_question(user_input)
-                retrieved_contents, sources = index.similarity_search(query=user_input, k=parameters.k)
+                refined_user_input = conversational_retrieval.refine_question(user_input)
+                retrieved_contents, sources = index.similarity_search(query=refined_user_input, k=parameters.k)
                 if retrieved_contents:
                     full_response += "Here are the retrieved text chunks with a content preview: \n\n"
                     message_placeholder.markdown(full_response)
@@ -174,7 +174,7 @@ def main(parameters) -> None:
                     text="Refining the context and Generating the answer for each text chunk – hang tight! "
                          "This should take 1 minute."
             ):
-                for chunk in get_answer(synthesis_strategy, user_input, retrieved_contents):
+                for chunk in get_answer(synthesis_strategy, refined_user_input, retrieved_contents):
                     full_response += chunk
                     message_placeholder.markdown(full_response + "▌")
 

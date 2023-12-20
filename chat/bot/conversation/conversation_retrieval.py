@@ -85,7 +85,7 @@ class ConversationRetrieval:
             logger.info(f"--- Refining the question based on the chat history... ---")
 
             conversation_awareness_prompt = self.llm.generate_conversation_awareness_prompt(question, chat_history)
-            refined_question = self.llm.generate_answer(conversation_awareness_prompt, max_new_tokens=128)
+            refined_question = self.llm.generate_answer(conversation_awareness_prompt, max_new_tokens=256)
 
             logger.info(f"--- Refined Question: {refined_question} ---")
 

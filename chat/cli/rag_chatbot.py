@@ -104,9 +104,9 @@ def loop(conversation, synthesis_strategy, index, parameters) -> None:
         logger.info(f"--- Question: {question}, Chat_history: {conversation.get_chat_history()} ---")
 
         start_time = time.time()
-        question = conversation.refine_question(question)
+        refined_question = conversation.refine_question(question)
 
-        retrieved_contents, sources = index.similarity_search(query=question, k=parameters.k)
+        retrieved_contents, sources = index.similarity_search(query=refined_question, k=parameters.k)
 
         console.print("\n[bold magenta]Sources:[/bold magenta]")
         for source in sources:
@@ -116,7 +116,7 @@ def loop(conversation, synthesis_strategy, index, parameters) -> None:
 
         answer, fmt_prompts = synthesis_strategy.answer(
             retrieved_contents=retrieved_contents,
-            question=question,
+            question=refined_question,
             max_new_tokens=parameters.max_new_tokens
         )
 

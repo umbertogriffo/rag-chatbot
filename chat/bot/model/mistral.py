@@ -83,10 +83,11 @@ Refined Answer:<|im_end|>
 {system}<|im_end|>
 <|im_start|>user
 \nChat History:
+---------------------
 {chat_history}
+---------------------
 Follow Up Question: {question}
 Given the above conversation and a follow up question, rephrase the follow up question to be a standalone question.
-If and only if the follow up question is intended to understand what we were talking about do a lookup on the chat history and formulate the standalone answer in a way you have the context first.
 Standalone question:<|im_end|>
 <|im_start|>assistant
 """

@@ -99,13 +99,13 @@ def main(parameters) -> None:
         with st.spinner(text="Refining the question – hang tight! "
                              "This should take seconds."
                         ):
-            user_input = conversational_retrieval.refine_question(user_input)
+            refined_user_input = conversational_retrieval.refine_question(user_input)
 
         # Display assistant response in chat message container
         with st.chat_message("assistant"):
             message_placeholder = st.empty()
             full_response = ""
-            for chunk in get_answer(llm, user_input):
+            for chunk in get_answer(llm, refined_user_input):
                 full_response += chunk
                 message_placeholder.markdown(full_response + "▌")
             message_placeholder.markdown(full_response)
