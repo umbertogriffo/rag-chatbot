@@ -111,7 +111,7 @@ def main(parameters) -> None:
             message_placeholder.markdown(full_response)
 
         # Add assistant response to chat history
-        conversational_retrieval.update_chat_history(user_input, full_response)
+        conversational_retrieval.update_chat_history(refined_user_input, full_response)
         st.session_state.messages.append({"role": "assistant", "content": full_response})
 
 

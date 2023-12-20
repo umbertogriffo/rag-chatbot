@@ -120,7 +120,7 @@ def loop(conversation, synthesis_strategy, index, parameters) -> None:
             max_new_tokens=parameters.max_new_tokens
         )
 
-        conversation.update_chat_history(question, answer)
+        conversation.update_chat_history(refined_question, answer)
 
         console.print("\n[bold magenta]Formatted Answer:[/bold magenta]")
         if answer:
