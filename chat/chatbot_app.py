@@ -4,7 +4,6 @@ import time
 from pathlib import Path
 
 import streamlit as st
-
 from bot.conversation.conversation_retrieval import ConversationRetrieval
 from bot.model.client.client import Client
 from bot.model.client.client_settings import get_client, get_clients
@@ -23,7 +22,9 @@ def load_llm(llm_client: Client, model_name: str, model_folder: Path) -> Client:
     clients = [client.value for client in model_settings.clients]
     if llm_client not in clients:
         llm_client = clients[0]
-    llm = get_client(llm_client, model_folder=model_folder, model_settings=model_settings)
+    llm = get_client(
+        llm_client, model_folder=model_folder, model_settings=model_settings
+    )
     return llm
 
 
@@ -35,9 +36,7 @@ def load_conversational_retrieval(_llm: Client) -> ConversationRetrieval:
 
 def init_page() -> None:
     st.set_page_config(
-        page_title="Chatbot",
-        page_icon="💬",
-        initial_sidebar_state="collapsed"
+        page_title="Chatbot", page_icon="💬", initial_sidebar_state="collapsed"
     )
     st.header("Chatbot")
     st.sidebar.title("Options")
@@ -67,9 +66,7 @@ def display_messages_from_history():
 
 def get_answer(llm, messages) -> tuple[str, float]:
     prompt = llm.generate_qa_prompt(question=messages)
-    streamer = llm.start_answer_iterator_streamer(
-        prompt, max_new_tokens=1000
-    )
+    streamer = llm.start_answer_iterator_streamer(prompt, max_new_tokens=1000)
     for character in streamer:
         yield llm.parse_token(character)
 
@@ -97,9 +94,9 @@ def main(parameters) -> None:
         with st.chat_message("user"):
             st.markdown(user_input)
 
-        with st.spinner(text="Refining the question – hang tight! "
-                             "This should take seconds."
-                        ):
+        with st.spinner(
+            text="Refining the question – hang tight! " "This should take seconds."
+        ):
             refined_user_input = conversational_retrieval.refine_question(user_input)
 
         # Display assistant response in chat message container
@@ -114,7 +111,9 @@ def main(parameters) -> None:
 
         # Add assistant response to chat history
         conversational_retrieval.update_chat_history(refined_user_input, full_response)
-        st.session_state.messages.append({"role": "assistant", "content": full_response})
+        st.session_state.messages.append(
+            {"role": "assistant", "content": full_response}
+        )
 
         took = time.time() - start_time
         logger.info(f"\n--- Took {took:.2f} seconds ---")

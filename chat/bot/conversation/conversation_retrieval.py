@@ -78,14 +78,20 @@ class ConversationRetrieval:
             str: The refined question.
         """
         if self.get_chat_history():
-            questions_and_answers = ["\n".join([f"question: {qa[0]}", f"answer: {qa[1]}"]) for qa in
-                                     self.get_chat_history()]
+            questions_and_answers = [
+                "\n".join([f"question: {qa[0]}", f"answer: {qa[1]}"])
+                for qa in self.get_chat_history()
+            ]
             chat_history = "\n".join(questions_and_answers)
 
-            logger.info(f"--- Refining the question based on the chat history... ---")
+            logger.info("--- Refining the question based on the chat history... ---")
 
-            conversation_awareness_prompt = self.llm.generate_conversation_awareness_prompt(question, chat_history)
-            refined_question = self.llm.generate_answer(conversation_awareness_prompt, max_new_tokens=256)
+            conversation_awareness_prompt = (
+                self.llm.generate_conversation_awareness_prompt(question, chat_history)
+            )
+            refined_question = self.llm.generate_answer(
+                conversation_awareness_prompt, max_new_tokens=256
+            )
 
             logger.info(f"--- Refined Question: {refined_question} ---")
 

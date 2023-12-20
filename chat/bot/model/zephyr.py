@@ -1,7 +1,6 @@
-from ctransformers import Config
-
 from bot.model.client.client import LlmClient
 from bot.model.model import Model
+from ctransformers import Config
 
 
 class ZephyrSettings(Model):

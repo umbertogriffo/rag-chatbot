@@ -4,12 +4,14 @@ import time
 from pathlib import Path
 
 from bot.conversation.conversation_retrieval import ConversationRetrieval
-from bot.conversation.ctx_strategy import get_synthesis_strategy, get_synthesis_strategies
+from bot.conversation.ctx_strategy import (
+    get_synthesis_strategies,
+    get_synthesis_strategy,
+)
 from bot.memory.embedder import EmbedderHuggingFace
 from bot.memory.vector_memory import VectorMemory
-
 from bot.model.client.client_settings import get_client, get_clients
-from bot.model.model_settings import get_models, get_model_setting
+from bot.model.model_settings import get_model_setting, get_models
 from helpers.log import get_logger
 from helpers.prettier import prettify_source
 from helpers.reader import read_input
@@ -101,12 +103,16 @@ def loop(conversation, synthesis_strategy, index, parameters) -> None:
         if question.lower() == "exit":
             break
 
-        logger.info(f"--- Question: {question}, Chat_history: {conversation.get_chat_history()} ---")
+        logger.info(
+            f"--- Question: {question}, Chat_history: {conversation.get_chat_history()} ---"
+        )
 
         start_time = time.time()
         refined_question = conversation.refine_question(question)
 
-        retrieved_contents, sources = index.similarity_search(query=refined_question, k=parameters.k)
+        retrieved_contents, sources = index.similarity_search(
+            query=refined_question, k=parameters.k
+        )
 
         console.print("\n[bold magenta]Sources:[/bold magenta]")
         for source in sources:
@@ -117,7 +123,7 @@ def loop(conversation, synthesis_strategy, index, parameters) -> None:
         answer, fmt_prompts = synthesis_strategy.answer(
             retrieved_contents=retrieved_contents,
             question=refined_question,
-            max_new_tokens=parameters.max_new_tokens
+            max_new_tokens=parameters.max_new_tokens,
         )
 
         conversation.update_chat_history(refined_question, answer)

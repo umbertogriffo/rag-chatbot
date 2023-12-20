@@ -2,7 +2,10 @@ from bot.model.client.client import LlmClient
 from bot.model.client.ctransformers_client import CtransformersClient
 from bot.model.client.lama_cpp_client import LamaCppClient
 
-SUPPORTED_CLIENTS = {LlmClient.CTRANSFORMERS.value: CtransformersClient, LlmClient.LAMA_CPP.value: LamaCppClient}
+SUPPORTED_CLIENTS = {
+    LlmClient.CTRANSFORMERS.value: CtransformersClient,
+    LlmClient.LAMA_CPP.value: LamaCppClient,
+}
 
 
 def get_clients():

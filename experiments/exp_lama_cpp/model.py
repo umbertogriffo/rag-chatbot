@@ -4,10 +4,9 @@ from pathlib import Path
 from typing import Dict
 
 import requests
+from exp_lama_cpp.prompts import generate_prompt, generate_summarization_prompt
 from llama_cpp import Llama
 from tqdm import tqdm
-
-from exp_lama_cpp.prompts import generate_prompt, generate_summarization_prompt
 
 
 class ModelSettings(ABC):
@@ -28,9 +27,7 @@ class StableLMZephyrSettings(ModelSettings):
         "n_gpu_layers": 35,  # The number of layers to offload to GPU, if you have GPU acceleration available
     }
 
-    system_template = (
-        "You are a helpful, respectful and honest assistant. "
-    )
+    system_template = "You are a helpful, respectful and honest assistant. "
     prompt_template = """<|user|>Answer the question below:
 {question}<|endoftext|>
 <|assistant|>
@@ -77,10 +74,7 @@ class Model:
 
         self._auto_download()
 
-        self.llm = Llama(
-            model_path=str(self.model_path),
-            **self.model_settings.config
-        )
+        self.llm = Llama(model_path=str(self.model_path), **self.model_settings.config)
 
     def _auto_download(self) -> None:
         """
@@ -123,13 +117,12 @@ class Model:
         return generate_prompt(
             template=self.prompt_template,
             system=self.system_template,
-            question=question
+            question=question,
         )
 
     def generate_summarization_prompt(self, text):
         return generate_summarization_prompt(
-            template=self.summarization_template,
-            text=text
+            template=self.summarization_template, text=text
         )
 
     def generate_answer(self, prompt: str, max_new_tokens: int = 1024) -> str:
@@ -137,5 +130,7 @@ class Model:
         return output["choices"][0]["text"].split("<|assistant|>")[-1]
 
     def start_answer_iterator_streamer(self, prompt: str, max_new_tokens: int = 1024):
-        stream = self.llm.create_completion(prompt, max_tokens=max_new_tokens, temperature=0.8, stream=True)
+        stream = self.llm.create_completion(
+            prompt, max_tokens=max_new_tokens, temperature=0.8, stream=True
+        )
         return stream

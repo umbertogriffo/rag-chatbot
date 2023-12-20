@@ -59,9 +59,7 @@ class ZephyrSettings(ModelSettings):
         mmap=True,
         mlock=False,
     )
-    system_template = (
-        "You are a helpful, respectful and honest assistant. "
-    )
+    system_template = "You are a helpful, respectful and honest assistant. "
     prompt_template = """<|system|> {system}
 Answer the question below:
 </s>
@@ -186,7 +184,7 @@ class Model:
         return generate_prompt(
             template=self.prompt_template,
             system=self.system_template,
-            question=question
+            question=question,
         )
 
     def generate_output(self, prompt: str, max_new_tokens: int = 1000):

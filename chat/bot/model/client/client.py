@@ -5,11 +5,14 @@ from pathlib import Path
 from typing import Any
 
 import requests
-from tqdm import tqdm
-
 from bot.model.model import Model
-from bot.prompt import generate_qa_prompt, generate_ctx_prompt, generate_refined_ctx_prompt, \
-    generate_conversation_awareness_prompt
+from bot.prompt import (
+    generate_conversation_awareness_prompt,
+    generate_ctx_prompt,
+    generate_qa_prompt,
+    generate_refined_ctx_prompt,
+)
+from tqdm import tqdm
 
 
 class LlmClient(Enum):
@@ -19,26 +22,26 @@ class LlmClient(Enum):
 
 class Client(ABC):
     """
-        Abstract base class for implementing language model clients.
+    Abstract base class for implementing language model clients.
 
-        Args:
-            model_folder (Path): The folder where the model is stored.
-            model_settings (ModelSettings): Settings for the language model.
+    Args:
+        model_folder (Path): The folder where the model is stored.
+        model_settings (ModelSettings): Settings for the language model.
 
-        Attributes:
-            model_settings (ModelSettings): Settings for the language model.
-            model_folder (Path): The folder where the model is stored.
-            model_path (Path): The full path to the language model file.
-            system_template (str): Template for system-related prompts.
-            qa_prompt_template (str): Template for question-answering prompts.
-            ctx_prompt_template (str): Template for context-based prompts.
-            refined_ctx_prompt_template (str): Template for refined context-based prompts.
-            conversation_awareness_prompt_template (str): Template for conversation-awareness prompts.
-            llm: Loaded language model.
-            tokenizer: Loaded tokenizer.
+    Attributes:
+        model_settings (ModelSettings): Settings for the language model.
+        model_folder (Path): The folder where the model is stored.
+        model_path (Path): The full path to the language model file.
+        system_template (str): Template for system-related prompts.
+        qa_prompt_template (str): Template for question-answering prompts.
+        ctx_prompt_template (str): Template for context-based prompts.
+        refined_ctx_prompt_template (str): Template for refined context-based prompts.
+        conversation_awareness_prompt_template (str): Template for conversation-awareness prompts.
+        llm: Loaded language model.
+        tokenizer: Loaded tokenizer.
 
-        Raises:
-            NotImplementedError: If any abstract method is not implemented by the subclass.
+    Raises:
+        NotImplementedError: If any abstract method is not implemented by the subclass.
     """
 
     def __init__(self, model_folder: Path, model_settings: Model):
@@ -48,8 +51,12 @@ class Client(ABC):
         self.system_template = self.model_settings.system_template
         self.qa_prompt_template = self.model_settings.qa_prompt_template
         self.ctx_prompt_template = self.model_settings.ctx_prompt_template
-        self.refined_ctx_prompt_template = self.model_settings.refined_ctx_prompt_template
-        self.conversation_awareness_prompt_template = self.model_settings.conversation_awareness_prompt_template
+        self.refined_ctx_prompt_template = (
+            self.model_settings.refined_ctx_prompt_template
+        )
+        self.conversation_awareness_prompt_template = (
+            self.model_settings.conversation_awareness_prompt_template
+        )
 
         self._auto_download()
 
@@ -86,7 +93,7 @@ class Client(ABC):
 
     @abstractmethod
     def stream_answer(
-            self, prompt: str, skip_prompt: bool = True, max_new_tokens: int = 512
+        self, prompt: str, skip_prompt: bool = True, max_new_tokens: int = 512
     ) -> str:
         """
         Abstract method to stream the generation of an answer for a given prompt.
@@ -106,7 +113,9 @@ class Client(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def start_answer_iterator_streamer(self, prompt: str, skip_prompt: bool = True, max_new_tokens: int = 512) -> Any:
+    def start_answer_iterator_streamer(
+        self, prompt: str, skip_prompt: bool = True, max_new_tokens: int = 512
+    ) -> Any:
         """
         Abstract method to start an answer iterator streamer for a given prompt.
 
@@ -191,7 +200,9 @@ class Client(ABC):
             context=context,
         )
 
-    def generate_refined_ctx_prompt(self, question: str, context: str, existing_answer: str) -> str:
+    def generate_refined_ctx_prompt(
+        self, question: str, context: str, existing_answer: str
+    ) -> str:
         """
         Generates a refined prompt for question-answering with existing answer.
 
@@ -211,11 +222,12 @@ class Client(ABC):
             existing_answer=existing_answer,
         )
 
-    def generate_conversation_awareness_prompt(self, question: str, chat_history: str) -> str:
-
+    def generate_conversation_awareness_prompt(
+        self, question: str, chat_history: str
+    ) -> str:
         return generate_conversation_awareness_prompt(
             template=self.conversation_awareness_prompt_template,
             system=self.system_template,
             question=question,
-            chat_history=chat_history
+            chat_history=chat_history,
         )

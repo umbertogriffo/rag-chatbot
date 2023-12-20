@@ -2,8 +2,11 @@ from bot.model.mistral import MistralSettings
 from bot.model.stablelm_zephyr import StableLMZephyrSettings
 from bot.model.zephyr import ZephyrSettings
 
-
-SUPPORTED_MODELS = {"zephyr": ZephyrSettings, "mistral": MistralSettings, "stablelm-zephyr": StableLMZephyrSettings}
+SUPPORTED_MODELS = {
+    "zephyr": ZephyrSettings,
+    "mistral": MistralSettings,
+    "stablelm-zephyr": StableLMZephyrSettings,
+}
 
 
 def get_models():

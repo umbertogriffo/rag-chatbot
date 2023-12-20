@@ -1,12 +1,11 @@
 from pathlib import Path
 from threading import Thread
-from typing import Optional, Any
-
-from ctransformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer
-from transformers import TextIteratorStreamer, TextStreamer
+from typing import Any, Optional
 
 from bot.model.client.client import Client, LlmClient
 from bot.model.model import Model
+from ctransformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer
+from transformers import TextIteratorStreamer, TextStreamer
 
 
 class CtransformersClient(Client):
@@ -15,7 +14,8 @@ class CtransformersClient(Client):
     def __init__(self, model_folder: Path, model_settings: Model):
         if LlmClient.CTRANSFORMERS not in model_settings.clients:
             raise ValueError(
-                f"{model_settings.file_name} is a not supported by the {LlmClient.CTRANSFORMERS.value} client.")
+                f"{model_settings.file_name} is a not supported by the {LlmClient.CTRANSFORMERS.value} client."
+            )
         super().__init__(model_folder, model_settings)
 
     def _load_llm(self) -> Any:
@@ -55,7 +55,7 @@ class CtransformersClient(Client):
         Returns:
             str: The decoded answer.
         """
-        return self.tokenizer.batch_decode(answer_ids[:, prompt_ids.shape[1]:])[0]
+        return self.tokenizer.batch_decode(answer_ids[:, prompt_ids.shape[1] :])[0]
 
     def generate_answer(self, prompt: str, max_new_tokens: int = 512) -> str:
         """
@@ -75,7 +75,7 @@ class CtransformersClient(Client):
         return answer
 
     def stream_answer(
-            self, prompt: str, skip_prompt: bool = True, max_new_tokens: int = 512
+        self, prompt: str, skip_prompt: bool = True, max_new_tokens: int = 512
     ) -> str:
         """
         Generates an answer by streaming tokens using the TextStreamer.
@@ -100,7 +100,7 @@ class CtransformersClient(Client):
         return answer
 
     def start_answer_iterator_streamer(
-            self, prompt: str, skip_prompt: bool = True, max_new_tokens: int = 512
+        self, prompt: str, skip_prompt: bool = True, max_new_tokens: int = 512
     ) -> TextIteratorStreamer:
         """
         Starts an answer iterator streamer thread for generating answers asynchronously.
@@ -128,4 +128,3 @@ class CtransformersClient(Client):
 
     def parse_token(self, token):
         return token
-

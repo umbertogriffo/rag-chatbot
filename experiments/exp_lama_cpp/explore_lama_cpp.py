@@ -1,8 +1,8 @@
 import time
 from pathlib import Path
 
-from exp_lama_cpp.model import get_model_setting, Model
-from exp_lama_cpp.texts import text_only, text_and_code
+from exp_lama_cpp.model import Model, get_model_setting
+from exp_lama_cpp.texts import text_and_code, text_only
 
 # CMAKE_ARGS="-DLLAMA_CUBLAS=on" pip install llama-cpp-python
 
@@ -32,7 +32,7 @@ if __name__ == "__main__":
     start_time = time.time()
     stream = llm.start_answer_iterator_streamer(prompt, max_new_tokens=256)
     for output in stream:
-        print(output["choices"][0]["text"], end='', flush=True)
+        print(output["choices"][0]["text"], end="", flush=True)
     took = time.time() - start_time
 
     print(f"\n--- Took {took:.2f} seconds ---")

@@ -5,30 +5,35 @@ from pathlib import Path
 from typing import List
 
 import streamlit as st
-from langchain_core.documents import Document
-
 from bot.conversation.conversation_retrieval import ConversationRetrieval
-from bot.conversation.ctx_strategy import get_synthesis_strategies, get_synthesis_strategy, BaseSynthesisStrategy
+from bot.conversation.ctx_strategy import (
+    BaseSynthesisStrategy,
+    get_synthesis_strategies,
+    get_synthesis_strategy,
+)
 from bot.memory.embedder import EmbedderHuggingFace
 from bot.memory.vector_memory import VectorMemory
 from bot.model.client.client import Client
-
-from bot.model.client.client_settings import get_clients, get_client
+from bot.model.client.client_settings import get_client, get_clients
 from bot.model.model_settings import get_model_setting, get_models
 from helpers.log import get_logger
 from helpers.prettier import prettify_source
+from langchain_core.documents import Document
 
 logger = get_logger(__name__)
 
 
 @st.cache_resource()
-def load_llm_client(llm_client_name: str, model_folder: Path, model_name: str) -> Client:
-
+def load_llm_client(
+    llm_client_name: str, model_folder: Path, model_name: str
+) -> Client:
     model_settings = get_model_setting(model_name)
     clients = [client.value for client in model_settings.clients]
     if llm_client_name not in clients:
         llm_client_name = clients[0]
-    llm = get_client(llm_client_name, model_folder=model_folder, model_settings=model_settings)
+    llm = get_client(
+        llm_client_name, model_folder=model_folder, model_settings=model_settings
+    )
 
     return llm
 
@@ -40,7 +45,9 @@ def load_conversational_retrieval(_llm: Client) -> ConversationRetrieval:
 
 
 @st.cache_resource()
-def load_synthesis_strategy(synthesis_strategy_name: str, _llm: Client) -> BaseSynthesisStrategy:
+def load_synthesis_strategy(
+    synthesis_strategy_name: str, _llm: Client
+) -> BaseSynthesisStrategy:
     synthesis_strategy = get_synthesis_strategy(synthesis_strategy_name, llm=_llm)
     return synthesis_strategy
 
@@ -64,12 +71,10 @@ def load_index(vector_store_path: Path) -> VectorMemory:
 
 def init_page() -> None:
     """
-     Initializes the page configuration for the application.
-     """
+    Initializes the page configuration for the application.
+    """
     st.set_page_config(
-        page_title="RAG Chatbot",
-        page_icon="💬",
-        initial_sidebar_state="collapsed"
+        page_title="RAG Chatbot", page_icon="💬", initial_sidebar_state="collapsed"
     )
     st.header("RAG Chatbot")
     st.sidebar.title("Options")
@@ -102,9 +107,14 @@ def display_messages_from_history():
             st.markdown(message["content"])
 
 
-def get_answer(synthesis_strategy: BaseSynthesisStrategy, question: str, retrieved_contents: List[Document]) -> str:
-
-    streamer, fmt_prompts = synthesis_strategy.answer(retrieved_contents, question, return_generator=True)
+def get_answer(
+    synthesis_strategy: BaseSynthesisStrategy,
+    question: str,
+    retrieved_contents: List[Document],
+) -> str:
+    streamer, fmt_prompts = synthesis_strategy.answer(
+        retrieved_contents, question, return_generator=True
+    )
     for character in streamer:
         yield synthesis_strategy.llm.parse_token(character)
 
@@ -147,11 +157,16 @@ def main(parameters) -> None:
         with st.chat_message("assistant"):
             message_placeholder = st.empty()
             full_response = ""
-            with st.spinner(text="Refining the question and Retrieving the docs – hang tight! "
-                                 "This should take seconds."
-                            ):
-                refined_user_input = conversational_retrieval.refine_question(user_input)
-                retrieved_contents, sources = index.similarity_search(query=refined_user_input, k=parameters.k)
+            with st.spinner(
+                text="Refining the question and Retrieving the docs – hang tight! "
+                "This should take seconds."
+            ):
+                refined_user_input = conversational_retrieval.refine_question(
+                    user_input
+                )
+                retrieved_contents, sources = index.similarity_search(
+                    query=refined_user_input, k=parameters.k
+                )
                 if retrieved_contents:
                     full_response += "Here are the retrieved text chunks with a content preview: \n\n"
                     message_placeholder.markdown(full_response)
@@ -161,11 +176,15 @@ def main(parameters) -> None:
                         full_response += "\n\n"
                         message_placeholder.markdown(full_response)
 
-                    st.session_state.messages.append({"role": "assistant", "content": full_response})
+                    st.session_state.messages.append(
+                        {"role": "assistant", "content": full_response}
+                    )
                 else:
                     full_response += "I did not detect any pertinent chunk of text from the documents. \n\n"
                     message_placeholder.markdown(full_response)
-                    st.session_state.messages.append({"role": "assistant", "content": full_response})
+                    st.session_state.messages.append(
+                        {"role": "assistant", "content": full_response}
+                    )
 
         # Display assistant response in chat message container
         start_time = time.time()
@@ -173,18 +192,24 @@ def main(parameters) -> None:
             message_placeholder = st.empty()
             full_response = ""
             with st.spinner(
-                    text="Refining the context and Generating the answer for each text chunk – hang tight! "
-                         "This should take 1 minute."
+                text="Refining the context and Generating the answer for each text chunk – hang tight! "
+                "This should take 1 minute."
             ):
-                for chunk in get_answer(synthesis_strategy, refined_user_input, retrieved_contents):
+                for chunk in get_answer(
+                    synthesis_strategy, refined_user_input, retrieved_contents
+                ):
                     full_response += chunk
                     message_placeholder.markdown(full_response + "▌")
 
                 message_placeholder.markdown(full_response)
 
-                conversational_retrieval.update_chat_history(refined_user_input, full_response)
+                conversational_retrieval.update_chat_history(
+                    refined_user_input, full_response
+                )
         # Add assistant response to chat history
-        st.session_state.messages.append({"role": "assistant", "content": full_response})
+        st.session_state.messages.append(
+            {"role": "assistant", "content": full_response}
+        )
         took = time.time() - start_time
         logger.info(f"\n--- Took {took:.2f} seconds ---")
 

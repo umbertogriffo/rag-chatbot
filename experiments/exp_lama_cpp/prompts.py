@@ -16,6 +16,5 @@ def generate_prompt(template: str, system: str, question: str):
 
 
 def generate_summarization_prompt(template: str, text: str):
-
     prompt = template.format(text=text)
     return prompt

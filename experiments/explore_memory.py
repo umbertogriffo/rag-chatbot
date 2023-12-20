@@ -1,11 +1,10 @@
 from pathlib import Path
 
 import chromadb
-from langchain_community.vectorstores.chroma import Chroma
-
 from bot.memory.embedder import EmbedderHuggingFace
 from bot.memory.vector_memory import VectorMemory
 from helpers.prettier import prettify_source
+from langchain_community.vectorstores.chroma import Chroma
 
 if __name__ == "__main__":
     root_folder = Path(__file__).resolve().parent.parent
@@ -15,7 +14,9 @@ if __name__ == "__main__":
     episodic_vector_store_path = root_folder / "vector_store" / "episodic_index"
 
     embedding = EmbedderHuggingFace().get_embedding()
-    index = VectorMemory(vector_store_path=str(declarative_vector_store_path), embedding=embedding)
+    index = VectorMemory(
+        vector_store_path=str(declarative_vector_store_path), embedding=embedding
+    )
 
     # query = "<write_your_query_here>"
     query = "tell me a joke about ClearML"
@@ -35,7 +36,9 @@ if __name__ == "__main__":
     )
     docs = langchain_chroma.similarity_search("a")
     docs_with_score = langchain_chroma.similarity_search_with_score("a")
-    docs_with_relevance_score = langchain_chroma.similarity_search_with_relevance_scores("a")
+    docs_with_relevance_score = (
+        langchain_chroma.similarity_search_with_relevance_scores("a")
+    )
     matched_doc = max(docs_with_relevance_score, key=lambda x: x[1])
 
     # The returned distance score is cosine distance. Therefore, a lower score is better.

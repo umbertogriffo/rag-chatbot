@@ -1,5 +1,5 @@
 # ~2024 tokens
-text_only = ("""In the rapidly evolving landscape of technology, artificial intelligence (AI) stands out as a driving force that has the potential to revolutionize various facets of our lives. From enhancing efficiency in industries to influencing the way we make decisions, the impact of AI is profound and multifaceted.
+text_only = """In the rapidly evolving landscape of technology, artificial intelligence (AI) stands out as a driving force that has the potential to revolutionize various facets of our lives. From enhancing efficiency in industries to influencing the way we make decisions, the impact of AI is profound and multifaceted.
 
 One of the key areas where AI is making significant strides is in the field of healthcare. Machine learning algorithms are being employed to analyze massive datasets, aiding in the identification of patterns and trends that might elude human observation. This has transformative implications for diagnostics, enabling earlier detection of diseases and more personalized treatment plans.
 
@@ -21,9 +21,9 @@ In the realm of entertainment and creativity, AI is being employed to generate c
 
 The development of AI is not confined to individual nations; it is a global phenomenon. International collaboration and the establishment of ethical standards are crucial to ensuring that AI benefits humanity as a whole. The responsible development and deployment of AI require a shared commitment to addressing challenges such as bias, accountability, and the societal impact of automation.
 
-In conclusion, the rise of artificial intelligence is reshaping our world in unprecedented ways. From healthcare and ethics to employment and creativity, the influence of AI permeates diverse aspects of society. Navigating the ethical considerations, addressing challenges, and fostering global collaboration are imperative in harnessing the full potential of AI for the betterment of humanity.""")
+In conclusion, the rise of artificial intelligence is reshaping our world in unprecedented ways. From healthcare and ethics to employment and creativity, the influence of AI permeates diverse aspects of society. Navigating the ethical considerations, addressing challenges, and fostering global collaboration are imperative in harnessing the full potential of AI for the betterment of humanity."""
 
-text_and_code = ("""To extract dates from logs in Python using regex, you can use the following regex pattern:
+text_and_code = """To extract dates from logs in Python using regex, you can use the following regex pattern:
 
 ```python
 import re
@@ -42,4 +42,4 @@ Output:
 
 ```
 ['2021-01-01 12:34:56', '2021-01-02 09:00:00']
-```""")
+```"""

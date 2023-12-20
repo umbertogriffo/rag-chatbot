@@ -15,7 +15,9 @@ def generate_qa_prompt(template: str, system: str, question: str) -> str:
     return prompt
 
 
-def generate_ctx_prompt(template: str, system: str, question: str, context: str = "") -> str:
+def generate_ctx_prompt(
+    template: str, system: str, question: str, context: str = ""
+) -> str:
     """
     Generates a prompt for a context-aware question-answer task.
 

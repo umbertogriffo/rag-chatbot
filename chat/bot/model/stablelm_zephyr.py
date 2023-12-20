@@ -12,9 +12,7 @@ class StableLMZephyrSettings(Model):
         "n_gpu_layers": 35,  # The number of layers to offload to GPU, if you have GPU acceleration available
     }
 
-    system_template = (
-        "You are a helpful, respectful and honest assistant. "
-    )
+    system_template = "You are a helpful, respectful and honest assistant. "
     qa_prompt_template = """<|user|>{system}\nAnswer the question below:
 {question}<|endoftext|>
 <|assistant|>

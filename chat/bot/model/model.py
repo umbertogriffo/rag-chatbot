@@ -3,7 +3,6 @@ from typing import Any
 
 
 class Model(ABC):
-
     url: str
     file_name: str
     clients: list[str]
