@@ -176,7 +176,6 @@ def main(parameters) -> None:
                     text="Refining the context and Generating the answer for each text chunk – hang tight! "
                          "This should take 1 minute."
             ):
-                start_time = time.time()
                 for chunk in get_answer(synthesis_strategy, refined_user_input, retrieved_contents):
                     full_response += chunk
                     message_placeholder.markdown(full_response + "▌")
