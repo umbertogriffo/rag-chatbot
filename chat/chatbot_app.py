@@ -64,13 +64,6 @@ def display_messages_from_history():
             st.markdown(message["content"])
 
 
-def get_answer(llm, messages) -> tuple[str, float]:
-    prompt = llm.generate_qa_prompt(question=messages)
-    streamer = llm.start_answer_iterator_streamer(prompt, max_new_tokens=1000)
-    for character in streamer:
-        yield llm.parse_token(character)
-
-
 def main(parameters) -> None:
     root_folder = Path(__file__).resolve().parent.parent
     model_folder = root_folder / "models"
@@ -90,27 +83,23 @@ def main(parameters) -> None:
     if user_input := st.chat_input("Input your question!"):
         # Add user message to chat history
         st.session_state.messages.append({"role": "user", "content": user_input})
+
         # Display user message in chat message container
         with st.chat_message("user"):
             st.markdown(user_input)
-
-        with st.spinner(
-            text="Refining the question – hang tight! " "This should take seconds."
-        ):
-            refined_user_input = conversational_retrieval.refine_question(user_input)
 
         # Display assistant response in chat message container
         start_time = time.time()
         with st.chat_message("assistant"):
             message_placeholder = st.empty()
             full_response = ""
-            for chunk in get_answer(llm, refined_user_input):
+            for chunk in conversational_retrieval.answer(user_input):
                 full_response += chunk
                 message_placeholder.markdown(full_response + "▌")
             message_placeholder.markdown(full_response)
 
         # Add assistant response to chat history
-        conversational_retrieval.update_chat_history(refined_user_input, full_response)
+        conversational_retrieval.update_chat_history(user_input, full_response)
         st.session_state.messages.append(
             {"role": "assistant", "content": full_response}
         )

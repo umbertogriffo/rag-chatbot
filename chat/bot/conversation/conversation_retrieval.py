@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List, Tuple, Any
 
 from bot.model.client.client import Client
 from helpers.log import get_logger
@@ -87,10 +87,10 @@ class ConversationRetrieval:
             logger.info("--- Refining the question based on the chat history... ---")
 
             conversation_awareness_prompt = (
-                self.llm.generate_conversation_awareness_prompt(question, chat_history)
+                self.llm.generate_refined_question_conversation_awareness_prompt(question, chat_history)
             )
             refined_question = self.llm.generate_answer(
-                conversation_awareness_prompt, max_new_tokens=256
+                conversation_awareness_prompt, max_new_tokens=128
             )
 
             logger.info(f"--- Refined Question: {refined_question} ---")
@@ -98,3 +98,26 @@ class ConversationRetrieval:
             return refined_question
         else:
             return question
+
+    def answer(self, question: str, max_new_tokens: int = 512) -> Any:
+        if self.get_chat_history():
+            questions_and_answers = [
+                "\n".join([f"question: {qa[0]}", f"answer: {qa[1]}"])
+                for qa in self.get_chat_history()
+            ]
+            chat_history = "\n".join(questions_and_answers)
+
+            logger.info("--- Answer the question based on the chat history... ---")
+
+            conversation_awareness_prompt = (
+                self.llm.generate_refined_answer_conversation_awareness_prompt(question, chat_history)
+            )
+            streamer = self.llm.start_answer_iterator_streamer(
+                conversation_awareness_prompt, max_new_tokens=max_new_tokens
+            )
+
+            return streamer
+        else:
+            prompt = self.llm.generate_qa_prompt(question=question)
+            streamer = self.llm.start_answer_iterator_streamer(prompt, max_new_tokens=max_new_tokens)
+            return streamer

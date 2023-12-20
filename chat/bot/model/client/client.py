@@ -32,11 +32,6 @@ class Client(ABC):
         model_settings (ModelSettings): Settings for the language model.
         model_folder (Path): The folder where the model is stored.
         model_path (Path): The full path to the language model file.
-        system_template (str): Template for system-related prompts.
-        qa_prompt_template (str): Template for question-answering prompts.
-        ctx_prompt_template (str): Template for context-based prompts.
-        refined_ctx_prompt_template (str): Template for refined context-based prompts.
-        conversation_awareness_prompt_template (str): Template for conversation-awareness prompts.
         llm: Loaded language model.
         tokenizer: Loaded tokenizer.
 
@@ -48,15 +43,6 @@ class Client(ABC):
         self.model_settings = model_settings
         self.model_folder = model_folder
         self.model_path = self.model_folder / self.model_settings.file_name
-        self.system_template = self.model_settings.system_template
-        self.qa_prompt_template = self.model_settings.qa_prompt_template
-        self.ctx_prompt_template = self.model_settings.ctx_prompt_template
-        self.refined_ctx_prompt_template = (
-            self.model_settings.refined_ctx_prompt_template
-        )
-        self.conversation_awareness_prompt_template = (
-            self.model_settings.conversation_awareness_prompt_template
-        )
 
         self._auto_download()
 
@@ -177,8 +163,8 @@ class Client(ABC):
             str: The generated QA prompt.
         """
         return generate_qa_prompt(
-            template=self.qa_prompt_template,
-            system=self.system_template,
+            template=self.model_settings.qa_prompt_template,
+            system=self.model_settings.system_template,
             question=question,
         )
 
@@ -194,8 +180,8 @@ class Client(ABC):
             str: The generated context-based prompt.
         """
         return generate_ctx_prompt(
-            template=self.ctx_prompt_template,
-            system=self.system_template,
+            template=self.model_settings.ctx_prompt_template,
+            system=self.model_settings.system_template,
             question=question,
             context=context,
         )
@@ -215,19 +201,29 @@ class Client(ABC):
             str: The generated refined prompt.
         """
         return generate_refined_ctx_prompt(
-            template=self.refined_ctx_prompt_template,
-            system=self.system_template,
+            template=self.model_settings.refined_ctx_prompt_template,
+            system=self.model_settings.system_template,
             question=question,
             context=context,
             existing_answer=existing_answer,
         )
 
-    def generate_conversation_awareness_prompt(
+    def generate_refined_question_conversation_awareness_prompt(
         self, question: str, chat_history: str
     ) -> str:
         return generate_conversation_awareness_prompt(
-            template=self.conversation_awareness_prompt_template,
-            system=self.system_template,
+            template=self.model_settings.refined_question_conversation_awareness_prompt_template,
+            system=self.model_settings.system_template,
+            question=question,
+            chat_history=chat_history,
+        )
+
+    def generate_refined_answer_conversation_awareness_prompt(
+        self, question: str, chat_history: str
+    ) -> str:
+        return generate_conversation_awareness_prompt(
+            template=self.model_settings.refined_answer_conversation_awareness_prompt_template,
+            system=self.model_settings.system_template,
             question=question,
             chat_history=chat_history,
         )

@@ -11,5 +11,6 @@ class Model(ABC):
     qa_prompt_template: str
     ctx_prompt_template: str
     refined_ctx_prompt_template: str
-    conversation_awareness_prompt_template: str
+    refined_question_conversation_awareness_prompt_template: str
+    refined_answer_conversation_awareness_prompt_template: str
     config: Any

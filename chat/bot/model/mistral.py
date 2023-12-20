@@ -78,7 +78,7 @@ If the context isn't useful, return the original answer.
 Refined Answer:<|im_end|>
 <|im_start|>assistant
 """
-    conversation_awareness_prompt_template = """<|im_start|>system
+    refined_question_conversation_awareness_prompt_template = """<|im_start|>system
 {system}<|im_end|>
 <|im_start|>user
 \nChat History:
@@ -88,5 +88,17 @@ Refined Answer:<|im_end|>
 Follow Up Question: {question}
 Given the above conversation and a follow up question, rephrase the follow up question to be a standalone question.
 Standalone question:<|im_end|>
+<|im_start|>assistant
+"""
+
+    refined_answer_conversation_awareness_prompt_template = """<|im_start|>system
+{system}<|im_end|>
+<|im_start|>user
+\nChat History:
+---------------------
+{chat_history}
+---------------------
+Considering the context provided in the Chat History, answer the question below with conversation awareness:
+{question}<|im_end|>
 <|im_start|>assistant
 """
