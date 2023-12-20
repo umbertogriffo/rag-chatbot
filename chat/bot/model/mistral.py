@@ -31,7 +31,7 @@ class MistralSettings(Model):
     config = Config(
         top_k=40,
         top_p=0.95,
-        temperature=0.8,
+        temperature=0.7,
         repetition_penalty=1.1,
         last_n_tokens=64,
         seed=-1,
@@ -82,10 +82,11 @@ Refined Answer:<|im_end|>
     conversation_awareness_prompt_template = """<|im_start|>system
 {system}<|im_end|>
 <|im_start|>user
-Chat History:
+\nChat History:
 {chat_history}
 Follow Up Question: {question}
 Given the above conversation and a follow up question, rephrase the follow up question to be a standalone question.
+If and only if the follow up question is intended to understand what we were talking about do a lookup on the chat history and formulate the standalone answer in a way you have the context first.
 Standalone question:<|im_end|>
 <|im_start|>assistant
 """

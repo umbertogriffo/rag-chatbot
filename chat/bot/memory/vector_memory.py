@@ -52,7 +52,7 @@ class VectorMemory:
         )
         return index
 
-    def similarity_search(self, query: str, k: int = 4):
+    def similarity_search(self, query: str, k: int = 4, threshold: float = 0.2):
         """
         Performs similarity search on the given query.
 
@@ -67,6 +67,10 @@ class VectorMemory:
         k : int, optional
             The number of retrievals to consider (default is 4).
 
+        threshold : float, optional
+            The threshold for considering similarity scores (default is 0.2).
+
+
         Returns:
         -------
         Tuple[List[Document]], List[Dict[str, Any]]
@@ -76,7 +80,8 @@ class VectorMemory:
         # `similarity_search_with_relevance_scores` return docs and relevance scores in the range [0, 1].
         # 0 is dissimilar, 1 is most similar.
         matched_docs = self.index.similarity_search_with_relevance_scores(query, k=k)
-        sorted_matched_docs_by_relevance_score = sorted(matched_docs, key=lambda x: x[1], reverse=True)
+        filtered_docs_by_threshold = [doc for doc in matched_docs if doc[1] > threshold]
+        sorted_matched_docs_by_relevance_score = sorted(filtered_docs_by_threshold, key=lambda x: x[1], reverse=True)
         retrieved_contents = [doc[0] for doc in sorted_matched_docs_by_relevance_score]
         sources = []
         for doc, score in sorted_matched_docs_by_relevance_score:
@@ -89,33 +94,6 @@ class VectorMemory:
             )
 
         return retrieved_contents, sources
-
-    def search_most_similar_doc(self, query: str, k: int = 4):
-        """
-        Searches for the most similar document to the given query using the specified index.
-        The returned distance score is cosine distance. Therefore, a lower score is better.
-
-        Parameters:
-        -----------
-        query : str
-            The query string.
-
-        index : Chroma
-            The Chroma index to perform the search on.
-
-        k : int, optional
-            The number of retrievals to consider (default is 4).
-
-        Returns:
-        -------
-        Tuple[Document, float]
-            A tuple containing the most similar document and its similarity score.
-
-        """
-        matched_docs = self.index.similarity_search_with_score(query, k=k)
-        matched_doc = min(matched_docs, key=lambda x: x[1])
-
-        return matched_doc
 
     @staticmethod
     def create_memory_index(embedding: Any, chunks: List, vector_store_path: str):

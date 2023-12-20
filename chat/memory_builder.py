@@ -33,6 +33,7 @@ def load_documents(docs_path: str) -> List:
         docs_path,
         glob="**/*.md",
         loader_cls=UnstructuredMarkdownLoader,
+        # loader_kwargs={"mode": "elements"},
         show_progress=True,
     )
     return loader.load()

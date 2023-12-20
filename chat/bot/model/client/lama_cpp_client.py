@@ -36,7 +36,8 @@ class LamaCppClient(Client):
         Returns:
             str: The generated answer.
         """
-        output = self.llm(prompt, max_tokens=max_new_tokens, echo=True)
+        output = self.llm(prompt, max_tokens=max_new_tokens, temperature=0.7, echo=False)
+        # TODO put the split string a parameter because it changes for every LLM
         answer = output["choices"][0]["text"].split("<|assistant|>")[-1]
 
         return answer
@@ -69,7 +70,7 @@ class LamaCppClient(Client):
             self, prompt: str, skip_prompt: bool = True, max_new_tokens: int = 512
     ) -> Union[CreateCompletionResponse, Iterator[CreateCompletionStreamResponse]]:
 
-        stream = self.llm.create_completion(prompt, max_tokens=max_new_tokens, temperature=0.8, stream=True)
+        stream = self.llm.create_completion(prompt, max_tokens=max_new_tokens, temperature=0.7, stream=True)
         return stream
 
     def parse_token(self, token):

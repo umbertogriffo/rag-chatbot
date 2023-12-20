@@ -104,7 +104,7 @@ python chat/memory_builder.py --chunk-size 1000
 
 To interact with a GUI type:
 ```shell
-streamlit run chat/chatbot_app.py
+streamlit run chat/chatbot_app.py -- --model zephyr
 ```
 
 ![simple.gif](images/simple_chat.gif)
@@ -113,10 +113,15 @@ streamlit run chat/chatbot_app.py
 
 To interact with a GUI type:
 ```shell
-streamlit run chat/rag_chatbot_app.py
+streamlit run chat/rag_chatbot_app.py -- --model zephyr
 ```
 
 ![rag_chatbot_example.gif](images%2Frag_chatbot_example.gif)
+
+
+## How to debug the Streamlit app on Pycharm
+
+![debug_streamlit.png](images/debug_streamlit.png)
 
 ## References
 

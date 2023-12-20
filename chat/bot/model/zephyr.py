@@ -31,7 +31,7 @@ class ZephyrSettings(Model):
     config = Config(
         top_k=40,
         top_p=0.95,
-        temperature=0.8,
+        temperature=0.7,
         repetition_penalty=1.1,
         last_n_tokens=64,
         seed=-1,
@@ -77,7 +77,8 @@ If the context isn't useful, return the original answer.
 Refined Answer:</s>
 <|assistant|>
 """
-    conversation_awareness_prompt_template = """<|system|>{system} Chat History:
+    conversation_awareness_prompt_template = """<|system|>{system}\n
+Chat History:
 {chat_history}
 Follow Up Question: {question}
 </s>
@@ -86,3 +87,5 @@ Given the above conversation and a follow up question, rephrase the follow up qu
 Standalone question:</s>
 <|assistant|>
 """
+
+# If and only if the follow up question is intended to understand what we were talking about do a lookup on the chat history and formulate the standalone answer in a way you have the context first.

@@ -5,6 +5,7 @@ from langchain_community.vectorstores.chroma import Chroma
 
 from bot.memory.embedder import EmbedderHuggingFace
 from bot.memory.vector_memory import VectorMemory
+from helpers.prettier import prettify_source
 
 if __name__ == "__main__":
     root_folder = Path(__file__).resolve().parent.parent
@@ -20,13 +21,9 @@ if __name__ == "__main__":
     query = "tell me a joke about ClearML"
 
     matched_docs, sources = index.similarity_search(query)
-    matched_doc = index.search_most_similar_doc(query)
 
-    for doc, score in matched_docs:
-        print("-- PAGE CONTENT --")
-        print(doc.page_content)
-        print("-- METADATA --")
-        print(doc.metadata)
+    for source in sources:
+        print(prettify_source(source))
 
     persistent_client = chromadb.PersistentClient(path=str(episodic_vector_store_path))
     collection = persistent_client.get_or_create_collection("episodic_memory")

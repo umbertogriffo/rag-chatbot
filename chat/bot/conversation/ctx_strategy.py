@@ -34,28 +34,35 @@ class CreateAndRefineStrategy(BaseSynthesisStrategy):
         cur_response = None
         fmt_prompts = []
         num_of_contents = len(retrieved_contents)
-        for idx, node in enumerate(retrieved_contents):
-            logger.info(f"--- Generating an answer for the content {idx} ... ---")
-            context = node.page_content
-            if idx == 0:
-                fmt_prompt = self.llm.generate_ctx_prompt(
-                    question=question, context=context
-                )
-            else:
-                fmt_prompt = self.llm.generate_refined_ctx_prompt(
-                    context=context,
-                    question=question,
-                    existing_answer=str(cur_response),
-                )
-
-            if idx == num_of_contents - 1:
-                if return_generator:
-                    cur_response = self.llm.start_answer_iterator_streamer(fmt_prompt, max_new_tokens=max_new_tokens)
+        if num_of_contents > 0:
+            for idx, node in enumerate(retrieved_contents, start=1):
+                logger.info(f"--- Generating an answer for the chunk {idx} ... ---")
+                context = node.page_content
+                logger.debug(f"--- Context: '{context}' ... ---")
+                if idx == 0:
+                    fmt_prompt = self.llm.generate_ctx_prompt(
+                        question=question, context=context
+                    )
                 else:
-                    cur_response = self.llm.stream_answer(fmt_prompt, max_new_tokens=max_new_tokens)
+                    fmt_prompt = self.llm.generate_refined_ctx_prompt(
+                        context=context,
+                        question=question,
+                        existing_answer=str(cur_response),
+                    )
 
-            else:
-                cur_response = self.llm.generate_answer(fmt_prompt, max_new_tokens=max_new_tokens)
+                if idx == num_of_contents:
+                    if return_generator:
+                        cur_response = self.llm.start_answer_iterator_streamer(fmt_prompt, max_new_tokens=max_new_tokens)
+                    else:
+                        cur_response = self.llm.stream_answer(fmt_prompt, max_new_tokens=max_new_tokens)
+
+                else:
+                    cur_response = self.llm.generate_answer(fmt_prompt, max_new_tokens=max_new_tokens)
+                    logger.debug(f"--- Current response: '{cur_response}' ... ---")
+                fmt_prompts.append(fmt_prompt)
+        else:
+            fmt_prompt = self.llm.generate_qa_prompt(question=question)
+            cur_response = self.llm.start_answer_iterator_streamer(fmt_prompt, max_new_tokens=max_new_tokens)
             fmt_prompts.append(fmt_prompt)
 
         return cur_response, fmt_prompts

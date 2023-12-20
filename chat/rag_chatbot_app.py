@@ -151,16 +151,20 @@ def main(parameters) -> None:
                             ):
                 user_input = conversational_retrieval.refine_question(user_input)
                 retrieved_contents, sources = index.similarity_search(query=user_input, k=parameters.k)
-
-                full_response += "Here are the retrieved text chunks with a content preview: \n\n"
-                message_placeholder.markdown(full_response)
-
-                for source in sources:
-                    full_response += prettify_source(source)
-                    full_response += "\n\n"
+                if retrieved_contents:
+                    full_response += "Here are the retrieved text chunks with a content preview: \n\n"
                     message_placeholder.markdown(full_response)
 
-                st.session_state.messages.append({"role": "assistant", "content": full_response})
+                    for source in sources:
+                        full_response += prettify_source(source)
+                        full_response += "\n\n"
+                        message_placeholder.markdown(full_response)
+
+                    st.session_state.messages.append({"role": "assistant", "content": full_response})
+                else:
+                    full_response += "I did not detect any pertinent chunk of text from the documents. \n\n"
+                    message_placeholder.markdown(full_response)
+                    st.session_state.messages.append({"role": "assistant", "content": full_response})
 
         # Display assistant response in chat message container
         with st.chat_message("assistant"):
