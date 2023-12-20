@@ -64,7 +64,7 @@ def build_memory_index(
     logger.info(f"Number of Documents: {len(sources)}")
     chunks = split_chunks(sources, chunk_size=chunk_size, chunk_overlap=chunk_overlap)
     logger.info(f"Number of Chunks: {len(chunks)}")
-    embedding = EmbedderHuggingFace()
+    embedding = EmbedderHuggingFace().get_embedding()
     VectorMemory.create_memory_index(embedding, chunks, vector_store_path)
     logger.info("Memory Index has been created successfully!")
 
