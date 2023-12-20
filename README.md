@@ -39,6 +39,7 @@ relevant context from previous conversations to provide more accurate answers.
 - [Build the memory index](#build-the-memory-index)
 - [Run a simple Chatbot](#run-a-simple-chatbot)
 - [Run the RAG Chatbot](#run-the-rag-chatbot)
+- [How to debug the Streamlit app on Pycharm](#how-to-debug-the-streamlit-app-on-pycharm)
 - [References](#references)
 
 
