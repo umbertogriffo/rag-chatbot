@@ -1,6 +1,11 @@
 from typing import List, Tuple, Any
 
+from langchain_core.documents import Document
+
 from bot.model.client.client import Client
+from bot.conversation.ctx_strategy import (
+    BaseSynthesisStrategy
+)
 from helpers.log import get_logger
 
 logger = get_logger(__name__)
@@ -67,12 +72,14 @@ class ConversationRetrieval:
             self.chat_history = self.chat_history[-max_size:]
         return self.chat_history
 
-    def refine_question(self, question: str) -> str:
+    def refine_question(self, question: str, max_new_tokens: int = 128) -> str:
         """
-        Refines the given question based on the conversation history.
+        Refines the given question based on the chat history.
 
         Args:
             question (str): The original question.
+            max_new_tokens (int, optional): The maximum number of tokens to generate in the answer.
+                Defaults to 128.
 
         Returns:
             str: The refined question.
@@ -90,7 +97,7 @@ class ConversationRetrieval:
                 self.llm.generate_refined_question_conversation_awareness_prompt(question, chat_history)
             )
             refined_question = self.llm.generate_answer(
-                conversation_awareness_prompt, max_new_tokens=128
+                conversation_awareness_prompt, max_new_tokens=max_new_tokens
             )
 
             logger.info(f"--- Refined Question: {refined_question} ---")
@@ -100,6 +107,30 @@ class ConversationRetrieval:
             return question
 
     def answer(self, question: str, max_new_tokens: int = 512) -> Any:
+        """
+        Generates an answer to the given question based on the chat history or a direct prompt.
+
+        Args:
+            question (str): The input question for which an answer is generated.
+            max_new_tokens (int, optional): The maximum number of tokens to generate in the answer.
+                Defaults to 512.
+
+        Returns:
+            A streaming iterator (Any) for progressively generating the answer.
+
+        Notes:
+            The method checks if there is existing chat history. If chat history is available,
+            it constructs a conversation-awareness prompt using the question and chat history.
+            The answer is then generated using the LLM with the conversation-awareness prompt.
+            If no chat history is available, a prompt is generated directly from the input question,
+            and the answer is generated accordingly.
+
+        Example:
+            >>> conversation_retrieval = ConversationRetrieval(llm)
+            >>> answer_streamer = conversation_retrieval.answer("What is the meaning of life?")
+            >>> for token in answer_streamer:
+            ...     print(token)
+        """
         if self.get_chat_history():
             questions_and_answers = [
                 "\n".join([f"question: {qa[0]}", f"answer: {qa[1]}"])
@@ -121,3 +152,15 @@ class ConversationRetrieval:
             prompt = self.llm.generate_qa_prompt(question=question)
             streamer = self.llm.start_answer_iterator_streamer(prompt, max_new_tokens=max_new_tokens)
             return streamer
+
+    @staticmethod
+    def context_aware_answer(ctx_synthesis_strategy: BaseSynthesisStrategy,
+                             question: str,
+                             retrieved_contents: List[Document],
+                             max_new_tokens: int = 512,
+                             return_generator: bool = True):
+        streamer, fmt_prompts = ctx_synthesis_strategy.generate_response(retrieved_contents,
+                                                                         question,
+                                                                         max_new_tokens=max_new_tokens,
+                                                                         return_generator=return_generator)
+        return streamer, fmt_prompts

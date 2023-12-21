@@ -10,8 +10,8 @@ class BaseSynthesisStrategy:
     def __init__(self, llm: Client) -> None:
         self.llm = llm
 
-    def answer(
-        self, retrieved_contents, question, max_new_tokens=512, return_generator=False
+    def generate_response(
+            self, retrieved_contents, question, max_new_tokens=512, return_generator=False
     ):
         raise NotImplementedError("Subclasses must implement generate_response method")
 
@@ -20,8 +20,8 @@ class CreateAndRefineStrategy(BaseSynthesisStrategy):
     def __init__(self, llm: Client):
         super().__init__(llm)
 
-    def answer(
-        self, retrieved_contents, question, max_new_tokens=512, return_generator=False
+    def generate_response(
+            self, retrieved_contents, question, max_new_tokens=512, return_generator=False
     ) -> Union[str, Any]:
         """
         Generate a response using create and refine strategy.
@@ -83,13 +83,13 @@ class TreeSummarizationStrategy(BaseSynthesisStrategy):
     def __init__(self, llm: Client):
         super().__init__(llm)
 
-    def answer(
-        self,
-        retrieved_contents,
-        question,
-        max_new_tokens=512,
-        num_children=10,
-        return_generator=False,
+    def generate_response(
+            self,
+            retrieved_contents,
+            question,
+            max_new_tokens=512,
+            num_children=10,
+            return_generator=False,
     ) -> Union[str, Any]:
         """
         Generate a response using hierarchical summarization strategy.
@@ -120,16 +120,16 @@ class TreeSummarizationStrategy(BaseSynthesisStrategy):
         return response_txt, fmt_prompts
 
     def combine_results(
-        self,
-        texts,
-        question,
-        cur_prompt_list,
-        max_new_tokens=512,
-        num_children=10,
+            self,
+            texts,
+            question,
+            cur_prompt_list,
+            max_new_tokens=512,
+            num_children=10,
     ):
         new_texts = []
         for idx in range(0, len(texts), num_children):
-            text_batch = texts[idx : idx + num_children]
+            text_batch = texts[idx: idx + num_children]
             context = "\n\n".join([t for t in text_batch])
             fmt_qa_prompt = self.llm.generate_ctx_prompt(
                 question=question, context=context
@@ -152,11 +152,11 @@ STRATEGIES = {
 }
 
 
-def get_synthesis_strategies():
+def get_ctx_synthesis_strategies():
     return list(STRATEGIES.keys())
 
 
-def get_synthesis_strategy(strategy_name: str, **kwargs):
+def get_ctx_synthesis_strategy(strategy_name: str, **kwargs):
     strategy = STRATEGIES.get(strategy_name)
 
     # validate input

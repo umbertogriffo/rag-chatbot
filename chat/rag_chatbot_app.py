@@ -2,14 +2,12 @@ import argparse
 import sys
 import time
 from pathlib import Path
-from typing import List
 
 import streamlit as st
 from bot.conversation.conversation_retrieval import ConversationRetrieval
 from bot.conversation.ctx_strategy import (
     BaseSynthesisStrategy,
-    get_synthesis_strategies,
-    get_synthesis_strategy,
+    get_ctx_synthesis_strategy, get_ctx_synthesis_strategies,
 )
 from bot.memory.embedder import EmbedderHuggingFace
 from bot.memory.vector_memory import VectorMemory
@@ -18,7 +16,6 @@ from bot.model.client.client_settings import get_client, get_clients
 from bot.model.model_settings import get_model_setting, get_models
 from helpers.log import get_logger
 from helpers.prettier import prettify_source
-from langchain_core.documents import Document
 
 logger = get_logger(__name__)
 
@@ -45,11 +42,11 @@ def load_conversational_retrieval(_llm: Client) -> ConversationRetrieval:
 
 
 @st.cache_resource()
-def load_synthesis_strategy(
-    synthesis_strategy_name: str, _llm: Client
+def load_ctx_synthesis_strategy(
+    ctx_synthesis_strategy_name: str, _llm: Client
 ) -> BaseSynthesisStrategy:
-    synthesis_strategy = get_synthesis_strategy(synthesis_strategy_name, llm=_llm)
-    return synthesis_strategy
+    ctx_synthesis_strategy = get_ctx_synthesis_strategy(ctx_synthesis_strategy_name, llm=_llm)
+    return ctx_synthesis_strategy
 
 
 @st.cache_resource()
@@ -107,18 +104,6 @@ def display_messages_from_history():
             st.markdown(message["content"])
 
 
-def get_answer(
-    synthesis_strategy: BaseSynthesisStrategy,
-    question: str,
-    retrieved_contents: List[Document],
-) -> str:
-    streamer, fmt_prompts = synthesis_strategy.answer(
-        retrieved_contents, question, return_generator=True
-    )
-    for character in streamer:
-        yield synthesis_strategy.llm.parse_token(character)
-
-
 def main(parameters) -> None:
     """
     Main function to run the RAG Chatbot application.
@@ -138,7 +123,7 @@ def main(parameters) -> None:
     init_page()
     llm = load_llm_client(client_name, model_folder, model_name)
     conversational_retrieval = load_conversational_retrieval(_llm=llm)
-    synthesis_strategy = load_synthesis_strategy(synthesis_strategy_name, _llm=llm)
+    ctx_synthesis_strategy = load_ctx_synthesis_strategy(synthesis_strategy_name, _llm=llm)
     index = load_index(vector_store_path)
     init_messages()
     init_welcome_message()
@@ -195,16 +180,17 @@ def main(parameters) -> None:
                 text="Refining the context and Generating the answer for each text chunk – hang tight! "
                 "This should take 1 minute."
             ):
-                for chunk in get_answer(
-                    synthesis_strategy, refined_user_input, retrieved_contents
-                ):
-                    full_response += chunk
+                streamer, fmt_prompts = conversational_retrieval.context_aware_answer(
+                    ctx_synthesis_strategy, user_input, retrieved_contents, return_generator=True
+                )
+                for token in streamer:
+                    full_response += llm.parse_token(token)
                     message_placeholder.markdown(full_response + "▌")
 
                 message_placeholder.markdown(full_response)
 
                 conversational_retrieval.update_chat_history(
-                    refined_user_input, full_response
+                    user_input, full_response
                 )
         # Add assistant response to chat history
         st.session_state.messages.append(
@@ -223,7 +209,7 @@ def get_args() -> argparse.Namespace:
     model_list = get_models()
     default_model = model_list[0]
 
-    synthesis_strategy_list = get_synthesis_strategies()
+    synthesis_strategy_list = get_ctx_synthesis_strategies()
     default_synthesis_strategy = synthesis_strategy_list[0]
 
     parser.add_argument(

@@ -1,6 +1,8 @@
-from typing import Any, List
+from typing import Any, List, Tuple, Dict
 
 from cleantext import clean
+from langchain_core.documents import Document
+
 from helpers.log import get_logger
 from langchain.vectorstores import Chroma
 
@@ -51,7 +53,7 @@ class VectorMemory:
         )
         return index
 
-    def similarity_search(self, query: str, k: int = 4, threshold: float = 0.2):
+    def similarity_search(self, query: str, k: int = 4, threshold: float = 0.2) -> Tuple[List[Document], List[Dict[str, Any]]]:
         """
         Performs similarity search on the given query.
 
@@ -72,7 +74,7 @@ class VectorMemory:
 
         Returns:
         -------
-        Tuple[List[Document]], List[Dict[str, Any]]
+        Tuple[List[Document], List[Dict[str, Any]]]
             A tuple containing the list of matched documents and a list of their sources.
 
         """
