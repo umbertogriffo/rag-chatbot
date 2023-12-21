@@ -66,14 +66,26 @@ def load_index(vector_store_path: Path) -> VectorMemory:
     return index
 
 
-def init_page() -> None:
+def init_page(root_folder: Path) -> None:
     """
     Initializes the page configuration for the application.
     """
     st.set_page_config(
         page_title="RAG Chatbot", page_icon="💬", initial_sidebar_state="collapsed"
     )
-    st.header("RAG Chatbot")
+    left_column, central_column, right_column = st.columns([2, 1, 2])
+
+    with left_column:
+        st.write(' ')
+
+    with central_column:
+        st.image(str(root_folder / "images/bot.png"), use_column_width="always")
+        st.markdown("""<h4 style='text-align: center; color: grey;'></h4>""",
+                    unsafe_allow_html=True)
+
+    with right_column:
+        st.write(' ')
+
     st.sidebar.title("Options")
 
 
@@ -120,7 +132,7 @@ def main(parameters) -> None:
     model_name = parameters.model
     synthesis_strategy_name = parameters.synthesis_strategy
 
-    init_page()
+    init_page(root_folder)
     llm = load_llm_client(client_name, model_folder, model_name)
     conversational_retrieval = load_conversational_retrieval(_llm=llm)
     ctx_synthesis_strategy = load_ctx_synthesis_strategy(synthesis_strategy_name, _llm=llm)
