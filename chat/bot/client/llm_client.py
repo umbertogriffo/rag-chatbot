@@ -76,6 +76,22 @@ class LlmClient(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    async def async_generate_answer(self, prompt: str, max_new_tokens: int = 512) -> str:
+        """
+        This method should be implemented to asynchronously generate an answer based on the given prompt.
+
+        Args:
+            prompt (str): The input prompt for generating the answer.
+            max_new_tokens (int): The maximum number of new tokens to generate (default is 1000).
+
+        Returns:
+            str: The generated answer.
+
+        """
+
+        raise NotImplementedError
+
+    @abstractmethod
     def stream_answer(
         self, prompt: str, skip_prompt: bool = True, max_new_tokens: int = 512
     ) -> str:
@@ -93,10 +109,6 @@ class LlmClient(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def parse_token(self, token):
-        raise NotImplementedError
-
-    @abstractmethod
     def start_answer_iterator_streamer(
         self, prompt: str, skip_prompt: bool = True, max_new_tokens: int = 512
     ) -> Any:
@@ -108,9 +120,28 @@ class LlmClient(ABC):
             skip_prompt (bool): Whether to skip the prompt tokens during streaming (default is True).
             max_new_tokens (int): The maximum number of new tokens to generate (default is 1000).
 
-        Returns:
-            str: An empty string as a placeholder for the return value.
         """
+        raise NotImplementedError
+
+    @abstractmethod
+    async def async_start_answer_iterator_streamer(
+        self, prompt: str, skip_prompt: bool = True, max_new_tokens: int = 512
+    ) -> Any:
+        """
+        This abstract method should be implemented to asynchronously start an answer iterator streamer,
+        providing a flexible way to generate answers in a streaming fashion based on the given prompt.
+
+        Args:
+            prompt (str): The input prompt for generating the answer.
+            skip_prompt (bool): Whether to skip the prompt tokens during streaming (default is True).
+            max_new_tokens (int): The maximum number of new tokens to generate (default is 1000).
+
+        """
+
+        raise NotImplementedError
+
+    @abstractmethod
+    def parse_token(self, token):
         raise NotImplementedError
 
     def _auto_download(self) -> None:

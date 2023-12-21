@@ -40,6 +40,25 @@ class LamaCppClient(LlmClient):
 
         return answer
 
+    async def async_generate_answer(self, prompt: str, max_new_tokens: int = 512) -> str:
+        """
+        Generates an answer based on the given prompt using the language model.
+
+        Args:
+            prompt (str): The input prompt for generating the answer.
+            max_new_tokens (int): The maximum number of new tokens to generate (default is 512).
+
+        Returns:
+            str: The generated answer.
+        """
+        output = self.llm(
+            prompt, max_tokens=max_new_tokens, temperature=0.7, echo=False
+        )
+
+        answer = output["choices"][0]["text"]
+
+        return answer
+
     def stream_answer(
         self, prompt: str, skip_prompt: bool = True, max_new_tokens: int = 512
     ) -> str:
@@ -74,5 +93,15 @@ class LamaCppClient(LlmClient):
         )
         return stream
 
+    async def async_start_answer_iterator_streamer(
+        self, prompt: str, skip_prompt: bool = True, max_new_tokens: int = 512
+    ) -> Union[CreateCompletionResponse, Iterator[CreateCompletionStreamResponse]]:
+        stream = self.llm.create_completion(
+            prompt, max_tokens=max_new_tokens, temperature=0.7, stream=True
+        )
+        return stream
+
     def parse_token(self, token):
         return token["choices"][0]["text"]
+
+

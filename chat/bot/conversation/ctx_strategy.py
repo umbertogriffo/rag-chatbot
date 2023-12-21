@@ -1,9 +1,13 @@
 from typing import Any, Union
+import asyncio
+
+import nest_asyncio
 
 from bot.client.llm_client import LlmClient
 from helpers.log import get_logger
 
 logger = get_logger(__name__)
+nest_asyncio.apply()
 
 
 class BaseSynthesisStrategy:
@@ -110,7 +114,7 @@ class TreeSummarizationStrategy(BaseSynthesisStrategy):
             node_responses.append(node_response)
             fmt_prompts.append(fmt_qa_prompt)
 
-        response_txt = self.combine_results(
+        response = self.combine_results(
             [str(r) for r in node_responses],
             [],
             question,
@@ -120,7 +124,7 @@ class TreeSummarizationStrategy(BaseSynthesisStrategy):
             num_children=num_children,
         )
 
-        return response_txt, fmt_prompts
+        return response, fmt_prompts
 
     def combine_results(
             self,
@@ -161,9 +165,95 @@ class TreeSummarizationStrategy(BaseSynthesisStrategy):
                                         return_generator=return_generator, num_children=num_children)
 
 
+class AsyncTreeSummarizationStrategy(BaseSynthesisStrategy):
+    def __init__(self, llm: LlmClient):
+        super().__init__(llm)
+
+    async def generate_response(
+            self,
+            retrieved_contents,
+            question,
+            max_new_tokens=512,
+            num_children=2,
+            return_generator=False,
+    ) -> Union[str, Any]:
+        """
+        Generate a response using hierarchical summarization strategy.
+
+        Combine `num_children` contents hierarchically until we get one root content.
+        """
+        fmt_prompts = []
+        for idx, content in enumerate(retrieved_contents, start=1):
+            context = content.page_content
+            logger.info(f"--- Generating a response for the chunk {idx} ... ---")
+            fmt_qa_prompt = self.llm.generate_ctx_prompt(
+                question=question, context=context
+            )
+            fmt_prompts.append(fmt_qa_prompt)
+
+        tasks = [self.llm.async_generate_answer(p, max_new_tokens=max_new_tokens) for p in fmt_prompts]
+        node_responses = await asyncio.gather(*tasks)
+
+        response = await self.combine_results(
+            [str(r) for r in node_responses],
+            [],
+            question,
+            fmt_prompts,
+            max_new_tokens=max_new_tokens,
+            return_generator=return_generator,
+            num_children=num_children,
+        )
+
+        return response, fmt_prompts
+
+    async def combine_results(
+            self,
+            texts,
+            streams,
+            question,
+            cur_prompt_list,
+            max_new_tokens=512,
+            return_generator=False,
+            num_children=2,
+    ):
+
+        fmt_prompts = []
+        for idx in range(0, len(texts), num_children):
+            text_batch = texts[idx: idx + num_children]
+            context = "\n\n".join([t for t in text_batch])
+            fmt_qa_prompt = self.llm.generate_ctx_prompt(
+                question=question, context=context
+            )
+            fmt_prompts.append(fmt_qa_prompt)
+            logger.info(f"--- Combining {len(texts)} responses ... ---")
+
+        tasks = [self.llm.async_generate_answer(p, max_new_tokens=max_new_tokens) for p in fmt_prompts]
+        combined_responses = await asyncio.gather(*tasks)
+
+        tasks = [self.llm.async_start_answer_iterator_streamer(p, max_new_tokens=max_new_tokens) for p in fmt_prompts]
+        combined_responses_stream = await asyncio.gather(*tasks)
+
+        new_texts = [str(r) for r in combined_responses]
+        new_streams = [r for r in combined_responses_stream]
+
+        if len(new_texts) == 1:
+            if return_generator:
+                return new_streams[0]
+            else:
+                return new_texts[0]
+        else:
+            return await self.combine_results(new_texts,
+                                              new_streams,
+                                              question,
+                                              cur_prompt_list,
+                                              return_generator=return_generator,
+                                              num_children=num_children)
+
+
 STRATEGIES = {
     "create_and_refine": CreateAndRefineStrategy,
     "tree_summarization": TreeSummarizationStrategy,
+    "async_tree_summarization": AsyncTreeSummarizationStrategy
 }
 
 

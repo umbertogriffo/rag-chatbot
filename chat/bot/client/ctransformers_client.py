@@ -74,6 +74,23 @@ class CtransformersClient(LlmClient):
 
         return answer
 
+    async def async_generate_answer(self, prompt: str, max_new_tokens: int = 512) -> str:
+        """
+        Generates an answer based on the given prompt using the language model.
+
+        Args:
+            prompt (str): The input prompt for generating the answer.
+            max_new_tokens (int): The maximum number of new tokens to generate (default is 512).
+
+        Returns:
+            str: The generated answer.
+        """
+        prompt_ids = self._encode_prompt(prompt)
+        answer_ids = self.llm.generate(prompt_ids, max_new_tokens=max_new_tokens)
+        answer = self._decode_answer(prompt_ids, answer_ids)
+
+        return answer
+
     def stream_answer(
         self, prompt: str, skip_prompt: bool = True, max_new_tokens: int = 512
     ) -> str:
@@ -100,6 +117,33 @@ class CtransformersClient(LlmClient):
         return answer
 
     def start_answer_iterator_streamer(
+        self, prompt: str, skip_prompt: bool = True, max_new_tokens: int = 512
+    ) -> TextIteratorStreamer:
+        """
+        Starts an answer iterator streamer thread for generating answers asynchronously.
+
+        Args:
+            prompt (str): The input prompt for generating the answer.
+            skip_prompt (bool): Whether to skip the prompt tokens during streaming (default is True).
+            max_new_tokens (int): The maximum number of new tokens to generate (default is 512).
+
+        Returns:
+            str: An empty string as a placeholder for the return value.
+        """
+        self.streamer = TextIteratorStreamer(self.tokenizer, skip_prompt=skip_prompt)
+
+        inputs = self.tokenizer(prompt, return_tensors="pt")
+        kwargs = dict(
+            input_ids=inputs["input_ids"],
+            streamer=self.streamer,
+            max_new_tokens=max_new_tokens,
+        )
+        thread = Thread(target=self.llm.generate, kwargs=kwargs)
+        thread.start()
+
+        return self.streamer
+
+    async def async_start_answer_iterator_streamer(
         self, prompt: str, skip_prompt: bool = True, max_new_tokens: int = 512
     ) -> TextIteratorStreamer:
         """

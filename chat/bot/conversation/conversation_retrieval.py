@@ -1,10 +1,11 @@
+from asyncio import get_event_loop
 from typing import List, Tuple, Any
 
 from langchain_core.documents import Document
 
 from bot.client.llm_client import LlmClient
 from bot.conversation.ctx_strategy import (
-    BaseSynthesisStrategy
+    BaseSynthesisStrategy, AsyncTreeSummarizationStrategy
 )
 from helpers.log import get_logger
 
@@ -159,8 +160,15 @@ class ConversationRetrieval:
                              retrieved_contents: List[Document],
                              max_new_tokens: int = 512,
                              return_generator: bool = True):
-        streamer, fmt_prompts = ctx_synthesis_strategy.generate_response(retrieved_contents,
-                                                                         question,
-                                                                         max_new_tokens=max_new_tokens,
-                                                                         return_generator=return_generator)
+        if isinstance(ctx_synthesis_strategy, AsyncTreeSummarizationStrategy):
+            loop = get_event_loop()
+            streamer, fmt_prompts = loop.run_until_complete(ctx_synthesis_strategy.generate_response(retrieved_contents,
+                                                                                                     question,
+                                                                                                     max_new_tokens=max_new_tokens,
+                                                                                                     return_generator=return_generator))
+        else:
+            streamer, fmt_prompts = ctx_synthesis_strategy.generate_response(retrieved_contents,
+                                                                             question,
+                                                                             max_new_tokens=max_new_tokens,
+                                                                             return_generator=return_generator)
         return streamer, fmt_prompts
