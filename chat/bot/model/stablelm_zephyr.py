@@ -1,11 +1,11 @@
-from bot.model.client.client import LlmClient
+from bot.client.llm_client import LlmClientType
 from bot.model.model import Model
 
 
 class StableLMZephyrSettings(Model):
     url = "https://huggingface.co/TheBloke/stablelm-zephyr-3b-GGUF/resolve/main/stablelm-zephyr-3b.Q5_K_M.gguf"
     file_name = "stablelm-zephyr-3b.Q5_K_M.gguf"
-    clients = [LlmClient.LAMA_CPP]
+    clients = [LlmClientType.LAMA_CPP]
     config = {
         "n_ctx": 4096,  # The max sequence length to use - note that longer sequence lengths require much more resources
         "n_threads": 8,  # The number of CPU threads to use, tailor to your system and the resulting performance

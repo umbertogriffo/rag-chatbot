@@ -2,19 +2,19 @@ from pathlib import Path
 from threading import Thread
 from typing import Any, Optional
 
-from bot.model.client.client import Client, LlmClient
+from bot.client.llm_client import LlmClient, LlmClientType
 from bot.model.model import Model
 from ctransformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer
 from transformers import TextIteratorStreamer, TextStreamer
 
 
-class CtransformersClient(Client):
+class CtransformersClient(LlmClient):
     streamer: Optional[TextIteratorStreamer] = None
 
     def __init__(self, model_folder: Path, model_settings: Model):
-        if LlmClient.CTRANSFORMERS not in model_settings.clients:
+        if LlmClientType.CTRANSFORMERS not in model_settings.clients:
             raise ValueError(
-                f"{model_settings.file_name} is a not supported by the {LlmClient.CTRANSFORMERS.value} client."
+                f"{model_settings.file_name} is a not supported by the {LlmClientType.CTRANSFORMERS.value} client."
             )
         super().__init__(model_folder, model_settings)
 

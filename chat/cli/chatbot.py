@@ -3,7 +3,7 @@ import sys
 import time
 from pathlib import Path
 
-from bot.model.client.client_settings import get_client, get_clients
+from bot.client.client_settings import get_client, get_clients
 from bot.model.model_settings import get_model_setting, get_models
 from helpers.log import get_logger
 from helpers.reader import read_input

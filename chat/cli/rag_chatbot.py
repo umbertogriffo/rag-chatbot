@@ -3,14 +3,11 @@ import sys
 import time
 from pathlib import Path
 
+from bot.client.client_settings import get_clients, get_client
 from bot.conversation.conversation_retrieval import ConversationRetrieval
-from bot.conversation.ctx_strategy import (
-    get_synthesis_strategies,
-    get_synthesis_strategy,
-)
+from bot.conversation.ctx_strategy import get_ctx_synthesis_strategies, get_ctx_synthesis_strategy
 from bot.memory.embedder import EmbedderHuggingFace
 from bot.memory.vector_memory import VectorMemory
-from bot.model.client.client_settings import get_client, get_clients
 from bot.model.model_settings import get_model_setting, get_models
 from helpers.log import get_logger
 from helpers.prettier import prettify_source
@@ -31,7 +28,7 @@ def get_args() -> argparse.Namespace:
     model_list = get_models()
     default_model = model_list[0]
 
-    synthesis_strategy_list = get_synthesis_strategies()
+    synthesis_strategy_list = get_ctx_synthesis_strategies()
     default_synthesis_strategy = synthesis_strategy_list[0]
 
     parser.add_argument(
@@ -120,11 +117,18 @@ def loop(conversation, synthesis_strategy, index, parameters) -> None:
 
         console.print("\n[bold magenta]Answer:[/bold magenta]")
 
-        answer, fmt_prompts = synthesis_strategy.answer(
-            retrieved_contents=retrieved_contents,
+        streamer, fmt_prompts = conversation.context_aware_answer(
+            ctx_synthesis_strategy=synthesis_strategy,
             question=refined_question,
+            retrieved_contents=retrieved_contents,
             max_new_tokens=parameters.max_new_tokens,
+            return_generator=True
         )
+        answer = ""
+        for token in streamer:
+            parsed_token = conversation.llm.parse_token(token)
+            answer += parsed_token
+            print(parsed_token, end="", flush=True)
 
         conversation.update_chat_history(refined_question, answer)
 
@@ -151,7 +155,7 @@ def main(parameters):
 
     llm = get_client(client, model_folder=model_folder, model_settings=model_settings)
 
-    synthesis_strategy = get_synthesis_strategy(parameters.synthesis_strategy, llm=llm)
+    synthesis_strategy = get_ctx_synthesis_strategy(parameters.synthesis_strategy, llm=llm)
 
     conversation = ConversationRetrieval(llm)
 

@@ -1,4 +1,4 @@
-from bot.model.client.client import LlmClient
+from bot.client.llm_client import LlmClientType
 from bot.model.model import Model
 from ctransformers import Config
 
@@ -6,7 +6,7 @@ from ctransformers import Config
 class ZephyrSettings(Model):
     url = "https://huggingface.co/TheBloke/zephyr-7B-beta-GGUF/resolve/main/zephyr-7b-beta.Q4_K_M.gguf"
     file_name = "zephyr-7b-beta.Q4_K_M.gguf"
-    clients = [LlmClient.CTRANSFORMERS]
+    clients = [LlmClientType.CTRANSFORMERS]
     type = "mistral"
     """
     Config:

@@ -5,22 +5,20 @@ from pathlib import Path
 from typing import Any
 
 import requests
+
+from bot.client.prompt import generate_qa_prompt, generate_ctx_prompt, generate_refined_ctx_prompt, \
+    generate_conversation_awareness_prompt
 from bot.model.model import Model
-from bot.prompt import (
-    generate_conversation_awareness_prompt,
-    generate_ctx_prompt,
-    generate_qa_prompt,
-    generate_refined_ctx_prompt,
-)
+
 from tqdm import tqdm
 
 
-class LlmClient(Enum):
+class LlmClientType(Enum):
     CTRANSFORMERS = "ctransformers"
     LAMA_CPP = "lama_cpp"
 
 
-class Client(ABC):
+class LlmClient(ABC):
     """
     Abstract base class for implementing language model clients.
 

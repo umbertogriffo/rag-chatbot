@@ -2,7 +2,7 @@ from typing import List, Tuple, Any
 
 from langchain_core.documents import Document
 
-from bot.model.client.client import Client
+from bot.client.llm_client import LlmClient
 from bot.conversation.ctx_strategy import (
     BaseSynthesisStrategy
 )
@@ -16,16 +16,16 @@ class ConversationRetrieval:
     A class for managing conversation retrieval using a language model.
 
     Attributes:
-        llm (Client): The language model client for conversation-related tasks.
+        llm (LlmClient): The language model client for conversation-related tasks.
         chat_history (List[Tuple[str, str]]): A list to store the conversation history as tuples of questions and answers.
     """
 
-    def __init__(self, llm: Client) -> None:
+    def __init__(self, llm: LlmClient) -> None:
         """
         Initializes a new instance of the ConversationRetrieval class.
 
         Args:
-            llm (Client): The language model client for conversation-related tasks.
+            llm (LlmClient): The language model client for conversation-related tasks.
         """
         self.llm = llm
         self.chat_history = []

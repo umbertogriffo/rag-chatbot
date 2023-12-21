@@ -1,10 +1,10 @@
-from bot.model.client.client import LlmClient
-from bot.model.client.ctransformers_client import CtransformersClient
-from bot.model.client.lama_cpp_client import LamaCppClient
+from bot.client.ctransformers_client import CtransformersClient
+from bot.client.lama_cpp_client import LamaCppClient
+from bot.client.llm_client import LlmClientType
 
 SUPPORTED_CLIENTS = {
-    LlmClient.CTRANSFORMERS.value: CtransformersClient,
-    LlmClient.LAMA_CPP.value: LamaCppClient,
+    LlmClientType.CTRANSFORMERS.value: CtransformersClient,
+    LlmClientType.LAMA_CPP.value: LamaCppClient,
 }
 
 

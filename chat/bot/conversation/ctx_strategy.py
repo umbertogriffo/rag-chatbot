@@ -1,13 +1,13 @@
 from typing import Any, Union
 
-from bot.model.client.client import Client
+from bot.client.llm_client import LlmClient
 from helpers.log import get_logger
 
 logger = get_logger(__name__)
 
 
 class BaseSynthesisStrategy:
-    def __init__(self, llm: Client) -> None:
+    def __init__(self, llm: LlmClient) -> None:
         self.llm = llm
 
     def generate_response(
@@ -17,7 +17,7 @@ class BaseSynthesisStrategy:
 
 
 class CreateAndRefineStrategy(BaseSynthesisStrategy):
-    def __init__(self, llm: Client):
+    def __init__(self, llm: LlmClient):
         super().__init__(llm)
 
     def generate_response(
@@ -80,7 +80,7 @@ class CreateAndRefineStrategy(BaseSynthesisStrategy):
 
 
 class TreeSummarizationStrategy(BaseSynthesisStrategy):
-    def __init__(self, llm: Client):
+    def __init__(self, llm: LlmClient):
         super().__init__(llm)
 
     def generate_response(
@@ -130,7 +130,7 @@ class TreeSummarizationStrategy(BaseSynthesisStrategy):
             cur_prompt_list,
             max_new_tokens=512,
             return_generator=False,
-            num_children=10,
+            num_children=2,
     ):
         new_texts = []
         new_streams = []
@@ -140,7 +140,7 @@ class TreeSummarizationStrategy(BaseSynthesisStrategy):
             fmt_qa_prompt = self.llm.generate_ctx_prompt(
                 question=question, context=context
             )
-            logger.info(f"--- Combining responses {idx} ... ---")
+            logger.info(f"--- Combining {len(texts)} responses ... ---")
             combined_response = self.llm.generate_answer(
                 fmt_qa_prompt, max_new_tokens=max_new_tokens
             )

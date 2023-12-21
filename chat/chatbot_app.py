@@ -5,8 +5,8 @@ from pathlib import Path
 
 import streamlit as st
 from bot.conversation.conversation_retrieval import ConversationRetrieval
-from bot.model.client.client import Client
-from bot.model.client.client_settings import get_client, get_clients
+from bot.client.llm_client import LlmClient
+from bot.client.client_settings import get_client, get_clients
 from bot.model.model_settings import get_model_setting, get_models
 from helpers.log import get_logger
 
@@ -14,7 +14,7 @@ logger = get_logger(__name__)
 
 
 @st.cache_resource(experimental_allow_widgets=True)
-def load_llm(llm_client: Client, model_name: str, model_folder: Path) -> Client:
+def load_llm(llm_client: LlmClient, model_name: str, model_folder: Path) -> LlmClient:
     """
     Create a LLM session object that points to the model.
     """
@@ -29,7 +29,7 @@ def load_llm(llm_client: Client, model_name: str, model_folder: Path) -> Client:
 
 
 @st.cache_resource()
-def load_conversational_retrieval(_llm: Client) -> ConversationRetrieval:
+def load_conversational_retrieval(_llm: LlmClient) -> ConversationRetrieval:
     conversation_retrieval = ConversationRetrieval(_llm)
     return conversation_retrieval
 

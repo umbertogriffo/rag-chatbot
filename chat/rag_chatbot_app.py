@@ -11,8 +11,8 @@ from bot.conversation.ctx_strategy import (
 )
 from bot.memory.embedder import EmbedderHuggingFace
 from bot.memory.vector_memory import VectorMemory
-from bot.model.client.client import Client
-from bot.model.client.client_settings import get_client, get_clients
+from bot.client.llm_client import LlmClient
+from bot.client.client_settings import get_client, get_clients
 from bot.model.model_settings import get_model_setting, get_models
 from helpers.log import get_logger
 from helpers.prettier import prettify_source
@@ -23,7 +23,7 @@ logger = get_logger(__name__)
 @st.cache_resource()
 def load_llm_client(
     llm_client_name: str, model_folder: Path, model_name: str
-) -> Client:
+) -> LlmClient:
     model_settings = get_model_setting(model_name)
     clients = [client.value for client in model_settings.clients]
     if llm_client_name not in clients:
@@ -36,14 +36,14 @@ def load_llm_client(
 
 
 @st.cache_resource()
-def load_conversational_retrieval(_llm: Client) -> ConversationRetrieval:
+def load_conversational_retrieval(_llm: LlmClient) -> ConversationRetrieval:
     conversation_retrieval = ConversationRetrieval(_llm)
     return conversation_retrieval
 
 
 @st.cache_resource()
 def load_ctx_synthesis_strategy(
-    ctx_synthesis_strategy_name: str, _llm: Client
+    ctx_synthesis_strategy_name: str, _llm: LlmClient
 ) -> BaseSynthesisStrategy:
     ctx_synthesis_strategy = get_ctx_synthesis_strategy(ctx_synthesis_strategy_name, llm=_llm)
     return ctx_synthesis_strategy
