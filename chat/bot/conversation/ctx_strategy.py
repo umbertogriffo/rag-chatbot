@@ -88,7 +88,7 @@ class TreeSummarizationStrategy(BaseSynthesisStrategy):
             retrieved_contents,
             question,
             max_new_tokens=512,
-            num_children=10,
+            num_children=2,
             return_generator=False,
     ) -> Union[str, Any]:
         """
@@ -98,12 +98,13 @@ class TreeSummarizationStrategy(BaseSynthesisStrategy):
         """
         fmt_prompts = []
         node_responses = []
-        for content in retrieved_contents:
+        for idx, content in enumerate(retrieved_contents, start=1):
             context = content.page_content
+            logger.info(f"--- Generating a response for the chunk {idx} ... ---")
             fmt_qa_prompt = self.llm.generate_ctx_prompt(
                 question=question, context=context
             )
-            node_response = self.llm.stream_answer(
+            node_response = self.llm.generate_answer(
                 fmt_qa_prompt, max_new_tokens=max_new_tokens
             )
             node_responses.append(node_response)
@@ -111,9 +112,11 @@ class TreeSummarizationStrategy(BaseSynthesisStrategy):
 
         response_txt = self.combine_results(
             [str(r) for r in node_responses],
+            [],
             question,
             fmt_prompts,
             max_new_tokens=max_new_tokens,
+            return_generator=return_generator,
             num_children=num_children,
         )
 
@@ -122,28 +125,40 @@ class TreeSummarizationStrategy(BaseSynthesisStrategy):
     def combine_results(
             self,
             texts,
+            streams,
             question,
             cur_prompt_list,
             max_new_tokens=512,
+            return_generator=False,
             num_children=10,
     ):
         new_texts = []
+        new_streams = []
         for idx in range(0, len(texts), num_children):
             text_batch = texts[idx: idx + num_children]
             context = "\n\n".join([t for t in text_batch])
             fmt_qa_prompt = self.llm.generate_ctx_prompt(
                 question=question, context=context
             )
-            combined_response = self.llm.stream_answer(
+            logger.info(f"--- Combining responses {idx} ... ---")
+            combined_response = self.llm.generate_answer(
+                fmt_qa_prompt, max_new_tokens=max_new_tokens
+            )
+            combined_response_stream = self.llm.start_answer_iterator_streamer(
                 fmt_qa_prompt, max_new_tokens=max_new_tokens
             )
             new_texts.append(str(combined_response))
+            new_streams.append(combined_response_stream)
             cur_prompt_list.append(fmt_qa_prompt)
 
         if len(new_texts) == 1:
-            return new_texts[0]
+            if return_generator:
+                return new_streams[0]
+            else:
+                return new_texts[0]
         else:
-            return self.combine_results(new_texts, question, num_children=num_children)
+            return self.combine_results(new_texts, new_streams, question, cur_prompt_list,
+                                        return_generator=return_generator, num_children=num_children)
 
 
 STRATEGIES = {

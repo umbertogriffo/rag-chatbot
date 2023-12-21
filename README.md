@@ -1,4 +1,22 @@
-# RAG(Retrieval-augmented generation) ChatBot
+# RAG (Retrieval-augmented generation) ChatBot
+
+## Table of contents
+
+- [Introduction](#introduction)
+- [Prerequisites](#prerequisites)
+  - [Install Poetry](#install-poetry)
+- [Bootstrap Environment](#bootstrap-environment)
+  - [How to use the make file](#how-to-use-the-make-file)
+- [Using the Open-Source Models Locally](#using-the-open-source-models-locally)
+  - [Supported Models](#supported-models)
+- [Example Data](#example-data)
+- [Build the memory index](#build-the-memory-index)
+- [Run the Chatbot](#run-the-chatbot)
+- [Run the RAG Chatbot](#run-the-rag-chatbot)
+- [How to debug the Streamlit app on Pycharm](#how-to-debug-the-streamlit-app-on-pycharm)
+- [References](#references)
+
+## Introduction
 
 This project combines the power of [CTransformers](https://github.com/marella/ctransformers), [Lama.cpp](https://github.com/abetlen/llama-cpp-python),
 [LangChain](https://python.langchain.com/docs/get_started/introduction.html) and [Chroma](https://github.com/chroma-core/chroma) to accomplish a specific task.
@@ -26,21 +44,6 @@ relevant context from previous conversations to provide more accurate answers.
 
 > [!WARNING]
 > Note: it's important to note that the large language model sometimes generates hallucinations or false information.
-
-## Table of contents
-
-- [Prerequisites](#prerequisites)
-  - [Install Poetry](#install-poetry)
-- [Bootstrap Environment](#bootstrap-environment)
-  - [How to use the make file](#how-to-use-the-make-file)
-- [Using the Open-Source Models Locally](#using-the-open-source-models-locally)
-  - [Supported Models](#supported-models)
-- [Example Data](#example-data)
-- [Build the memory index](#build-the-memory-index)
-- [Run a simple Chatbot](#run-a-simple-chatbot)
-- [Run the RAG Chatbot](#run-the-rag-chatbot)
-- [How to debug the Streamlit app on Pycharm](#how-to-debug-the-streamlit-app-on-pycharm)
-- [References](#references)
 
 
 ## Prerequisites
@@ -101,7 +104,7 @@ Run:
 python chat/memory_builder.py --chunk-size 1000
 ```
 
-## Run a simple Chatbot
+## Run the Chatbot
 
 To interact with a GUI type:
 ```shell
@@ -153,6 +156,7 @@ streamlit run chat/rag_chatbot_app.py -- --model stablelm-zephyr
     * > Because the original query can not be always optimal to retrieve for the LLM, especially in the real world, we first prompt an LLM to rewrite the queries, then conduct retrieval-augmented reading.
   * [Rerank](https://txt.cohere.com/rag-chatbot/#implement-reranking)
   * [Conversational awareness](https://langstream.ai/2023/10/13/rag-chatbot-with-conversation/)
+  * [Summarization: Improving RAG quality in LLM apps while minimizing vector storage costs](https://www.ninetack.io/post/improving-rag-quality-by-summarization)
 * Chatbot Development:
   * [Streamlit](https://discuss.streamlit.io/):
     * [Build a basic LLM chat app](https://docs.streamlit.io/knowledge-base/tutorials/build-conversational-apps#build-a-chatgpt-like-app)
