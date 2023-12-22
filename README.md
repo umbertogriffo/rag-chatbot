@@ -18,7 +18,9 @@
 
 ## Introduction
 
-This project combines the power of [CTransformers](https://github.com/marella/ctransformers), [Lama.cpp](https://github.com/abetlen/llama-cpp-python), [LangChain](https://python.langchain.com/docs/get_started/introduction.html), [Chroma](https://github.com/chroma-core/chroma) and 
+This project combines the power of [CTransformers](https://github.com/marella/ctransformers), [Lama.cpp](https://github.com/abetlen/llama-cpp-python), 
+[LangChain](https://python.langchain.com/docs/get_started/introduction.html) (only used for document chunking and 
+querying the Vector Database, and we plan to eliminate it entirely), [Chroma](https://github.com/chroma-core/chroma) and
 [Streamlit](https://discuss.streamlit.io/) to build:
 * a Conversation-aware Chatbot (ChatGPT like experience).
 * a RAG (Retrieval-augmented generation) ChatBot.
