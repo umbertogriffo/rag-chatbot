@@ -18,23 +18,34 @@
 
 ## Introduction
 
-This project combines the power of [CTransformers](https://github.com/marella/ctransformers), [Lama.cpp](https://github.com/abetlen/llama-cpp-python),
-[LangChain](https://python.langchain.com/docs/get_started/introduction.html) and [Chroma](https://github.com/chroma-core/chroma) to accomplish a specific task.
-It works by taking a collection of Markdown files as input and, when asked a question, provides the corresponding answer
+This project combines the power of [CTransformers](https://github.com/marella/ctransformers), [Lama.cpp](https://github.com/abetlen/llama-cpp-python), [LangChain](https://python.langchain.com/docs/get_started/introduction.html), [Chroma](https://github.com/chroma-core/chroma) and 
+[Streamlit](https://discuss.streamlit.io/) to build:
+* a Conversation-aware Chatbot (ChatGPT like experience).
+* a RAG (Retrieval-augmented generation) ChatBot.
+
+The RAG Chatbot works by taking a collection of Markdown files as input and, when asked a question, provides the corresponding answer
 based on the context provided by those files.
 
-![architecture.png](images/contextual-chatbot-gpt4all.png)
+![rag-chatbot-architecture-1.png](images/rag-chatbot-architecture-1.png)
 
 The `Memory Builder` component of the project loads Markdown pages from the `docs` folder.
 It then divides these pages into smaller sections, calculates the embeddings (a numerical representation) of these
 sections with the [all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2) 
 `sentence-transformer`, and saves them in an embedding database called [Chroma](https://github.com/chroma-core/chroma) for later use.
 
-When a user asks a question, the ChatBot retrieves the most relevant sections from the Embedding database.
-These sections are then used as context to generate the final answer using a local language model (LLM).
-
+When a user asks a question, the RAG ChatBot retrieves the most relevant sections from the Embedding database.
+Since the original question can't be always optimal to retrieve for the LLM, we first prompt an LLM to rewrite the question,
+then conduct retrieval-augmented reading.
+The most relevant sections are then used as context to generate the final answer using a local language model (LLM).
 Additionally, the chatbot is designed to remember previous interactions. It saves the chat history and considers the
 relevant context from previous conversations to provide more accurate answers. 
+
+To deal with context overflows, we implemented two approaches:
+* `Create And Refine the Context`: synthesize a responses sequentially through all retrieved contents.
+  * ![create-and-refine-the-context.png](images/create-and-refine-the-context.png)
+* `Hierarchical Summarization of Context`: generate an answer for each relevant section independently, and then hierarchically combine the answers.
+  * ![hierarchical-summarization.png](images/hierarchical-summarization.png)
+
 
 > [!IMPORTANT]
 > Disclaimer: The code has been tested on `Ubuntu 22.04.2 LTS` running on a Lenovo Legion 5 Pro
@@ -56,7 +67,7 @@ Install Poetry by following this [link](https://python-poetry.org/docs/).
 
 ## Bootstrap Environment
 
-To easily install the dependencies I created a make file.
+To easily install the dependencies we created a make file.
 
 ### How to use the make file
 
@@ -108,16 +119,15 @@ python chat/memory_builder.py --chunk-size 1000
 
 To interact with a GUI type:
 ```shell
-streamlit run chat/chatbot_app.py -- --model stablelm-zephyr
+streamlit run chat/chatbot_app.py -- --model zephyr
 ```
-
-![simple.gif](images/simple_chat.gif)
+![conversation-aware-chatbot.gif](images/conversation-aware-chatbot.gif)
 
 ## Run the RAG Chatbot
 
 To interact with a GUI type:
 ```shell
-streamlit run chat/rag_chatbot_app.py -- --model stablelm-zephyr
+streamlit run chat/rag_chatbot_app.py -- --model zephyr --k 2 --synthesis-strategy create_and_refine
 ```
 
 ![rag_chatbot_example.gif](images%2Frag_chatbot_example.gif)
