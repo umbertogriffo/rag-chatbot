@@ -1,15 +1,12 @@
 import argparse
 import sys
+import time
 from pathlib import Path
 
+from bot.client.client_settings import get_client, get_clients
+from bot.model.model_settings import get_model_setting, get_models
 from helpers.log import get_logger
-from helpers.model import (
-    auto_download,
-    get_model_setting,
-    load_gpt4all, get_models,
-)
 from helpers.reader import read_input
-from langchain import LLMChain, PromptTemplate
 from pyfiglet import Figlet
 from rich.console import Console
 from rich.markdown import Markdown
@@ -18,10 +15,24 @@ logger = get_logger(__name__)
 
 
 def get_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="AI Software Engineer Chatbot")
+    parser = argparse.ArgumentParser(description="Chatbot")
+
+    client_list = get_clients()
+    default_client = client_list[0]
 
     model_list = get_models()
     default_model = model_list[0]
+
+    parser.add_argument(
+        "--client",
+        type=str,
+        choices=client_list,
+        help=f"Client to be used. Defaults to {default_client}.",
+        required=False,
+        const=default_client,
+        nargs="?",
+        default=default_client,
+    )
 
     parser.add_argument(
         "--model",
@@ -34,41 +45,11 @@ def get_args() -> argparse.Namespace:
         default=default_model,
     )
 
-    parser.add_argument(
-        "--n-threads",
-        type=int,
-        help="Number of threads to use. Defaults to 4.",
-        required=False,
-        default=4,
-    )
-
     return parser.parse_args()
 
 
-def main(parameters):
-    model_settings = get_model_setting(parameters.model)
-
-    root_folder = Path(__file__).resolve().parent.parent
-    model_folder = root_folder / "models"
-    Path(model_folder).parent.mkdir(parents=True, exist_ok=True)
-    model_path = model_folder / model_settings.name
-
-    auto_download(model_settings, model_path)
-
+def loop(llm):
     console = Console(color_system="windows")
-
-    llm = load_gpt4all(
-        str(model_path),
-        answer_prefix_tokens=model_settings.answer_prefix_tokens,
-        n_ctx=model_settings.n_ctx,
-        n_predict=model_settings.n_predict,
-        temperature=model_settings.temperature,
-        repeat_penalty=model_settings.repeat_penalty,
-        n_threads=parameters.n_threads,
-        streaming=True,
-        verbose=True,
-    )
-
     # Chatbot loop
     custom_fig = Figlet(font="graffiti")
     console.print(custom_fig.renderText("ChatBot"))
@@ -84,17 +65,35 @@ def main(parameters):
         if question.lower() == "exit":
             break
 
-        prompt = PromptTemplate(
-            template=model_settings.template, input_variables=["question"]
-        )
-        llm_chain = LLMChain(prompt=prompt, llm=llm)
+        start_time = time.time()
+
+        prompt = llm.generate_qa_prompt(question=question)
 
         console.print(f"\n[bold green]Question:[/bold green] {question}")
         console.print("\n[bold green]Answer:[/bold green]")
 
-        answer = llm_chain.run(question)
+        answer = llm.stream_answer(prompt, max_new_tokens=1000)
         console.print("\n[bold magenta]Formatted Answer:[/bold magenta]")
         console.print(Markdown(answer))
+
+        took = time.time() - start_time
+        print(f"--- Took {took:.2f} seconds ---")
+
+
+def main(parameters):
+    model_settings = get_model_setting(parameters.model)
+
+    root_folder = Path(__file__).resolve().parent.parent.parent
+    model_folder = root_folder / "models"
+    Path(model_folder).parent.mkdir(parents=True, exist_ok=True)
+
+    client = parameters.client
+    clients = [client.value for client in model_settings.clients]
+    if parameters.client not in clients:
+        client = clients[0]
+
+    llm = get_client(client, model_folder=model_folder, model_settings=model_settings)
+    loop(llm)
 
 
 if __name__ == "__main__":
