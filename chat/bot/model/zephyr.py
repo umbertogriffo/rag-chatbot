@@ -88,32 +88,21 @@ Given the above conversation and a follow up question, rephrase the follow up qu
 Standalone question:</s>
 <|assistant|>
 """
-    refined_answer_conversation_awareness_prompt_template = """<|system|>{system}\n
+
+    refined_answer_conversation_awareness_prompt_template = """<|system|>\n
+You are engaging in a conversation with a human participant who is unaware that they might be interacting with a machine. \n
+Your goal is to respond in a way that convincingly simulates human-like intelligence and behavior. \n
+The conversation should be natural, coherent, and contextually relevant. \n
+</s>
+<|user|>
 Chat History:
 ---------------------
 {chat_history}
 ---------------------
+Follow Up Question: {question}
+Given the context provided in the Chat History and the follow up question, please craft an answer that demonstrates a deep understanding of the conversation and exhibits conversational awareness.
+If the follow up question isn't correlated to the context provided, please answer the Follow Up Question ignoring the context provided in the Chat History.
+Don't reformulate the Follow Up Question, and don't write "Answer:" or "Response:". 
 </s>
-<|user|>
-Considering the context provided in the Chat History, answer the question below with conversation awareness:
-{question}</s>
 <|assistant|>
 """
-
-#     refined_answer_conversation_awareness_prompt_template = """<|system|>\n
-# You are engaging in a conversation with a human participant who is unaware that they might be interacting with a machine. \n
-# Your goal is to respond in a way that convincingly simulates human-like intelligence and behavior. \n
-# The conversation should be natural, coherent, and contextually relevant. \n
-# </s>
-# <|user|>
-# Chat History:
-# ---------------------
-# {chat_history}
-# ---------------------
-# Question:
-# {question}
-#
-# Given the context provided in the Chat History and the follow up question, please craft a response that demonstrates a deep understanding of the conversation and exhibits conversational awareness.\n
-# Consider the nuances, references, and information shared in the dialogue.</s>
-# <|assistant|>
-# """
