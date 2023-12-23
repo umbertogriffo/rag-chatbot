@@ -3,7 +3,7 @@ import sys
 import time
 from pathlib import Path
 
-from bot.client.client_settings import get_clients, get_client
+from bot.client.client_settings import get_client, get_clients
 from bot.conversation.conversation_retrieval import ConversationRetrieval
 from bot.conversation.ctx_strategy import get_ctx_synthesis_strategies, get_ctx_synthesis_strategy
 from bot.memory.embedder import EmbedderHuggingFace
@@ -100,16 +100,12 @@ def loop(conversation, synthesis_strategy, index, parameters) -> None:
         if question.lower() == "exit":
             break
 
-        logger.info(
-            f"--- Question: {question}, Chat_history: {conversation.get_chat_history()} ---"
-        )
+        logger.info(f"--- Question: {question}, Chat_history: {conversation.get_chat_history()} ---")
 
         start_time = time.time()
         refined_question = conversation.refine_question(question)
 
-        retrieved_contents, sources = index.similarity_search(
-            query=refined_question, k=parameters.k
-        )
+        retrieved_contents, sources = index.similarity_search(query=refined_question, k=parameters.k)
 
         console.print("\n[bold magenta]Sources:[/bold magenta]")
         for source in sources:
@@ -122,7 +118,7 @@ def loop(conversation, synthesis_strategy, index, parameters) -> None:
             question=refined_question,
             retrieved_contents=retrieved_contents,
             max_new_tokens=parameters.max_new_tokens,
-            return_generator=True
+            return_generator=True,
         )
         answer = ""
         for token in streamer:

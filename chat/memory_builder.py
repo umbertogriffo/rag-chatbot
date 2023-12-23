@@ -58,9 +58,7 @@ def split_chunks(sources: List, chunk_size: int = 512, chunk_overlap: int = 0) -
     return chunks
 
 
-def build_memory_index(
-    docs_path: str, vector_store_path: str, chunk_size: int, chunk_overlap: int
-):
+def build_memory_index(docs_path: str, vector_store_path: str, chunk_size: int, chunk_overlap: int):
     sources = load_documents(str(docs_path))
     logger.info(f"Number of Documents: {len(sources)}")
     chunks = split_chunks(sources, chunk_size=chunk_size, chunk_overlap=chunk_overlap)

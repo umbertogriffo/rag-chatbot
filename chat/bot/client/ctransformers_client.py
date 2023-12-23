@@ -14,7 +14,7 @@ class CtransformersClient(LlmClient):
     def __init__(self, model_folder: Path, model_settings: Model):
         if LlmClientType.CTRANSFORMERS not in model_settings.clients:
             raise ValueError(
-                f"{model_settings.file_name} is a not supported by the {LlmClientType.CTRANSFORMERS.value} client."
+                f"{model_settings.file_name} is a not supported " f"by the {LlmClientType.CTRANSFORMERS.value} client."
             )
         super().__init__(model_folder, model_settings)
 
@@ -91,9 +91,7 @@ class CtransformersClient(LlmClient):
 
         return answer
 
-    def stream_answer(
-        self, prompt: str, skip_prompt: bool = True, max_new_tokens: int = 512
-    ) -> str:
+    def stream_answer(self, prompt: str, skip_prompt: bool = True, max_new_tokens: int = 512) -> str:
         """
         Generates an answer by streaming tokens using the TextStreamer.
 
@@ -108,9 +106,7 @@ class CtransformersClient(LlmClient):
         streamer = TextStreamer(tokenizer=self.tokenizer, skip_prompt=skip_prompt)
 
         prompt_ids = self._encode_prompt(prompt)
-        answer_ids = self.llm.generate(
-            prompt_ids, streamer=streamer, max_new_tokens=max_new_tokens
-        )
+        answer_ids = self.llm.generate(prompt_ids, streamer=streamer, max_new_tokens=max_new_tokens)
 
         answer = self._decode_answer(prompt_ids, answer_ids)
 

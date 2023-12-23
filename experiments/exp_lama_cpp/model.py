@@ -32,9 +32,9 @@ class StableLMZephyrSettings(ModelSettings):
 {question}<|endoftext|>
 <|assistant|>
 """
-    summarization_template = """<|user|>Create a concise and comprehensive summary of the provided text, 
-ensuring that key information, concepts, and code snippets are retained. 
-Do not omit or shorten the code snippets, as they are crucial for a comprehensive understanding of the content. 
+    summarization_template = """<|user|>Create a concise and comprehensive summary of the provided text,
+ensuring that key information, concepts, and code snippets are retained.
+Do not omit or shorten the code snippets, as they are crucial for a comprehensive understanding of the content.
 "{text}"
 CONCISE SUMMARY:<|endoftext|>
 <|assistant|>
@@ -121,16 +121,12 @@ class Model:
         )
 
     def generate_summarization_prompt(self, text):
-        return generate_summarization_prompt(
-            template=self.summarization_template, text=text
-        )
+        return generate_summarization_prompt(template=self.summarization_template, text=text)
 
     def generate_answer(self, prompt: str, max_new_tokens: int = 1024) -> str:
         output = self.llm(prompt, max_tokens=max_new_tokens, echo=True)
         return output["choices"][0]["text"].split("<|assistant|>")[-1]
 
     def start_answer_iterator_streamer(self, prompt: str, max_new_tokens: int = 1024):
-        stream = self.llm.create_completion(
-            prompt, max_tokens=max_new_tokens, temperature=0.8, stream=True
-        )
+        stream = self.llm.create_completion(prompt, max_tokens=max_new_tokens, temperature=0.8, stream=True)
         return stream

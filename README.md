@@ -1,5 +1,14 @@
 # RAG (Retrieval-augmented generation) ChatBot
 
+> [!IMPORTANT]
+> Disclaimer: The code has been tested on `Ubuntu 22.04.2 LTS` running on a Lenovo Legion 5 Pro
+> with twenty `12th Gen Intel® Core™ i7-12700H` and an `NVIDIA GeForce RTX 3060`.
+> If you are using another Operating System or different hardware, and you can't load the models, please
+> take a look at the official CTransformers's GitHub [issue](https://github.com/marella/ctransformers/issues).
+
+> [!WARNING]
+> Note: it's important to note that the large language model sometimes generates hallucinations or false information.
+
 ## Table of contents
 
 - [Introduction](#introduction)
@@ -15,15 +24,6 @@
 - [Run the RAG Chatbot](#run-the-rag-chatbot)
 - [How to debug the Streamlit app on Pycharm](#how-to-debug-the-streamlit-app-on-pycharm)
 - [References](#references)
-
-> [!IMPORTANT]
-> Disclaimer: The code has been tested on `Ubuntu 22.04.2 LTS` running on a Lenovo Legion 5 Pro
-> with twenty `12th Gen Intel® Core™ i7-12700H` and an `NVIDIA GeForce RTX 3060`.
-> If you are using another Operating System or different hardware, and you can't load the models, please
-> take a look at the official CTransformers's GitHub [issue](https://github.com/marella/ctransformers/issues).
-
-> [!WARNING]
-> Note: it's important to note that the large language model sometimes generates hallucinations or false information.
 
 ## Introduction
 

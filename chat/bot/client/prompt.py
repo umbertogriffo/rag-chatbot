@@ -15,9 +15,7 @@ def generate_qa_prompt(template: str, system: str, question: str) -> str:
     return prompt
 
 
-def generate_ctx_prompt(
-    template: str, system: str, question: str, context: str = ""
-) -> str:
+def generate_ctx_prompt(template: str, system: str, question: str, context: str = "") -> str:
     """
     Generates a prompt for a context-aware question-answer task.
 
@@ -61,9 +59,7 @@ def generate_refined_ctx_prompt(
     return prompt
 
 
-def generate_conversation_awareness_prompt(
-    template: str, system: str, question: str, chat_history: str
-) -> str:
+def generate_conversation_awareness_prompt(template: str, system: str, question: str, chat_history: str) -> str:
     """
     Generates a prompt for a conversation-awareness task.
 

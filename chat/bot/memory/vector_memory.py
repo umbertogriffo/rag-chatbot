@@ -1,10 +1,9 @@
-from typing import Any, List, Tuple, Dict
+from typing import Any, Dict, List, Tuple
 
 from cleantext import clean
-from langchain_core.documents import Document
-
 from helpers.log import get_logger
 from langchain.vectorstores import Chroma
+from langchain_core.documents import Document
 
 logger = get_logger(__name__)
 
@@ -48,12 +47,12 @@ class VectorMemory:
             The loaded Chroma memory index.
 
         """
-        index = Chroma(
-            persist_directory=str(vector_store_path), embedding_function=self.embedding
-        )
+        index = Chroma(persist_directory=str(vector_store_path), embedding_function=self.embedding)
         return index
 
-    def similarity_search(self, query: str, k: int = 4, threshold: float = 0.2) -> Tuple[List[Document], List[Dict[str, Any]]]:
+    def similarity_search(
+        self, query: str, k: int = 4, threshold: float = 0.2
+    ) -> Tuple[List[Document], List[Dict[str, Any]]]:
         """
         Performs similarity search on the given query.
 
@@ -82,9 +81,7 @@ class VectorMemory:
         # 0 is dissimilar, 1 is most similar.
         matched_docs = self.index.similarity_search_with_relevance_scores(query, k=k)
         filtered_docs_by_threshold = [doc for doc in matched_docs if doc[1] > threshold]
-        sorted_matched_docs_by_relevance_score = sorted(
-            filtered_docs_by_threshold, key=lambda x: x[1], reverse=True
-        )
+        sorted_matched_docs_by_relevance_score = sorted(filtered_docs_by_threshold, key=lambda x: x[1], reverse=True)
         retrieved_contents = [doc[0] for doc in sorted_matched_docs_by_relevance_score]
         sources = []
         for doc, score in sorted_matched_docs_by_relevance_score:

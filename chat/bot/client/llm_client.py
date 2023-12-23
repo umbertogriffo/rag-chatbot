@@ -5,11 +5,13 @@ from pathlib import Path
 from typing import Any
 
 import requests
-
-from bot.client.prompt import generate_qa_prompt, generate_ctx_prompt, generate_refined_ctx_prompt, \
-    generate_conversation_awareness_prompt
+from bot.client.prompt import (
+    generate_conversation_awareness_prompt,
+    generate_ctx_prompt,
+    generate_qa_prompt,
+    generate_refined_ctx_prompt,
+)
 from bot.model.model import Model
-
 from tqdm import tqdm
 
 
@@ -92,9 +94,7 @@ class LlmClient(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def stream_answer(
-        self, prompt: str, skip_prompt: bool = True, max_new_tokens: int = 512
-    ) -> str:
+    def stream_answer(self, prompt: str, skip_prompt: bool = True, max_new_tokens: int = 512) -> str:
         """
         Abstract method to stream the generation of an answer for a given prompt.
 
@@ -109,9 +109,7 @@ class LlmClient(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def start_answer_iterator_streamer(
-        self, prompt: str, skip_prompt: bool = True, max_new_tokens: int = 512
-    ) -> Any:
+    def start_answer_iterator_streamer(self, prompt: str, skip_prompt: bool = True, max_new_tokens: int = 512) -> Any:
         """
         Abstract method to start an answer iterator streamer for a given prompt.
 
@@ -215,9 +213,7 @@ class LlmClient(ABC):
             context=context,
         )
 
-    def generate_refined_ctx_prompt(
-        self, question: str, context: str, existing_answer: str
-    ) -> str:
+    def generate_refined_ctx_prompt(self, question: str, context: str, existing_answer: str) -> str:
         """
         Generates a refined prompt for question-answering with existing answer.
 
@@ -237,9 +233,7 @@ class LlmClient(ABC):
             existing_answer=existing_answer,
         )
 
-    def generate_refined_question_conversation_awareness_prompt(
-        self, question: str, chat_history: str
-    ) -> str:
+    def generate_refined_question_conversation_awareness_prompt(self, question: str, chat_history: str) -> str:
         return generate_conversation_awareness_prompt(
             template=self.model_settings.refined_question_conversation_awareness_prompt_template,
             system=self.model_settings.system_template,
@@ -247,9 +241,7 @@ class LlmClient(ABC):
             chat_history=chat_history,
         )
 
-    def generate_refined_answer_conversation_awareness_prompt(
-        self, question: str, chat_history: str
-    ) -> str:
+    def generate_refined_answer_conversation_awareness_prompt(self, question: str, chat_history: str) -> str:
         return generate_conversation_awareness_prompt(
             template=self.model_settings.refined_answer_conversation_awareness_prompt_template,
             system=self.model_settings.system_template,

@@ -190,8 +190,6 @@ class Model:
     def generate_output(self, prompt: str, max_new_tokens: int = 1000):
         inputs = self.tokenizer(text=prompt, return_tensors="pt").input_ids
         streamer = TextStreamer(tokenizer=self.tokenizer, skip_prompt=True)
-        output = self.llm.generate(
-            inputs, streamer=streamer, max_new_tokens=max_new_tokens
-        )
+        output = self.llm.generate(inputs, streamer=streamer, max_new_tokens=max_new_tokens)
 
         return output

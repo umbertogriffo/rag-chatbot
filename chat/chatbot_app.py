@@ -4,9 +4,9 @@ import time
 from pathlib import Path
 
 import streamlit as st
-from bot.conversation.conversation_retrieval import ConversationRetrieval
-from bot.client.llm_client import LlmClient
 from bot.client.client_settings import get_client, get_clients
+from bot.client.llm_client import LlmClient
+from bot.conversation.conversation_retrieval import ConversationRetrieval
 from bot.model.model_settings import get_model_setting, get_models
 from helpers.log import get_logger
 
@@ -22,9 +22,7 @@ def load_llm(llm_client: LlmClient, model_name: str, model_folder: Path) -> LlmC
     clients = [client.value for client in model_settings.clients]
     if llm_client not in clients:
         llm_client = clients[0]
-    llm = get_client(
-        llm_client, model_folder=model_folder, model_settings=model_settings
-    )
+    llm = get_client(llm_client, model_folder=model_folder, model_settings=model_settings)
     return llm
 
 
@@ -35,22 +33,19 @@ def load_conversational_retrieval(_llm: LlmClient) -> ConversationRetrieval:
 
 
 def init_page(root_folder: Path) -> None:
-    st.set_page_config(
-        page_title="Chatbot", page_icon="💬", initial_sidebar_state="collapsed"
-    )
+    st.set_page_config(page_title="Chatbot", page_icon="💬", initial_sidebar_state="collapsed")
 
     left_column, central_column, right_column = st.columns([2, 1, 2])
 
     with left_column:
-        st.write(' ')
+        st.write(" ")
 
     with central_column:
         st.image(str(root_folder / "images/bot.png"), use_column_width="always")
-        st.markdown("""<h4 style='text-align: center; color: grey;'></h4>""",
-                    unsafe_allow_html=True)
+        st.markdown("""<h4 style='text-align: center; color: grey;'></h4>""", unsafe_allow_html=True)
 
     with right_column:
-        st.write(' ')
+        st.write(" ")
 
     st.sidebar.title("Options")
 
@@ -113,9 +108,7 @@ def main(parameters) -> None:
 
         # Add assistant response to chat history
         conversational_retrieval.update_chat_history(user_input, full_response)
-        st.session_state.messages.append(
-            {"role": "assistant", "content": full_response}
-        )
+        st.session_state.messages.append({"role": "assistant", "content": full_response})
 
         took = time.time() - start_time
         logger.info(f"\n--- Took {took:.2f} seconds ---")

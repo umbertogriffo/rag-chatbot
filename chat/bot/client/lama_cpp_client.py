@@ -32,9 +32,7 @@ class LamaCppClient(LlmClient):
         Returns:
             str: The generated answer.
         """
-        output = self.llm(
-            prompt, max_tokens=max_new_tokens, temperature=0.7, echo=False
-        )
+        output = self.llm(prompt, max_tokens=max_new_tokens, temperature=0.7, echo=False)
 
         answer = output["choices"][0]["text"]
 
@@ -51,17 +49,13 @@ class LamaCppClient(LlmClient):
         Returns:
             str: The generated answer.
         """
-        output = self.llm(
-            prompt, max_tokens=max_new_tokens, temperature=0.7, echo=False
-        )
+        output = self.llm(prompt, max_tokens=max_new_tokens, temperature=0.7, echo=False)
 
         answer = output["choices"][0]["text"]
 
         return answer
 
-    def stream_answer(
-        self, prompt: str, skip_prompt: bool = True, max_new_tokens: int = 512
-    ) -> str:
+    def stream_answer(self, prompt: str, skip_prompt: bool = True, max_new_tokens: int = 512) -> str:
         """
         Generates an answer by streaming tokens using the TextStreamer.
 
@@ -74,9 +68,7 @@ class LamaCppClient(LlmClient):
             str: The generated answer.
         """
         answer = ""
-        stream = self.start_answer_iterator_streamer(
-            prompt, max_new_tokens=max_new_tokens
-        )
+        stream = self.start_answer_iterator_streamer(prompt, max_new_tokens=max_new_tokens)
 
         for output in stream:
             token = output["choices"][0]["text"]
@@ -88,20 +80,14 @@ class LamaCppClient(LlmClient):
     def start_answer_iterator_streamer(
         self, prompt: str, skip_prompt: bool = True, max_new_tokens: int = 512
     ) -> Union[CreateCompletionResponse, Iterator[CreateCompletionStreamResponse]]:
-        stream = self.llm.create_completion(
-            prompt, max_tokens=max_new_tokens, temperature=0.7, stream=True
-        )
+        stream = self.llm.create_completion(prompt, max_tokens=max_new_tokens, temperature=0.7, stream=True)
         return stream
 
     async def async_start_answer_iterator_streamer(
         self, prompt: str, skip_prompt: bool = True, max_new_tokens: int = 512
     ) -> Union[CreateCompletionResponse, Iterator[CreateCompletionStreamResponse]]:
-        stream = self.llm.create_completion(
-            prompt, max_tokens=max_new_tokens, temperature=0.7, stream=True
-        )
+        stream = self.llm.create_completion(prompt, max_tokens=max_new_tokens, temperature=0.7, stream=True)
         return stream
 
     def parse_token(self, token):
         return token["choices"][0]["text"]
-
-

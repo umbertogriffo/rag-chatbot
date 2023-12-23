@@ -1,13 +1,10 @@
 from asyncio import get_event_loop
-from typing import List, Tuple, Any
-
-from langchain_core.documents import Document
+from typing import Any, List, Tuple
 
 from bot.client.llm_client import LlmClient
-from bot.conversation.ctx_strategy import (
-    BaseSynthesisStrategy, AsyncTreeSummarizationStrategy
-)
+from bot.conversation.ctx_strategy import AsyncTreeSummarizationStrategy, BaseSynthesisStrategy
 from helpers.log import get_logger
+from langchain_core.documents import Document
 
 logger = get_logger(__name__)
 
@@ -18,7 +15,8 @@ class ConversationRetrieval:
 
     Attributes:
         llm (LlmClient): The language model client for conversation-related tasks.
-        chat_history (List[Tuple[str, str]]): A list to store the conversation history as tuples of questions and answers.
+        chat_history (List[Tuple[str, str]]): A list to store the conversation
+            history as tuples of questions and answers.
     """
 
     def __init__(self, llm: LlmClient) -> None:
@@ -87,19 +85,16 @@ class ConversationRetrieval:
         """
         if self.get_chat_history():
             questions_and_answers = [
-                "\n".join([f"question: {qa[0]}", f"answer: {qa[1]}"])
-                for qa in self.get_chat_history()
+                "\n".join([f"question: {qa[0]}", f"answer: {qa[1]}"]) for qa in self.get_chat_history()
             ]
             chat_history = "\n".join(questions_and_answers)
 
             logger.info("--- Refining the question based on the chat history... ---")
 
-            conversation_awareness_prompt = (
-                self.llm.generate_refined_question_conversation_awareness_prompt(question, chat_history)
+            conversation_awareness_prompt = self.llm.generate_refined_question_conversation_awareness_prompt(
+                question, chat_history
             )
-            refined_question = self.llm.generate_answer(
-                conversation_awareness_prompt, max_new_tokens=max_new_tokens
-            )
+            refined_question = self.llm.generate_answer(conversation_awareness_prompt, max_new_tokens=max_new_tokens)
 
             logger.info(f"--- Refined Question: {refined_question} ---")
 
@@ -134,15 +129,14 @@ class ConversationRetrieval:
         """
         if self.get_chat_history():
             questions_and_answers = [
-                "\n".join([f"question: {qa[0]}", f"answer: {qa[1]}"])
-                for qa in self.get_chat_history()
+                "\n".join([f"question: {qa[0]}", f"answer: {qa[1]}"]) for qa in self.get_chat_history()
             ]
             chat_history = "\n".join(questions_and_answers)
 
             logger.info("--- Answer the question based on the chat history... ---")
 
-            conversation_awareness_prompt = (
-                self.llm.generate_refined_answer_conversation_awareness_prompt(question, chat_history)
+            conversation_awareness_prompt = self.llm.generate_refined_answer_conversation_awareness_prompt(
+                question, chat_history
             )
             streamer = self.llm.start_answer_iterator_streamer(
                 conversation_awareness_prompt, max_new_tokens=max_new_tokens
@@ -155,20 +149,28 @@ class ConversationRetrieval:
             return streamer
 
     @staticmethod
-    def context_aware_answer(ctx_synthesis_strategy: BaseSynthesisStrategy,
-                             question: str,
-                             retrieved_contents: List[Document],
-                             max_new_tokens: int = 512,
-                             return_generator: bool = True):
+    def context_aware_answer(
+        ctx_synthesis_strategy: BaseSynthesisStrategy,
+        question: str,
+        retrieved_contents: List[Document],
+        max_new_tokens: int = 512,
+        return_generator: bool = True,
+    ):
         if isinstance(ctx_synthesis_strategy, AsyncTreeSummarizationStrategy):
             loop = get_event_loop()
-            streamer, fmt_prompts = loop.run_until_complete(ctx_synthesis_strategy.generate_response(retrieved_contents,
-                                                                                                     question,
-                                                                                                     max_new_tokens=max_new_tokens,
-                                                                                                     return_generator=return_generator))
+            streamer, fmt_prompts = loop.run_until_complete(
+                ctx_synthesis_strategy.generate_response(
+                    retrieved_contents,
+                    question,
+                    max_new_tokens=max_new_tokens,
+                    return_generator=return_generator,
+                )
+            )
         else:
-            streamer, fmt_prompts = ctx_synthesis_strategy.generate_response(retrieved_contents,
-                                                                             question,
-                                                                             max_new_tokens=max_new_tokens,
-                                                                             return_generator=return_generator)
+            streamer, fmt_prompts = ctx_synthesis_strategy.generate_response(
+                retrieved_contents,
+                question,
+                max_new_tokens=max_new_tokens,
+                return_generator=return_generator,
+            )
         return streamer, fmt_prompts

@@ -2,7 +2,6 @@ import time
 from pathlib import Path
 
 from exp_lama_cpp.model import Model, get_model_setting
-from exp_lama_cpp.texts import text_and_code, text_only
 
 # CMAKE_ARGS="-DLLAMA_CUBLAS=on" pip install llama-cpp-python
 
@@ -16,14 +15,7 @@ if __name__ == "__main__":
     llm = Model(model_folder, model_settings)
 
     start_time = time.time()
-    prompt = llm.generate_summarization_prompt(text=text_only)
-    output = llm.generate_answer(prompt, max_new_tokens=512)
-    print(output)
-    took = time.time() - start_time
-    print(f"\n--- Took {took:.2f} seconds ---")
-
-    start_time = time.time()
-    prompt = llm.generate_summarization_prompt(text=text_and_code)
+    prompt = llm.generate_summarization_prompt(text="<put the text here>")
     output = llm.generate_answer(prompt, max_new_tokens=512)
     print(output)
     took = time.time() - start_time

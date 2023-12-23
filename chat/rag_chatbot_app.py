@@ -4,15 +4,16 @@ import time
 from pathlib import Path
 
 import streamlit as st
+from bot.client.client_settings import get_client, get_clients
+from bot.client.llm_client import LlmClient
 from bot.conversation.conversation_retrieval import ConversationRetrieval
 from bot.conversation.ctx_strategy import (
     BaseSynthesisStrategy,
-    get_ctx_synthesis_strategy, get_ctx_synthesis_strategies,
+    get_ctx_synthesis_strategies,
+    get_ctx_synthesis_strategy,
 )
 from bot.memory.embedder import EmbedderHuggingFace
 from bot.memory.vector_memory import VectorMemory
-from bot.client.llm_client import LlmClient
-from bot.client.client_settings import get_client, get_clients
 from bot.model.model_settings import get_model_setting, get_models
 from helpers.log import get_logger
 from helpers.prettier import prettify_source
@@ -21,16 +22,12 @@ logger = get_logger(__name__)
 
 
 @st.cache_resource()
-def load_llm_client(
-    llm_client_name: str, model_folder: Path, model_name: str
-) -> LlmClient:
+def load_llm_client(llm_client_name: str, model_folder: Path, model_name: str) -> LlmClient:
     model_settings = get_model_setting(model_name)
     clients = [client.value for client in model_settings.clients]
     if llm_client_name not in clients:
         llm_client_name = clients[0]
-    llm = get_client(
-        llm_client_name, model_folder=model_folder, model_settings=model_settings
-    )
+    llm = get_client(llm_client_name, model_folder=model_folder, model_settings=model_settings)
 
     return llm
 
@@ -42,9 +39,7 @@ def load_conversational_retrieval(_llm: LlmClient) -> ConversationRetrieval:
 
 
 @st.cache_resource()
-def load_ctx_synthesis_strategy(
-    ctx_synthesis_strategy_name: str, _llm: LlmClient
-) -> BaseSynthesisStrategy:
+def load_ctx_synthesis_strategy(ctx_synthesis_strategy_name: str, _llm: LlmClient) -> BaseSynthesisStrategy:
     ctx_synthesis_strategy = get_ctx_synthesis_strategy(ctx_synthesis_strategy_name, llm=_llm)
     return ctx_synthesis_strategy
 
@@ -70,21 +65,18 @@ def init_page(root_folder: Path) -> None:
     """
     Initializes the page configuration for the application.
     """
-    st.set_page_config(
-        page_title="RAG Chatbot", page_icon="💬", initial_sidebar_state="collapsed"
-    )
+    st.set_page_config(page_title="RAG Chatbot", page_icon="💬", initial_sidebar_state="collapsed")
     left_column, central_column, right_column = st.columns([2, 1, 2])
 
     with left_column:
-        st.write(' ')
+        st.write(" ")
 
     with central_column:
         st.image(str(root_folder / "images/bot.png"), use_column_width="always")
-        st.markdown("""<h4 style='text-align: center; color: grey;'></h4>""",
-                    unsafe_allow_html=True)
+        st.markdown("""<h4 style='text-align: center; color: grey;'></h4>""", unsafe_allow_html=True)
 
     with right_column:
-        st.write(' ')
+        st.write(" ")
 
     st.sidebar.title("Options")
 
@@ -155,15 +147,10 @@ def main(parameters) -> None:
             message_placeholder = st.empty()
             full_response = ""
             with st.spinner(
-                text="Refining the question and Retrieving the docs – hang tight! "
-                "This should take seconds."
+                text="Refining the question and Retrieving the docs – hang tight! " "This should take seconds."
             ):
-                refined_user_input = conversational_retrieval.refine_question(
-                    user_input
-                )
-                retrieved_contents, sources = index.similarity_search(
-                    query=refined_user_input, k=parameters.k
-                )
+                refined_user_input = conversational_retrieval.refine_question(user_input)
+                retrieved_contents, sources = index.similarity_search(query=refined_user_input, k=parameters.k)
                 if retrieved_contents:
                     full_response += "Here are the retrieved text chunks with a content preview: \n\n"
                     message_placeholder.markdown(full_response)
@@ -173,15 +160,11 @@ def main(parameters) -> None:
                         full_response += "\n\n"
                         message_placeholder.markdown(full_response)
 
-                    st.session_state.messages.append(
-                        {"role": "assistant", "content": full_response}
-                    )
+                    st.session_state.messages.append({"role": "assistant", "content": full_response})
                 else:
                     full_response += "I did not detect any pertinent chunk of text from the documents. \n\n"
                     message_placeholder.markdown(full_response)
-                    st.session_state.messages.append(
-                        {"role": "assistant", "content": full_response}
-                    )
+                    st.session_state.messages.append({"role": "assistant", "content": full_response})
 
         # Display assistant response in chat message container
         start_time = time.time()
@@ -201,13 +184,9 @@ def main(parameters) -> None:
 
                 message_placeholder.markdown(full_response)
 
-                conversational_retrieval.update_chat_history(
-                    user_input, full_response
-                )
+                conversational_retrieval.update_chat_history(user_input, full_response)
         # Add assistant response to chat history
-        st.session_state.messages.append(
-            {"role": "assistant", "content": full_response}
-        )
+        st.session_state.messages.append({"role": "assistant", "content": full_response})
         took = time.time() - start_time
         logger.info(f"\n--- Took {took:.2f} seconds ---")
 
