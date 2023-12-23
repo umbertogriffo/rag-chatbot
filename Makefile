@@ -14,14 +14,22 @@ install:
 	echo "Installing llama-cpp-python with pip to get NVIDIA CUDA acceleration"
 	. .venv/bin/activate && CMAKE_ARGS="-DLLAMA_CUBLAS=on" pip3 install llama-cpp-python~=0.2.23
 
+install_pre_commit:
+	poetry run pre-commit install
+	poetry run pre-commit install --hook-type pre-commit
+
+setup: install install_pre_commit
+
 update:
 	poetry lock --no-update
 	poetry install
 
 tidy:
-	poetry run isort --skip=.venv .
-	poetry run black --exclude=.venv .
-	poetry run flake8 --exclude=.venv .
+	poetry run ruff format --exclude=.venv .
+	poetry run ruff check --exclude=.venv . --fix
+
+check-formatting:
+	poetry run ruff format . --check
 
 clean:
 	echo "Cleaning Poetry environment..."

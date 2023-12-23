@@ -16,10 +16,19 @@
 - [How to debug the Streamlit app on Pycharm](#how-to-debug-the-streamlit-app-on-pycharm)
 - [References](#references)
 
+> [!IMPORTANT]
+> Disclaimer: The code has been tested on `Ubuntu 22.04.2 LTS` running on a Lenovo Legion 5 Pro
+> with twenty `12th Gen Intel® Core™ i7-12700H` and an `NVIDIA GeForce RTX 3060`.
+> If you are using another Operating System or different hardware, and you can't load the models, please
+> take a look at the official CTransformers's GitHub [issue](https://github.com/marella/ctransformers/issues).
+
+> [!WARNING]
+> Note: it's important to note that the large language model sometimes generates hallucinations or false information.
+
 ## Introduction
 
-This project combines the power of [CTransformers](https://github.com/marella/ctransformers), [Lama.cpp](https://github.com/abetlen/llama-cpp-python), 
-[LangChain](https://python.langchain.com/docs/get_started/introduction.html) (only used for document chunking and 
+This project combines the power of [CTransformers](https://github.com/marella/ctransformers), [Lama.cpp](https://github.com/abetlen/llama-cpp-python),
+[LangChain](https://python.langchain.com/docs/get_started/introduction.html) (only used for document chunking and
 querying the Vector Database, and we plan to eliminate it entirely), [Chroma](https://github.com/chroma-core/chroma) and
 [Streamlit](https://discuss.streamlit.io/) to build:
 * a Conversation-aware Chatbot (ChatGPT like experience).
@@ -32,7 +41,7 @@ based on the context provided by those files.
 
 The `Memory Builder` component of the project loads Markdown pages from the `docs` folder.
 It then divides these pages into smaller sections, calculates the embeddings (a numerical representation) of these
-sections with the [all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2) 
+sections with the [all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2)
 `sentence-transformer`, and saves them in an embedding database called [Chroma](https://github.com/chroma-core/chroma) for later use.
 
 When a user asks a question, the RAG ChatBot retrieves the most relevant sections from the Embedding database.
@@ -40,23 +49,13 @@ Since the original question can't be always optimal to retrieve for the LLM, we 
 then conduct retrieval-augmented reading.
 The most relevant sections are then used as context to generate the final answer using a local language model (LLM).
 Additionally, the chatbot is designed to remember previous interactions. It saves the chat history and considers the
-relevant context from previous conversations to provide more accurate answers. 
+relevant context from previous conversations to provide more accurate answers.
 
 To deal with context overflows, we implemented two approaches:
 * `Create And Refine the Context`: synthesize a responses sequentially through all retrieved contents.
   * ![create-and-refine-the-context.png](images/create-and-refine-the-context.png)
 * `Hierarchical Summarization of Context`: generate an answer for each relevant section independently, and then hierarchically combine the answers.
   * ![hierarchical-summarization.png](images/hierarchical-summarization.png)
-
-
-> [!IMPORTANT]
-> Disclaimer: The code has been tested on `Ubuntu 22.04.2 LTS` running on a Lenovo Legion 5 Pro
-> with twenty `12th Gen Intel® Core™ i7-12700H` and an `NVIDIA GeForce RTX 3060`.
-> If you are using another Operating System or different hardware, and you can't load the models, please
-> take a look at the official CTransformers's GitHub [issue](https://github.com/marella/ctransformers/issues).
-
-> [!WARNING]
-> Note: it's important to note that the large language model sometimes generates hallucinations or false information.
 
 
 ## Prerequisites
@@ -74,12 +73,12 @@ To easily install the dependencies we created a make file.
 ### How to use the make file
 
 > [!IMPORTANT]
-> Run ```make install``` to install `sentence-transformers` with pip to avoid poetry's issues in installing torch 
+> Run ```make install``` to install `sentence-transformers` with pip to avoid poetry's issues in installing torch
 > (it doesn't install CUDA dependencies).
 
 * Check: ```make check```
   * Use It to check that `which pip3` and `which python3` points to the right path.
-* Install: ```make install```
+* Install: ```make setup```
   * Creates an environment and installs all dependencies.
 * Update: ```make update```
   * Update an environment and installs all updated dependencies.
@@ -93,11 +92,11 @@ To easily install the dependencies we created a make file.
 
 ## Using the Open-Source Models Locally
 
-We utilize two open-source libraries, [CTransformers](https://github.com/marella/ctransformers) and [Lama.cpp](https://github.com/abetlen/llama-cpp-python), 
+We utilize two open-source libraries, [CTransformers](https://github.com/marella/ctransformers) and [Lama.cpp](https://github.com/abetlen/llama-cpp-python),
 which allow us to work efficiently with transformer-based models efficiently.
-Running the LLMs architecture on a local PC is impossible due to the large (~7 billion) number of 
+Running the LLMs architecture on a local PC is impossible due to the large (~7 billion) number of
 parameters. These libraries enable us to run them either on a `CPU` or `GPU`.
-Additionally, we use the `Quantization and 4-bit precision` to reduce number of bits required to represent the numbers. 
+Additionally, we use the `Quantization and 4-bit precision` to reduce number of bits required to represent the numbers.
 The quantized models are stored in [GGML/GGUF](https://medium.com/@phillipgimmi/what-is-gguf-and-ggml-e364834d241c) format.
 
 ### Supported Models
@@ -107,7 +106,7 @@ The quantized models are stored in [GGML/GGUF](https://medium.com/@phillipgimmi/
 
 ## Example Data
 
-You could download some Markdown pages from the [Blendle Employee Handbook](https://blendle.notion.site/Blendle-s-Employee-Handbook-7692ffe24f07450785f093b94bbe1a09) 
+You could download some Markdown pages from the [Blendle Employee Handbook](https://blendle.notion.site/Blendle-s-Employee-Handbook-7692ffe24f07450785f093b94bbe1a09)
 and put them under `docs`.
 
 ## Build the memory index
@@ -178,6 +177,7 @@ streamlit run chat/rag_chatbot_app.py -- --model zephyr --k 2 --synthesis-strate
       * [Why session state is not persisting between refresh?](https://discuss.streamlit.io/t/why-session-state-is-not-persisting-between-refresh/32020)
     * [st.cache_resource](https://docs.streamlit.io/library/api-reference/performance/st.cache_resource)
     * [Handling External Command Line Arguments](https://github.com/streamlit/streamlit/issues/337)
+  * [(Investigate) FastServe - Serve Llama-cpp with FastAPI](https://github.com/aniketmaurya/fastserve)
 * Text Processing and Cleaning:
   * [clean-text](https://github.com/jfilter/clean-text/tree/main)
 * Open Source Repositories:
@@ -191,3 +191,4 @@ streamlit run chat/rag_chatbot_app.py -- --model zephyr --k 2 --synthesis-strate
     * [lit-gpt](https://github.com/Lightning-AI/lit-gpt)
     * [api-for-open-llm](https://github.com/xusenlinzy/api-for-open-llm)
     * [PrivateDocBot](https://github.com/Abhi5h3k/PrivateDocBot)
+    * [Rag_bot - Adaptive Intelligence Chatbot](https://github.com/kylejtobin/rag_bot)

@@ -1,0 +1,24 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.1.0
+    hooks:
+      - id: check-yaml
+      - id: check-merge-conflict
+      - id: check-docstring-first
+      - id: check-toml
+      - id: check-case-conflict
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: debug-statements
+      - id: detect-private-key
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    # Ruff version.
+    rev: v0.1.8
+    hooks:
+      # Run the linter and fix any fixable errors.
+      - id: ruff
+        args:
+          - --fix
+      # Run the formatter.
+      - id: ruff-format
