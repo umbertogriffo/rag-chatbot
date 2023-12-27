@@ -21,12 +21,13 @@ jobs:
         with:
           version: 1.7.0
           virtualenvs-in-project: true
-
+      # Installing sentence-transformers with pip to avoid poetry's issues in installing torch... (it doesn't install CUDA dependencies).
+      # Installing ctransformers and llama-cpp-python without NVIDIA CUDA acceleration.
       - name: Setup environment
         run: |
           poetry lock --check
           poetry install --no-root --no-ansi
-          . .venv/bin/activate && pip3 uninstall ctransformers && pip3 install ctransformers~=0.2.27
+          . .venv/bin/activate && pip3 uninstall ctransformers -y && pip3 install ctransformers~=0.2.27
           . .venv/bin/activate && pip3 install sentence-transformers~=2.2.2
           . .venv/bin/activate && pip3 install llama-cpp-python~=0.2.23
 
