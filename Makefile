@@ -8,7 +8,7 @@ install:
 	echo "Installing..."
 	mkdir -p .venv
 	poetry config virtualenvs.in-project true
-	poetry install
+	poetry install --no-root --no-ansi
 	echo "Installing torch and sentence-transformers with pip to avoid poetry's issues in installing torch... (it doesn't install CUDA dependencies)"
 	. .venv/bin/activate && pip3 install torch~=2.1.2 torchvision torchaudio
 	. .venv/bin/activate && pip3 install sentence-transformers~=2.2.2
