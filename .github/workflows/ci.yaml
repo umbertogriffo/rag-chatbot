@@ -31,4 +31,4 @@ jobs:
 
       - name: Run tests
         run: |
-          poetry run pytest -v
+          poetry run python -m pytest --durations=5 --log-cli-level=DEBUG --capture=tee-sys -v
