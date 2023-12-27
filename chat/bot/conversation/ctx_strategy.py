@@ -1,4 +1,5 @@
 import asyncio
+from enum import Enum
 from typing import Any, Union
 
 import nest_asyncio
@@ -7,6 +8,12 @@ from helpers.log import get_logger
 
 logger = get_logger(__name__)
 nest_asyncio.apply()
+
+
+class SynthesisStrategyType(Enum):
+    CREATE_AND_REFINE = "create_and_refine"
+    TREE_SUMMARIZATION = "tree_summarization"
+    ASYNC_TREE_SUMMARIZATION = "async_tree_summarization"
 
 
 class BaseSynthesisStrategy:
@@ -235,9 +242,9 @@ class AsyncTreeSummarizationStrategy(BaseSynthesisStrategy):
 
 
 STRATEGIES = {
-    "create_and_refine": CreateAndRefineStrategy,
-    "tree_summarization": TreeSummarizationStrategy,
-    "async_tree_summarization": AsyncTreeSummarizationStrategy,
+    SynthesisStrategyType.CREATE_AND_REFINE.value: CreateAndRefineStrategy,
+    SynthesisStrategyType.TREE_SUMMARIZATION.value: TreeSummarizationStrategy,
+    SynthesisStrategyType.ASYNC_TREE_SUMMARIZATION.value: AsyncTreeSummarizationStrategy,
 }
 
 

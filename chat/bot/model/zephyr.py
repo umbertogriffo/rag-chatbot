@@ -1,6 +1,5 @@
 from bot.client.llm_client import LlmClientType
 from bot.model.model import Model
-from ctransformers import Config
 
 
 class ZephyrSettings(Model):
@@ -27,24 +26,25 @@ class ZephyrSettings(Model):
         - Set gpu_layers to the number of layers to offload to GPU.
         - Set to 0 if no GPU acceleration is available on your system.
     """
-    config = Config(
-        top_k=40,
-        top_p=0.95,
-        temperature=0.7,
-        repetition_penalty=1.1,
-        last_n_tokens=64,
-        seed=-1,
-        batch_size=8,
-        threads=-1,
-        max_new_tokens=1024,
-        stop=None,
-        stream=False,
-        reset=True,
-        context_length=2048,
-        gpu_layers=50,
-        mmap=True,
-        mlock=False,
-    )
+    config = {
+        "top_k": 40,
+        "top_p": 0.95,
+        "temperature": 0.7,
+        "repetition_penalty": 1.1,
+        "last_n_tokens": 64,
+        "seed": -1,
+        "batch_size": 8,
+        "threads": -1,
+        "max_new_tokens": 1024,
+        "stop": None,
+        "stream": False,
+        "reset": True,
+        "context_length": 2048,
+        "gpu_layers": 50,
+        "mmap": True,
+        "mlock": False,
+    }
+
     system_template = "You are a helpful, respectful and honest assistant. "
     qa_prompt_template = """<|system|>{system} Answer the question below:
 </s>

@@ -4,7 +4,7 @@ from typing import Any, Optional
 
 from bot.client.llm_client import LlmClient, LlmClientType
 from bot.model.model import Model
-from ctransformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer
+from ctransformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer, Config
 from transformers import TextIteratorStreamer, TextStreamer
 
 
@@ -16,6 +16,7 @@ class CtransformersClient(LlmClient):
             raise ValueError(
                 f"{model_settings.file_name} is a not supported " f"by the {LlmClientType.CTRANSFORMERS.value} client."
             )
+        self.config = Config(**model_settings.config)
         super().__init__(model_folder, model_settings)
 
     def _load_llm(self) -> Any:
@@ -23,7 +24,7 @@ class CtransformersClient(LlmClient):
             model_path_or_repo_id=str(self.model_folder),
             model_file=self.model_settings.file_name,
             model_type=self.model_settings.type,
-            config=AutoConfig(config=self.model_settings.config),
+            config=AutoConfig(config=self.config),
             hf=True,
         )
         return llm

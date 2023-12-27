@@ -1,11 +1,20 @@
+from enum import Enum
+
 from bot.model.mistral import MistralSettings
 from bot.model.stablelm_zephyr import StableLMZephyrSettings
 from bot.model.zephyr import ZephyrSettings
 
+
+class ModelType(Enum):
+    ZEPHYR = "zephyr"
+    MISTRAL = "mistral"
+    STABLELM_ZEPHYR = "stablelm-zephyr"
+
+
 SUPPORTED_MODELS = {
-    "zephyr": ZephyrSettings,
-    "mistral": MistralSettings,
-    "stablelm-zephyr": StableLMZephyrSettings,
+    ModelType.ZEPHYR.value: ZephyrSettings,
+    ModelType.MISTRAL.value: MistralSettings,
+    ModelType.STABLELM_ZEPHYR.value: StableLMZephyrSettings,
 }
 
 
