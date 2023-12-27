@@ -26,6 +26,8 @@ jobs:
         run: |
           poetry lock --check
           poetry install --no-root --no-ansi
+          pip3 install sentence-transformers~=2.2.2
+          pip3 install llama-cpp-python~=0.2.23
 
       - name: Run tests
         run: |
