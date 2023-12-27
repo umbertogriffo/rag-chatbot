@@ -175,6 +175,16 @@ class AsyncTreeSummarizationStrategy(BaseSynthesisStrategy):
         Generate a response using hierarchical summarization strategy.
 
         Combine `num_children` contents hierarchically until we get one root content.
+
+        Args:
+            retrieved_contents (List[str]): A list of text content for the AI to consider when generating a response.
+            question (str): The question or input prompt that the AI will use as context for its response.
+            max_new_tokens (int, optional): The maximum number of tokens for the generated response. Default is 512.
+            num_children (int, optional): The number of child nodes to create for the response. Default is 2.
+            return_generator (bool, optional): Whether to return a generator or not. Default is False.
+
+        Returns:
+            Union[str, Any]: A string containing the generated response, or an object if 'return_generator' is True.
         """
         fmt_prompts = []
         for idx, content in enumerate(retrieved_contents, start=1):

@@ -1,6 +1,7 @@
 from enum import Enum
 
 from bot.model.mistral import MistralSettings
+from bot.model.openchat import OpenChatSettings
 from bot.model.stablelm_zephyr import StableLMZephyrSettings
 from bot.model.zephyr import ZephyrSettings
 
@@ -9,12 +10,14 @@ class ModelType(Enum):
     ZEPHYR = "zephyr"
     MISTRAL = "mistral"
     STABLELM_ZEPHYR = "stablelm-zephyr"
+    OPENCHAT = "openchat"
 
 
 SUPPORTED_MODELS = {
     ModelType.ZEPHYR.value: ZephyrSettings,
     ModelType.MISTRAL.value: MistralSettings,
     ModelType.STABLELM_ZEPHYR.value: StableLMZephyrSettings,
+    ModelType.OPENCHAT.value: OpenChatSettings,
 }
 
 

@@ -101,6 +101,7 @@ The quantized models are stored in [GGML/GGUF](https://medium.com/@phillipgimmi/
 
 ### Supported Models
 * [Zephyr 7B Beta - GGUF](https://huggingface.co/TheBloke/zephyr-7B-beta-GGUF)
+* [OpenChat 3.5 7B - GGUF](https://huggingface.co/TheBloke/openchat_3.5-GGUF)
 * [Mistral 7B OpenOrca - GGUF](https://huggingface.co/TheBloke/Mistral-7B-OpenOrca-GGUF)
 * [StableLM Zephyr 3B - GGUF](https://huggingface.co/TheBloke/stablelm-zephyr-3b-GGUF)
 
