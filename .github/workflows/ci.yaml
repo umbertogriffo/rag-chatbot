@@ -26,6 +26,7 @@ jobs:
         run: |
           poetry lock --check
           poetry install --no-root --no-ansi
+          . .venv/bin/activate && pip3 uninstall ctransformers && pip3 install ctransformers~=0.2.27
           . .venv/bin/activate && pip3 install sentence-transformers~=2.2.2
           . .venv/bin/activate && pip3 install llama-cpp-python~=0.2.23
 
