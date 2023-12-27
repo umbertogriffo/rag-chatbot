@@ -1,4 +1,4 @@
-name: product-metrics CI/CD
+name: CI/CD
 
 on:
   push:
@@ -27,7 +27,7 @@ jobs:
           poetry lock --check
           poetry install --no-root --no-ansi
           . .venv/bin/activate && pip3 install sentence-transformers~=2.2.2
-          . .venv/bin/activate && CMAKE_ARGS="-DLLAMA_CUBLAS=on" pip3 install llama-cpp-python~=0.2.23
+          . .venv/bin/activate && pip3 install llama-cpp-python~=0.2.23
 
       - name: Run tests
         run: |
