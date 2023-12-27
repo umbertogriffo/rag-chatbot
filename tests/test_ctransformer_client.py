@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 import pytest
 import torch
 from bot.client.ctransformers_client import CtransformersClient
@@ -6,7 +8,27 @@ from bot.model.model_settings import ModelType, get_model_setting
 
 @pytest.fixture
 def valid_model_settings():
-    return get_model_setting(ModelType.ZEPHYR.value)
+    config = {
+        "top_k": 40,
+        "top_p": 0.95,
+        "temperature": 0.7,
+        "repetition_penalty": 1.1,
+        "last_n_tokens": 64,
+        "seed": -1,
+        "batch_size": 8,
+        "threads": -1,
+        "max_new_tokens": 1024,
+        "stop": None,
+        "stream": False,
+        "reset": True,
+        "context_length": 2048,
+        "gpu_layers": 0,
+        "mmap": True,
+        "mlock": False,
+    }
+    model_setting = get_model_setting(ModelType.ZEPHYR.value)
+    with patch.object(model_setting, "config", config):
+        return model_setting
 
 
 @pytest.fixture

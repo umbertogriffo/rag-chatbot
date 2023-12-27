@@ -1,0 +1,32 @@
+name: product-metrics CI/CD
+
+on:
+  push:
+    branches:
+      - "main"
+  pull_request:
+    types: [opened, reopened, synchronize, ready_for_review]
+
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: 1.7.0
+          virtualenvs-in-project: true
+
+      - name: Setup environment
+        run: |
+          poetry lock --check
+          poetry install --no-root --no-ansi
+
+      - name: Run tests
+        run: |
+          poetry run pytest
