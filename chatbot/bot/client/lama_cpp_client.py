@@ -1,9 +1,10 @@
 from pathlib import Path
 from typing import Any, Iterator, Union
 
+from llama_cpp import CreateCompletionResponse, CreateCompletionStreamResponse, Llama
+
 from bot.client.llm_client import LlmClient, LlmClientType
 from bot.model.model import Model
-from llama_cpp import CreateCompletionResponse, CreateCompletionStreamResponse, Llama
 
 
 class LamaCppClient(LlmClient):

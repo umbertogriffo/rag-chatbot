@@ -1,10 +1,11 @@
 from asyncio import get_event_loop
 from typing import Any, List, Tuple
 
-from bot.client.llm_client import LlmClient
-from bot.conversation.ctx_strategy import AsyncTreeSummarizationStrategy, BaseSynthesisStrategy
 from helpers.log import get_logger
 from langchain_core.documents import Document
+
+from bot.client.llm_client import LlmClient
+from bot.conversation.ctx_strategy import AsyncTreeSummarizationStrategy, BaseSynthesisStrategy
 
 logger = get_logger(__name__)
 

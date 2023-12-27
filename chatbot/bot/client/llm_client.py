@@ -5,6 +5,8 @@ from pathlib import Path
 from typing import Any
 
 import requests
+from tqdm import tqdm
+
 from bot.client.prompt import (
     generate_conversation_awareness_prompt,
     generate_ctx_prompt,
@@ -12,7 +14,6 @@ from bot.client.prompt import (
     generate_refined_ctx_prompt,
 )
 from bot.model.model import Model
-from tqdm import tqdm
 
 
 class LlmClientType(Enum):

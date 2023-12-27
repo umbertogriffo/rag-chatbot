@@ -3,8 +3,9 @@ from enum import Enum
 from typing import Any, Union
 
 import nest_asyncio
-from bot.client.llm_client import LlmClient
 from helpers.log import get_logger
+
+from bot.client.llm_client import LlmClient
 
 logger = get_logger(__name__)
 nest_asyncio.apply()

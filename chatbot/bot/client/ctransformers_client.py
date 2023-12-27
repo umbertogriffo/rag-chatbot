@@ -2,10 +2,11 @@ from pathlib import Path
 from threading import Thread
 from typing import Any, Optional
 
-from bot.client.llm_client import LlmClient, LlmClientType
-from bot.model.model import Model
 from ctransformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer, Config
 from transformers import TextIteratorStreamer, TextStreamer
+
+from bot.client.llm_client import LlmClient, LlmClientType
+from bot.model.model import Model
 
 
 class CtransformersClient(LlmClient):

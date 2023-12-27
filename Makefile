@@ -1,4 +1,4 @@
-.PHONY: clean
+.PHONY: clean test
 
 check:
 	which pip3
@@ -27,6 +27,9 @@ update:
 tidy:
 	poetry run ruff format --exclude=.venv .
 	poetry run ruff check --exclude=.venv . --fix
+
+test:
+	poetry run pytest
 
 check-formatting:
 	poetry run ruff format . --check

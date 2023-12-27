@@ -35,7 +35,7 @@ httpx = "~=0.23.3"
 
 
 [build-system]
-requires = ["poetry-core"]
+requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 # https://docs.astral.sh/ruff/configuration/
@@ -67,3 +67,9 @@ skip-magic-trailing-comma = false
 
 # Like Black, automatically detect the appropriate line ending.
 line-ending = "auto"
+
+[tool.pytest.ini_options]
+pythonpath = [
+  "chatbot",
+  "tests"
+]

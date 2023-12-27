@@ -1,5 +1,7 @@
 # RAG (Retrieval-augmented generation) ChatBot
 
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
 > [!IMPORTANT]
 > Disclaimer: The code has been tested on `Ubuntu 22.04.2 LTS` running on a Lenovo Legion 5 Pro
 > with twenty `12th Gen Intel® Core™ i7-12700H` and an `NVIDIA GeForce RTX 3060`.
@@ -86,6 +88,9 @@ To easily install the dependencies we created a make file.
   * Run Isort, Black and Flake8.
 * Clean: ```make clean```
   * Removes the environment and all cached files.
+* Test: ```make test```
+  * Runs all tests.
+  * Using [pytest](https://pypi.org/project/pytest/)
 
 > [!NOTE]
 > Run `Install` as your init command (or after `Clean`).
