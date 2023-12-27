@@ -85,7 +85,7 @@ To easily install the dependencies we created a make file.
 * Update: ```make update```
   * Update an environment and installs all updated dependencies.
 * Tidy up the code: ```make tidy```
-  * Run Isort, Black and Flake8.
+  * Run Ruff check and format.
 * Clean: ```make clean```
   * Removes the environment and all cached files.
 * Test: ```make test```
