@@ -1,5 +1,5 @@
 # RAG (Retrieval-augmented generation) ChatBot
-
+[![CI](https://github.com/umbertogriffo/rag-chatbot/workflows/CI/badge.svg)](https://github.com/umbertogriffo/rag-chatbot/actions/workflows/ci-cd.yml)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 > [!IMPORTANT]
