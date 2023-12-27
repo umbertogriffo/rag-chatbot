@@ -11,3 +11,7 @@
 - Can you tell me the names of the countries that share a border with Italy?
 - Could you please provide me with information on the main industries?
 - Could you please remind me about the topic we were discussing earlier?
+
+# Programming - 1
+
+- Create a regex to extract dates from logs in Python.
