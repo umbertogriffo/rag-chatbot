@@ -77,7 +77,7 @@ To easily install the dependencies we created a make file.
 ### How to use the make file
 
 > [!IMPORTANT]
-> Run ```make install``` to install `sentence-transformers` with pip to avoid poetry's issues in installing torch
+> Run ```make setup``` to install `sentence-transformers` with pip to avoid poetry's issues in installing torch
 > (it doesn't install CUDA dependencies).
 
 * Check: ```make check```
