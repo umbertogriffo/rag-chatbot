@@ -4,9 +4,16 @@ on:
   push:
     branches:
       - "main"
+    paths:
+      - "chatbot/**"
+      - "tests/**"
+      - ".github/workflows/**"
   pull_request:
     types: [opened, reopened, synchronize, ready_for_review]
-
+    paths:
+      - "chatbot/**"
+      - "tests/**"
+      - ".github/workflows/**"
 
 jobs:
   test:
