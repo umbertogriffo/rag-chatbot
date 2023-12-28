@@ -82,7 +82,7 @@ To easily install the dependencies we created a make file.
 
 * Check: ```make check```
   * Use It to check that `which pip3` and `which python3` points to the right path.
-* Install: ```make setup```
+* Setup: ```make setup```
   * Creates an environment and installs all dependencies.
 * Update: ```make update```
   * Update an environment and installs all updated dependencies.
@@ -95,7 +95,7 @@ To easily install the dependencies we created a make file.
   * Using [pytest](https://pypi.org/project/pytest/)
 
 > [!NOTE]
-> Run `Install` as your init command (or after `Clean`).
+> Run `Setup` as your init command (or after `Clean`).
 
 ## Using the Open-Source Models Locally
 
