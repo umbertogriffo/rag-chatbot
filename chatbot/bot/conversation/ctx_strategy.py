@@ -1,9 +1,10 @@
 import asyncio
 from enum import Enum
-from typing import Any, Union
+from typing import Any, List, Union
 
 import nest_asyncio
 from helpers.log import get_logger
+from langchain_core.documents import Document
 
 from bot.client.llm_client import LlmClient
 
@@ -18,19 +19,49 @@ class SynthesisStrategyType(Enum):
 
 
 class BaseSynthesisStrategy:
+    """
+    Base class for synthesis strategies.
+
+    Attributes:
+        llm (LlmClient): The language model client used for generating responses.
+    """
+
     def __init__(self, llm: LlmClient) -> None:
+        """
+        Initialize the synthesis strategy with the provided LlmClient.
+
+        Args:
+            llm (LlmClient): The language model client.
+        """
         self.llm = llm
 
-    def generate_response(self, retrieved_contents, question, max_new_tokens=512, return_generator=False):
+    def generate_response(self, retrieved_contents: List[Document], question: str, max_new_tokens: int = 512):
+        """
+        Generate a response using the synthesis strategy.
+
+        This method should be implemented by subclasses.
+
+        Args:
+            retrieved_contents (List[Document]): List of retrieved contents.
+            question (str): The question or input prompt.
+            max_new_tokens (int, optional): Maximum number of tokens for the generated response. Default is 512.
+
+        Raises:
+            NotImplementedError: Subclasses must implement this method.
+        """
         raise NotImplementedError("Subclasses must implement generate_response method")
 
 
 class CreateAndRefineStrategy(BaseSynthesisStrategy):
+    """
+    Strategy for sequential refinement of responses using retrieved contents.
+    """
+
     def __init__(self, llm: LlmClient):
         super().__init__(llm)
 
     def generate_response(
-        self, retrieved_contents, question, max_new_tokens=512, return_generator=False
+        self, retrieved_contents: List[Document], question: str, max_new_tokens: int = 512
     ) -> Union[str, Any]:
         """
         Generate a response using create and refine strategy.
@@ -41,6 +72,14 @@ class CreateAndRefineStrategy(BaseSynthesisStrategy):
 
         The first content uses the 'Contextual' prompt.
         All subsequent contents use the 'Refine' prompt.
+
+        Args:
+            retrieved_contents (List[Document]): List of retrieved contents.
+            question (str): The question or input prompt.
+            max_new_tokens (int, optional): Maximum number of tokens for the generated response. Default is 512.
+
+        Returns:
+            Union[str, Any]: The generated response or a response generator.
 
         """
         cur_response = None
@@ -61,12 +100,7 @@ class CreateAndRefineStrategy(BaseSynthesisStrategy):
                     )
 
                 if idx == num_of_contents:
-                    if return_generator:
-                        cur_response = self.llm.start_answer_iterator_streamer(
-                            fmt_prompt, max_new_tokens=max_new_tokens
-                        )
-                    else:
-                        cur_response = self.llm.stream_answer(fmt_prompt, max_new_tokens=max_new_tokens)
+                    cur_response = self.llm.start_answer_iterator_streamer(fmt_prompt, max_new_tokens=max_new_tokens)
 
                 else:
                     cur_response = self.llm.generate_answer(fmt_prompt, max_new_tokens=max_new_tokens)
@@ -81,14 +115,28 @@ class CreateAndRefineStrategy(BaseSynthesisStrategy):
 
 
 class TreeSummarizationStrategy(BaseSynthesisStrategy):
+    """
+    Strategy for hierarchical summarization of contents.
+    """
+
     def __init__(self, llm: LlmClient):
         super().__init__(llm)
 
-    def generate_response(self, retrieved_contents, question, max_new_tokens=512, num_children=2) -> Union[str, Any]:
+    def generate_response(
+        self, retrieved_contents: List[Document], question: str, max_new_tokens: int = 512, num_children: int = 2
+    ) -> Union[str, Any]:
         """
         Generate a response using hierarchical summarization strategy.
 
         Combine `num_children` contents hierarchically until we get one root content.
+        Args:
+            retrieved_contents (List[Document]): List of retrieved contents.
+            question (str): The question or input prompt.
+            max_new_tokens (int, optional): Maximum number of tokens for the generated response. Default is 512.
+            num_children (int, optional): Number of child nodes to create for the response. Default is 2.
+
+        Returns:
+            Union[str, Any]: The generated response.
         """
         fmt_prompts = []
         node_responses = []
@@ -112,12 +160,25 @@ class TreeSummarizationStrategy(BaseSynthesisStrategy):
 
     def combine_results(
         self,
-        texts,
-        question,
-        cur_prompt_list,
-        max_new_tokens=512,
-        num_children=2,
-    ):
+        texts: List[str],
+        question: str,
+        cur_prompt_list: List[str],
+        max_new_tokens: int = 512,
+        num_children: int = 2,
+    ) -> Any:
+        """
+        Combine results of hierarchical summarization.
+
+        Args:
+            texts (List[str]): List of texts to combine.
+            question (str): The question or input prompt.
+            cur_prompt_list (List[str]): List of current prompts.
+            max_new_tokens (int, optional): Maximum number of tokens for the generated response. Default is 512.
+            num_children (int, optional): Number of child nodes to create for the response. Default is 2.
+
+        Returns:
+            Any: The combined response.
+        """
         fmt_prompts = []
         new_texts = []
         for idx in range(0, len(texts), num_children):
@@ -147,29 +208,34 @@ class TreeSummarizationStrategy(BaseSynthesisStrategy):
 
 
 class AsyncTreeSummarizationStrategy(BaseSynthesisStrategy):
+    """
+    Asynchronous version of TreeSummarizationStrategy.
+    """
+
     def __init__(self, llm: LlmClient):
         super().__init__(llm)
 
     async def generate_response(
         self,
-        retrieved_contents,
-        question,
-        max_new_tokens=512,
-        num_children=2,
-    ) -> Union[str, Any]:
+        retrieved_contents: List[Document],
+        question: str,
+        max_new_tokens: int = 512,
+        num_children: int = 2,
+    ) -> Any:
         """
         Generate a response using hierarchical summarization strategy.
 
         Combine `num_children` contents hierarchically until we get one root content.
 
         Args:
-            retrieved_contents (List[str]): A list of text content for the AI to consider when generating a response.
+            retrieved_contents (List[Document]): A list of text content for the AI to consider when generating a
+                response.
             question (str): The question or input prompt that the AI will use as context for its response.
             max_new_tokens (int, optional): The maximum number of tokens for the generated response. Default is 512.
             num_children (int, optional): The number of child nodes to create for the response. Default is 2.
 
         Returns:
-            Union[str, Any]: A string containing the generated response, or an object if 'return_generator' is True.
+            Any: The combined response.
         """
         fmt_prompts = []
         for idx, content in enumerate(retrieved_contents, start=1):
@@ -193,12 +259,25 @@ class AsyncTreeSummarizationStrategy(BaseSynthesisStrategy):
 
     async def combine_results(
         self,
-        texts,
-        question,
-        cur_prompt_list,
-        max_new_tokens=512,
-        num_children=2,
+        texts: List[str],
+        question: str,
+        cur_prompt_list: List[str],
+        max_new_tokens: int = 512,
+        num_children: int = 2,
     ):
+        """
+        Combine results of hierarchical summarization.
+
+        Args:
+            texts (List[str]): List of texts to combine.
+            question (str): The question or input prompt.
+            cur_prompt_list (List[str]): List of current prompts.
+            max_new_tokens (int, optional): Maximum number of tokens for the generated response. Default is 512.
+            num_children (int, optional): Number of child nodes to create for the response. Default is 2.
+
+        Returns:
+            Any: The combined response.
+        """
         fmt_prompts = []
         for idx in range(0, len(texts), num_children):
             text_batch = texts[idx : idx + num_children]
