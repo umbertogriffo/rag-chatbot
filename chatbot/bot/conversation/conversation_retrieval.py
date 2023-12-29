@@ -155,23 +155,14 @@ class ConversationRetrieval:
         question: str,
         retrieved_contents: List[Document],
         max_new_tokens: int = 512,
-        return_generator: bool = True,
     ):
         if isinstance(ctx_synthesis_strategy, AsyncTreeSummarizationStrategy):
             loop = get_event_loop()
             streamer, fmt_prompts = loop.run_until_complete(
-                ctx_synthesis_strategy.generate_response(
-                    retrieved_contents,
-                    question,
-                    max_new_tokens=max_new_tokens,
-                    return_generator=return_generator,
-                )
+                ctx_synthesis_strategy.generate_response(retrieved_contents, question, max_new_tokens=max_new_tokens)
             )
         else:
             streamer, fmt_prompts = ctx_synthesis_strategy.generate_response(
-                retrieved_contents,
-                question,
-                max_new_tokens=max_new_tokens,
-                return_generator=return_generator,
+                retrieved_contents, question, max_new_tokens=max_new_tokens
             )
         return streamer, fmt_prompts

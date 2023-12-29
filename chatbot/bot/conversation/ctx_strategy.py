@@ -84,14 +84,7 @@ class TreeSummarizationStrategy(BaseSynthesisStrategy):
     def __init__(self, llm: LlmClient):
         super().__init__(llm)
 
-    def generate_response(
-        self,
-        retrieved_contents,
-        question,
-        max_new_tokens=512,
-        num_children=2,
-        return_generator=False,
-    ) -> Union[str, Any]:
+    def generate_response(self, retrieved_contents, question, max_new_tokens=512, num_children=2) -> Union[str, Any]:
         """
         Generate a response using hierarchical summarization strategy.
 
@@ -109,11 +102,9 @@ class TreeSummarizationStrategy(BaseSynthesisStrategy):
 
         response = self.combine_results(
             [str(r) for r in node_responses],
-            [],
             question,
             fmt_prompts,
             max_new_tokens=max_new_tokens,
-            return_generator=return_generator,
             num_children=num_children,
         )
 
@@ -122,40 +113,35 @@ class TreeSummarizationStrategy(BaseSynthesisStrategy):
     def combine_results(
         self,
         texts,
-        streams,
         question,
         cur_prompt_list,
         max_new_tokens=512,
-        return_generator=False,
         num_children=2,
     ):
+        fmt_prompts = []
         new_texts = []
-        new_streams = []
         for idx in range(0, len(texts), num_children):
             text_batch = texts[idx : idx + num_children]
             context = "\n\n".join([t for t in text_batch])
             fmt_qa_prompt = self.llm.generate_ctx_prompt(question=question, context=context)
-            logger.info(f"--- Combining {len(texts)} responses ... ---")
-            combined_response = self.llm.generate_answer(fmt_qa_prompt, max_new_tokens=max_new_tokens)
-            combined_response_stream = self.llm.start_answer_iterator_streamer(
-                fmt_qa_prompt, max_new_tokens=max_new_tokens
-            )
-            new_texts.append(str(combined_response))
-            new_streams.append(combined_response_stream)
-            cur_prompt_list.append(fmt_qa_prompt)
+            fmt_prompts.append(fmt_qa_prompt)
 
-        if len(new_texts) == 1:
-            if return_generator:
-                return new_streams[0]
-            else:
-                return new_texts[0]
+        if len(fmt_prompts) == 1:
+            logger.info("--- Generating final response ... ---")
+            combined_response_stream = self.llm.start_answer_iterator_streamer(
+                fmt_prompts[0], max_new_tokens=max_new_tokens
+            )
+            return combined_response_stream
         else:
+            logger.info(f"--- Combining {len(fmt_prompts)} responses ... ---")
+            for fmt_qa_prompt in fmt_prompts:
+                combined_response = self.llm.generate_answer(fmt_qa_prompt, max_new_tokens=max_new_tokens)
+                new_texts.append(str(combined_response))
+                cur_prompt_list.append(fmt_qa_prompt)
             return self.combine_results(
                 new_texts,
-                new_streams,
                 question,
                 cur_prompt_list,
-                return_generator=return_generator,
                 num_children=num_children,
             )
 
@@ -170,7 +156,6 @@ class AsyncTreeSummarizationStrategy(BaseSynthesisStrategy):
         question,
         max_new_tokens=512,
         num_children=2,
-        return_generator=False,
     ) -> Union[str, Any]:
         """
         Generate a response using hierarchical summarization strategy.
@@ -182,7 +167,6 @@ class AsyncTreeSummarizationStrategy(BaseSynthesisStrategy):
             question (str): The question or input prompt that the AI will use as context for its response.
             max_new_tokens (int, optional): The maximum number of tokens for the generated response. Default is 512.
             num_children (int, optional): The number of child nodes to create for the response. Default is 2.
-            return_generator (bool, optional): Whether to return a generator or not. Default is False.
 
         Returns:
             Union[str, Any]: A string containing the generated response, or an object if 'return_generator' is True.
@@ -199,11 +183,9 @@ class AsyncTreeSummarizationStrategy(BaseSynthesisStrategy):
 
         response = await self.combine_results(
             [str(r) for r in node_responses],
-            [],
             question,
             fmt_prompts,
             max_new_tokens=max_new_tokens,
-            return_generator=return_generator,
             num_children=num_children,
         )
 
@@ -212,11 +194,9 @@ class AsyncTreeSummarizationStrategy(BaseSynthesisStrategy):
     async def combine_results(
         self,
         texts,
-        streams,
         question,
         cur_prompt_list,
         max_new_tokens=512,
-        return_generator=False,
         num_children=2,
     ):
         fmt_prompts = []
@@ -225,29 +205,22 @@ class AsyncTreeSummarizationStrategy(BaseSynthesisStrategy):
             context = "\n\n".join([t for t in text_batch])
             fmt_qa_prompt = self.llm.generate_ctx_prompt(question=question, context=context)
             fmt_prompts.append(fmt_qa_prompt)
-            logger.info(f"--- Combining {len(texts)} responses ... ---")
 
-        tasks = [self.llm.async_generate_answer(p, max_new_tokens=max_new_tokens) for p in fmt_prompts]
-        combined_responses = await asyncio.gather(*tasks)
-
-        tasks = [self.llm.async_start_answer_iterator_streamer(p, max_new_tokens=max_new_tokens) for p in fmt_prompts]
-        combined_responses_stream = await asyncio.gather(*tasks)
-
-        new_texts = [str(r) for r in combined_responses]
-        new_streams = [r for r in combined_responses_stream]
-
-        if len(new_texts) == 1:
-            if return_generator:
-                return new_streams[0]
-            else:
-                return new_texts[0]
+        if len(fmt_prompts) == 1:
+            logger.info("--- Generating final response ... ---")
+            combined_responses_stream = await asyncio.gather(
+                self.llm.async_start_answer_iterator_streamer(fmt_prompts[0], max_new_tokens=max_new_tokens)
+            )
+            return combined_responses_stream[0]
         else:
+            logger.info(f"--- Combining {len(fmt_prompts)} responses ... ---")
+            tasks = [self.llm.async_generate_answer(p, max_new_tokens=max_new_tokens) for p in fmt_prompts]
+            combined_responses = await asyncio.gather(*tasks)
+            new_texts = [str(r) for r in combined_responses]
             return await self.combine_results(
                 new_texts,
-                new_streams,
                 question,
                 cur_prompt_list,
-                return_generator=return_generator,
                 num_children=num_children,
             )
 

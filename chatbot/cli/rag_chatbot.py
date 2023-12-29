@@ -118,7 +118,6 @@ def loop(conversation, synthesis_strategy, index, parameters) -> None:
             question=refined_question,
             retrieved_contents=retrieved_contents,
             max_new_tokens=parameters.max_new_tokens,
-            return_generator=True,
         )
         answer = ""
         for token in streamer:

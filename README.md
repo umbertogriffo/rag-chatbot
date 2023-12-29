@@ -6,7 +6,8 @@
 > Disclaimer: The code has been tested on `Ubuntu 22.04.2 LTS` running on a Lenovo Legion 5 Pro
 > with twenty `12th Gen Intel® Core™ i7-12700H` and an `NVIDIA GeForce RTX 3060`.
 > If you are using another Operating System or different hardware, and you can't load the models, please
-> take a look at the official CTransformers's GitHub [issue](https://github.com/marella/ctransformers/issues).
+> take a look either at the official CTransformers's GitHub [issue](https://github.com/marella/ctransformers/issues).
+> or at the official Llama Cpp Python's GitHub [issue](https://github.com/abetlen/llama-cpp-python/issues)
 
 > [!WARNING]
 > Note: it's important to note that the large language model sometimes generates hallucinations or false information.
@@ -128,7 +129,7 @@ python chat/memory_builder.py --chunk-size 1000
 
 To interact with a GUI type:
 ```shell
-streamlit run chat/chatbot_app.py -- --model zephyr
+streamlit run chat/chatbot_app.py -- --model openchat
 ```
 ![conversation-aware-chatbot.gif](images/conversation-aware-chatbot.gif)
 
@@ -136,7 +137,7 @@ streamlit run chat/chatbot_app.py -- --model zephyr
 
 To interact with a GUI type:
 ```shell
-streamlit run chat/rag_chatbot_app.py -- --model zephyr --k 2 --synthesis-strategy create_and_refine
+streamlit run chat/rag_chatbot_app.py -- --model openchat --k 2 --synthesis-strategy async_tree_summarization
 ```
 
 ![rag_chatbot_example.gif](images%2Frag_chatbot_example.gif)

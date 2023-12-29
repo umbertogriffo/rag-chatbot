@@ -176,7 +176,7 @@ def main(parameters) -> None:
                 "This should take 1 minute."
             ):
                 streamer, fmt_prompts = conversational_retrieval.context_aware_answer(
-                    ctx_synthesis_strategy, user_input, retrieved_contents, return_generator=True
+                    ctx_synthesis_strategy, user_input, retrieved_contents
                 )
                 for token in streamer:
                     full_response += llm.parse_token(token)
