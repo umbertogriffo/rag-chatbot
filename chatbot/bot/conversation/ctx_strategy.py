@@ -79,7 +79,7 @@ class CreateAndRefineStrategy(BaseSynthesisStrategy):
             max_new_tokens (int, optional): Maximum number of tokens for the generated response. Default is 512.
 
         Returns:
-            Union[str, Any]: The generated response or a response generator.
+            Any: A response generator.
 
         """
         cur_response = None
@@ -124,7 +124,7 @@ class TreeSummarizationStrategy(BaseSynthesisStrategy):
 
     def generate_response(
         self, retrieved_contents: List[Document], question: str, max_new_tokens: int = 512, num_children: int = 2
-    ) -> Union[str, Any]:
+    ) -> Any:
         """
         Generate a response using hierarchical summarization strategy.
 
@@ -136,7 +136,7 @@ class TreeSummarizationStrategy(BaseSynthesisStrategy):
             num_children (int, optional): Number of child nodes to create for the response. Default is 2.
 
         Returns:
-            Union[str, Any]: The generated response.
+            Any: A response generator.
         """
         fmt_prompts = []
         node_responses = []
@@ -177,7 +177,7 @@ class TreeSummarizationStrategy(BaseSynthesisStrategy):
             num_children (int, optional): Number of child nodes to create for the response. Default is 2.
 
         Returns:
-            Any: The combined response.
+            Any: A response generator.
         """
         fmt_prompts = []
         new_texts = []
@@ -235,7 +235,7 @@ class AsyncTreeSummarizationStrategy(BaseSynthesisStrategy):
             num_children (int, optional): The number of child nodes to create for the response. Default is 2.
 
         Returns:
-            Any: The combined response.
+            Any: A response generator.
         """
         fmt_prompts = []
         for idx, content in enumerate(retrieved_contents, start=1):
@@ -276,7 +276,7 @@ class AsyncTreeSummarizationStrategy(BaseSynthesisStrategy):
             num_children (int, optional): Number of child nodes to create for the response. Default is 2.
 
         Returns:
-            Any: The combined response.
+            Any: A response generator.
         """
         fmt_prompts = []
         for idx in range(0, len(texts), num_children):
