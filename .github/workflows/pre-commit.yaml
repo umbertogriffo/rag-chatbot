@@ -1,0 +1,25 @@
+name: Lint and format
+
+on: [pull_request]
+
+jobs:
+  run-linters:
+    name: Run linters
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        ref: ${{ github.event.pull_request.head.ref }}
+
+    - uses: actions/setup-python@v3
+      with:
+          python-version: '3.18'
+
+    - name: Changed files
+      id: changed_files
+      uses: jitterbit/get-changed-files@v1
+
+    - uses: pre-commit/action@v3.0.0
+      with:
+        extra_args: --files ${{ steps.changed_files.outputs.all }}
