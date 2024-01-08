@@ -41,7 +41,7 @@ def init_page(root_folder: Path) -> None:
         st.write(" ")
 
     with central_column:
-        st.image(str(root_folder / "images/bot.png"), use_column_width="always")
+        st.image(str(root_folder / "images/bot-small.png"), use_column_width="auto")
         st.markdown("""<h4 style='text-align: center; color: grey;'></h4>""", unsafe_allow_html=True)
 
     with right_column:
