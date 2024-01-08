@@ -90,13 +90,14 @@ def init_welcome_message() -> None:
         st.write("How can I help you today?")
 
 
-def init_messages() -> None:
+def init_chat_history(conversational_retrieval: ConversationRetrieval) -> None:
     """
     Initializes the chat history, allowing users to clear the conversation.
     """
     clear_button = st.sidebar.button("Clear Conversation", key="clear")
     if clear_button or "messages" not in st.session_state:
         st.session_state.messages = []
+        conversational_retrieval.get_chat_history().clear()
 
 
 def display_messages_from_history():
@@ -129,7 +130,7 @@ def main(parameters) -> None:
     conversational_retrieval = load_conversational_retrieval(_llm=llm)
     ctx_synthesis_strategy = load_ctx_synthesis_strategy(synthesis_strategy_name, _llm=llm)
     index = load_index(vector_store_path)
-    init_messages()
+    init_chat_history(conversational_retrieval)
     init_welcome_message()
     display_messages_from_history()
 
