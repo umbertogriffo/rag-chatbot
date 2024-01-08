@@ -56,13 +56,14 @@ def init_welcome_message() -> None:
         st.write("How can I help you today?")
 
 
-def init_messages() -> None:
+def init_chat_history(conversational_retrieval: ConversationRetrieval) -> None:
     """
     Initialize chat history.
     """
     clear_button = st.sidebar.button("Clear Conversation", key="clear")
     if clear_button or "messages" not in st.session_state:
         st.session_state.messages = []
+        conversational_retrieval.get_chat_history().clear()
 
 
 def display_messages_from_history():
@@ -83,7 +84,7 @@ def main(parameters) -> None:
     init_page(root_folder)
     llm = load_llm(client, model, model_folder)
     conversational_retrieval = load_conversational_retrieval(_llm=llm)
-    init_messages()
+    init_chat_history(conversational_retrieval)
     init_welcome_message()
     display_messages_from_history()
 
