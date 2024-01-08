@@ -129,7 +129,7 @@ python chat/memory_builder.py --chunk-size 1000
 
 To interact with a GUI type:
 ```shell
-streamlit run chat/chatbot_app.py -- --model openchat
+streamlit run chatbot/chatbot_app.py -- --model openchat
 ```
 ![conversation-aware-chatbot.gif](images/conversation-aware-chatbot.gif)
 
@@ -137,7 +137,7 @@ streamlit run chat/chatbot_app.py -- --model openchat
 
 To interact with a GUI type:
 ```shell
-streamlit run chat/rag_chatbot_app.py -- --model openchat --k 2 --synthesis-strategy async_tree_summarization
+streamlit run chatbot/rag_chatbot_app.py -- --model openchat --k 2 --synthesis-strategy async_tree_summarization
 ```
 
 ![rag_chatbot_example.gif](images%2Frag_chatbot_example.gif)
