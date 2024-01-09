@@ -108,8 +108,9 @@ Additionally, we use the `Quantization and 4-bit precision` to reduce number of 
 The quantized models are stored in [GGML/GGUF](https://medium.com/@phillipgimmi/what-is-gguf-and-ggml-e364834d241c) format.
 
 ### Supported Models
+* [(Recommended) OpenChat 3.5 7B - GGUF](https://huggingface.co/TheBloke/openchat_3.5-GGUF)
+* [NeuralMarcoro14 7B - GGUF](https://huggingface.co/mlabonne/NeuralMarcoro14-7B-GGUF)
 * [Zephyr 7B Beta - GGUF](https://huggingface.co/TheBloke/zephyr-7B-beta-GGUF)
-* [OpenChat 3.5 7B - GGUF](https://huggingface.co/TheBloke/openchat_3.5-GGUF)
 * [Mistral 7B OpenOrca - GGUF](https://huggingface.co/TheBloke/Mistral-7B-OpenOrca-GGUF)
 * [StableLM Zephyr 3B - GGUF](https://huggingface.co/TheBloke/stablelm-zephyr-3b-GGUF)
 
