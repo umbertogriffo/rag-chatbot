@@ -164,6 +164,7 @@ streamlit run chatbot/rag_chatbot_app.py -- --model openchat --k 2 --synthesis-s
     * This is a `sentence-transformers` model: It maps sentences & paragraphs to a 384 dimensional dense vector space and can be used for tasks like clustering or semantic search.
 * Vector Databases:
   * [Chroma](https://www.trychroma.com/)
+  * [Food Discovery with Qdrant](https://qdrant.tech/articles/new-recommendation-api/#)
   * Indexing algorithms:
     * There are many algorithms for building indexes to optimize vector search. Most vector databases implement `Hierarchical Navigable Small World (HNSW)` and/or `Inverted File Index (IVF)`. Here are some great articles explaining them, and the trade-off between `speed`, `memory` and `quality`:
       * [Nearest Neighbor Indexes for Similarity Search](https://www.pinecone.io/learn/series/faiss/vector-indexes/)
