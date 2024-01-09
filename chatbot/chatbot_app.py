@@ -60,7 +60,7 @@ def init_chat_history(conversational_retrieval: ConversationRetrieval) -> None:
     """
     Initializes the chat history, allowing users to clear the conversation.
     """
-    clear_button = st.sidebar.button("Clear Conversation", key="clear")
+    clear_button = st.sidebar.button("🗑️ Clear Conversation", key="clear")
     if clear_button or "messages" not in st.session_state:
         st.session_state.messages = []
         conversational_retrieval.get_chat_history().clear()
