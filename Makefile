@@ -13,7 +13,7 @@ install:
 	. .venv/bin/activate && pip3 install torch~=2.1.2 torchvision torchaudio
 	. .venv/bin/activate && pip3 install sentence-transformers~=2.2.2
 	echo "Installing llama-cpp-python with pip to get NVIDIA CUDA acceleration"
-	. .venv/bin/activate && CMAKE_ARGS="-DLLAMA_CUBLAS=on" pip3 install llama-cpp-python~=0.2.23
+	. .venv/bin/activate && CMAKE_ARGS="-DLLAMA_CUBLAS=on" pip3 install llama-cpp-python==0.2.28
 
 install_pre_commit:
 	poetry run pre-commit install
