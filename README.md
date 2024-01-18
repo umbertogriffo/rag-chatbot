@@ -109,7 +109,8 @@ The quantized models are stored in [GGML/GGUF](https://medium.com/@phillipgimmi/
 
 ### Supported Models
 * [(Recommended) OpenChat 3.5 7B - GGUF](https://huggingface.co/TheBloke/openchat_3.5-GGUF)
-* [NeuralMarcoro14 7B - GGUF](https://huggingface.co/mlabonne/NeuralMarcoro14-7B-GGUF)
+* [NeuralBeagle14 7B - GGUF](https://huggingface.co/TheBloke/NeuralBeagle14-7B-GGUF)
+* [Dolphin 2.6 Mistral 7B DPO Laser - GGUF](https://huggingface.co/TheBloke/dolphin-2.6-mistral-7B-dpo-laser-GGUF)
 * [Zephyr 7B Beta - GGUF](https://huggingface.co/TheBloke/zephyr-7B-beta-GGUF)
 * [Mistral 7B OpenOrca - GGUF](https://huggingface.co/TheBloke/Mistral-7B-OpenOrca-GGUF)
 * [StableLM Zephyr 3B - GGUF](https://huggingface.co/TheBloke/stablelm-zephyr-3b-GGUF)

@@ -11,7 +11,7 @@ class StableLMZephyrSettings(Model):
         "n_threads": 8,  # The number of CPU threads to use, tailor to your system and the resulting performance
         "n_gpu_layers": 35,  # The number of layers to offload to GPU, if you have GPU acceleration available
     }
-
+    config_answer = {"temperature": 0.7, "stop": []}
     system_template = "You are a helpful, respectful and honest assistant. "
     qa_prompt_template = """<|user|>{system}\nAnswer the question below:
 {question}<|endoftext|>

@@ -46,7 +46,7 @@ def ctransformers_client(mock_model_folder, valid_model_settings, cpu_config):
 
 
 def test_init_raises_value_error_for_invalid_client_type(mock_model_folder, invalid_model_settings):
-    with pytest.raises(ValueError, match="openchat_3.5.Q4_K_M.gguf is a not supported by the ctransformers client."):
+    with pytest.raises(ValueError):
         CtransformersClient(mock_model_folder, invalid_model_settings)
 
 

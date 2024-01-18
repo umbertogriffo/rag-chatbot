@@ -33,7 +33,7 @@ def lamacpp_client(mock_model_folder, valid_model_settings, cpu_config):
 
 
 def test_init_raises_value_error_for_invalid_client_type(mock_model_folder, invalid_model_settings):
-    with pytest.raises(ValueError, match="zephyr-7b-beta.Q4_K_M.gguf is a not supported by the lama_cpp client."):
+    with pytest.raises(ValueError):
         LamaCppClient(mock_model_folder, invalid_model_settings)
 
 

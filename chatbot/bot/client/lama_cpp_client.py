@@ -33,7 +33,7 @@ class LamaCppClient(LlmClient):
         Returns:
             str: The generated answer.
         """
-        output = self.llm(prompt, max_tokens=max_new_tokens, temperature=0.7, echo=False)
+        output = self.llm(prompt, max_tokens=max_new_tokens, echo=False, **self.model_settings.config_answer)
 
         answer = output["choices"][0]["text"]
 
@@ -50,7 +50,7 @@ class LamaCppClient(LlmClient):
         Returns:
             str: The generated answer.
         """
-        output = self.llm(prompt, max_tokens=max_new_tokens, temperature=0.7, echo=False)
+        output = self.llm(prompt, max_tokens=max_new_tokens, echo=False, **self.model_settings.config_answer)
 
         answer = output["choices"][0]["text"]
 
@@ -81,13 +81,17 @@ class LamaCppClient(LlmClient):
     def start_answer_iterator_streamer(
         self, prompt: str, skip_prompt: bool = True, max_new_tokens: int = 512
     ) -> Union[CreateCompletionResponse, Iterator[CreateCompletionStreamResponse]]:
-        stream = self.llm.create_completion(prompt, max_tokens=max_new_tokens, temperature=0.7, stream=True)
+        stream = self.llm.create_completion(
+            prompt, max_tokens=max_new_tokens, stream=True, **self.model_settings.config_answer
+        )
         return stream
 
     async def async_start_answer_iterator_streamer(
         self, prompt: str, skip_prompt: bool = True, max_new_tokens: int = 512
     ) -> Union[CreateCompletionResponse, Iterator[CreateCompletionStreamResponse]]:
-        stream = self.llm.create_completion(prompt, max_tokens=max_new_tokens, temperature=0.7, stream=True)
+        stream = self.llm.create_completion(
+            prompt, max_tokens=max_new_tokens, stream=True, **self.model_settings.config_answer
+        )
         return stream
 
     def parse_token(self, token):
