@@ -80,6 +80,7 @@ def main(parameters) -> None:
 
     client = parameters.client
     model = parameters.model
+    max_new_tokens = parameters.max_new_tokens
 
     init_page(root_folder)
     llm = load_llm(client, model, model_folder)
@@ -102,7 +103,7 @@ def main(parameters) -> None:
         with st.chat_message("assistant"):
             message_placeholder = st.empty()
             full_response = ""
-            for token in conversational_retrieval.answer(user_input):
+            for token in conversational_retrieval.answer(question=user_input, max_new_tokens=max_new_tokens):
                 full_response += llm.parse_token(token)
                 message_placeholder.markdown(full_response + "▌")
             message_placeholder.markdown(full_response)
@@ -144,6 +145,14 @@ def get_args() -> argparse.Namespace:
         const=default_model,
         nargs="?",
         default=default_model,
+    )
+
+    parser.add_argument(
+        "--max-new-tokens",
+        type=int,
+        help="The maximum number of tokens to generate in the answer. Defaults to 512.",
+        required=False,
+        default=512,
     )
 
     return parser.parse_args()
