@@ -156,6 +156,7 @@ streamlit run chatbot/rag_chatbot_app.py -- --model openchat --k 2 --synthesis-s
   * [Building Response Synthesis from Scratch](https://gpt-index.readthedocs.io/en/latest/examples/low_level/response_synthesis.html#)
   * [Attention Sinks in LLMs for endless fluency](https://huggingface.co/blog/tomaarsen/attention-sinks)
   * [GPT in 60 Lines of NumPy](https://jaykmody.com/blog/gpt-from-scratch/)
+  * [Introduction to Weight Quantization](https://towardsdatascience.com/introduction-to-weight-quantization-2494701b9c0c)
 * LLM integration and Modules:
   * [LangChain](https://python.langchain.com/docs/get_started/introduction.html):
     * [MarkdownTextSplitter](https://api.python.langchain.com/en/latest/_modules/langchain/text_splitter.html#MarkdownTextSplitter)
@@ -191,6 +192,7 @@ streamlit run chatbot/rag_chatbot_app.py -- --model openchat --k 2 --synthesis-s
     * [Handling External Command Line Arguments](https://github.com/streamlit/streamlit/issues/337)
   * [(Investigate) FastServe - Serve Llama-cpp with FastAPI](https://github.com/aniketmaurya/fastserve)
   * [(Investigate) Chat Templates to standardise the format](https://huggingface.co/blog/chat-templates)
+  * [(Investigate) Ollama](https://github.com/ollama/ollama)
 * Text Processing and Cleaning:
   * [clean-text](https://github.com/jfilter/clean-text/tree/main)
 * Open Source Repositories:
