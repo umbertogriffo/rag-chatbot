@@ -7,6 +7,8 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = ">=3.10,<3.11"
+torch= [{version = "~=2.1.2", source = "pytorch"}]
+sentence-transformers = "~=2.2.2"
 tqdm = "~=4.65.0"
 requests = "~=2.31.0"
 numpy = "~=1.24.2"
@@ -32,6 +34,11 @@ pytest-mock = "~=3.10.0"
 pre-commit = "~=3.6.0"
 ruff = "~=0.1.9"
 httpx = "~=0.23.3"
+
+[[tool.poetry.source]]
+name = "pytorch"
+url = "https://download.pytorch.org/whl/cu121"
+priority = "explicit"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

@@ -32,15 +32,17 @@ jobs:
         with:
           version: ${{ steps.poetry-version.outputs.poetry-version }}
           virtualenvs-in-project: true
-      # Installing torch (CPU) and sentence-transformers with pip to avoid poetry's issues in installing torch.
-      # Installing llama-cpp-python without NVIDIA CUDA acceleration.
+
+      - name: Get llama-cpp version
+        id: llama-cpp-version
+        run: echo "llama-cpp-version=$(cat llama_cpp_version)" >> "$GITHUB_OUTPUT"
+
+      # Installing dependencies and llama-cpp-python without NVIDIA CUDA acceleration.
       - name: Setup environment
         run: |
           poetry lock --check
           poetry install --no-root --no-ansi
-          . .venv/bin/activate && pip3 install torch~=2.1.2 torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
-          . .venv/bin/activate && pip3 install sentence-transformers~=2.2.2
-          . .venv/bin/activate && pip3 install llama-cpp-python~=0.2.23
+          . .venv/bin/activate && pip3 install llama-cpp-python~=${{ steps.llama-cpp-version.outputs.llama-cpp-version }}
 
       - name: Run tests
         run: |

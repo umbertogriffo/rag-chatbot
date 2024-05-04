@@ -1,4 +1,7 @@
-.PHONY: clean test
+.PHONY: check install setup update test clean
+
+file=llama_cpp_version
+llama_cpp_version=`cat $(file)`
 
 check:
 	which pip3
@@ -9,11 +12,8 @@ install:
 	mkdir -p .venv
 	poetry config virtualenvs.in-project true
 	poetry install --no-root --no-ansi
-	echo "Installing torch and sentence-transformers with pip to avoid poetry's issues in installing torch... (it doesn't install CUDA dependencies)"
-	. .venv/bin/activate && pip3 install torch~=2.1.2 torchvision torchaudio
-	. .venv/bin/activate && pip3 install sentence-transformers~=2.2.2
 	echo "Installing llama-cpp-python with pip to get NVIDIA CUDA acceleration"
-	. .venv/bin/activate && CMAKE_ARGS="-DLLAMA_CUBLAS=on" pip3 install llama-cpp-python==0.2.28
+	. .venv/bin/activate && CMAKE_ARGS="-DLLAMA_CUBLAS=on" pip3 install llama-cpp-python==$(llama_cpp_version)
 
 install_pre_commit:
 	poetry run pre-commit install
