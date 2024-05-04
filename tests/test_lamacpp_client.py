@@ -38,6 +38,6 @@ def test_init_raises_value_error_for_invalid_client_type(mock_model_folder, inva
 
 
 def test_generate_answer(lamacpp_client):
-    prompt = "Tell me a joke"
+    prompt = "What is the capital city of Italy?"
     generated_answer = lamacpp_client.generate_answer(prompt, max_new_tokens=10)
-    assert generated_answer is not None
+    assert "rome" in generated_answer.lower()

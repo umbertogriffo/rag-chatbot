@@ -57,6 +57,6 @@ def test_encode_prompt(ctransformers_client):
 
 
 def test_generate_answer(ctransformers_client):
-    prompt = "Tell me a joke"
+    prompt = "What is the capital city of Italy?"
     generated_answer = ctransformers_client.generate_answer(prompt, max_new_tokens=10)
-    assert generated_answer is not None
+    assert "rome" in generated_answer.lower()
