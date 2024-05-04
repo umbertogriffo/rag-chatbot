@@ -86,8 +86,7 @@ To easily install the dependencies we created a make file.
 ### How to use the make file
 
 > [!IMPORTANT]
-> Run ```make setup``` to install `sentence-transformers` with pip to avoid poetry's issues in installing torch
-> (it doesn't install CUDA dependencies).
+> Run `Setup` as your init command (or after `Clean`).
 
 * Check: ```make check```
   * Use It to check that `which pip3` and `which python3` points to the right path.
@@ -103,8 +102,6 @@ To easily install the dependencies we created a make file.
   * Runs all tests.
   * Using [pytest](https://pypi.org/project/pytest/)
 
-> [!NOTE]
-> Run `Setup` as your init command (or after `Clean`).
 
 ## Using the Open-Source Models Locally
 
