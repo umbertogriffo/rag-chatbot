@@ -65,11 +65,18 @@ To deal with context overflows, we implemented two approaches:
 
 * Python 3.10+
 * GPU supporting CUDA 12 and up.
-* Poetry
+* Poetry 1.7.0
 
 ### Install Poetry
 
-Install Poetry by following this [link](https://python-poetry.org/docs/).
+Install Poetry with the official installer by following this [link](https://python-poetry.org/docs/#installing-with-the-official-installer).
+
+You must use the current adopted version of Poetry defined [here](https://github.com/umbertogriffo/rag-chatbot/blob/main/poetry_version).
+
+If you have poetry already installed and is not the right version, you can downgrade (or upgrade) poetry through:
+```
+poetry self update <version>
+```
 
 ## Bootstrap Environment
 

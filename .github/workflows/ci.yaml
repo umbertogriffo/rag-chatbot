@@ -23,10 +23,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Get poetry version
+        id: poetry-version
+        run: echo "poetry-version=$(cat poetry_version)" >> "$GITHUB_OUTPUT"
+
       - name: Install poetry
         uses: snok/install-poetry@v1
         with:
-          version: 1.7.0
+          version: ${{ steps.poetry-version.outputs.poetry-version }}
           virtualenvs-in-project: true
       # Installing torch (CPU) and sentence-transformers with pip to avoid poetry's issues in installing torch.
       # Installing llama-cpp-python without NVIDIA CUDA acceleration.
