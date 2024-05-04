@@ -25,7 +25,7 @@ jobs:
 
       - name: Get poetry version
         id: poetry-version
-        run: echo "poetry-version=$(cat poetry_version)" >> "$GITHUB_OUTPUT"
+        run: echo "poetry-version=$(cat version/poetry)" >> "$GITHUB_OUTPUT"
 
       - name: Install poetry
         uses: snok/install-poetry@v1
@@ -35,7 +35,7 @@ jobs:
 
       - name: Get llama-cpp version
         id: llama-cpp-version
-        run: echo "llama-cpp-version=$(cat llama_cpp_version)" >> "$GITHUB_OUTPUT"
+        run: echo "llama-cpp-version=$(cat version/llama_cpp)" >> "$GITHUB_OUTPUT"
 
       # Installing dependencies and llama-cpp-python without NVIDIA CUDA acceleration.
       - name: Setup environment

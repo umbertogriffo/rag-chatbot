@@ -1,6 +1,6 @@
 .PHONY: check install setup update test clean
 
-file=llama_cpp_version
+file=version/llama_cpp
 llama_cpp_version=`cat $(file)`
 
 check:
