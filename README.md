@@ -89,7 +89,7 @@ To easily install the dependencies we created a make file.
 > Run `Setup` as your init command (or after `Clean`).
 
 * Check: ```make check```
-  * Use It to check that `which pip3` and `which python3` points to the right path.
+  * Use it to check that `which pip3` and `which python3` points to the right path.
 * Setup: ```make setup```
   * Creates an environment and installs all dependencies.
 * Update: ```make update```
