@@ -4,11 +4,13 @@
 [![Code style: Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
 > [!IMPORTANT]
-> Disclaimer: The code has been tested on `Ubuntu 22.04.2 LTS` running on a Lenovo Legion 5 Pro
-> with twenty `12th Gen Intel® Core™ i7-12700H` and an `NVIDIA GeForce RTX 3060`.
+> Disclaimer:
+> The code has been tested on
+>   * `Ubuntu 22.04.2 LTS` running on a Lenovo Legion 5 Pro with twenty `12th Gen Intel® Core™ i7-12700H` and an `NVIDIA GeForce RTX 3060`.
+>   * `MacOS Sonoma 14.3.1` running on a MacBook Pro M1 (2020).
 > If you are using another Operating System or different hardware, and you can't load the models, please
-> take a look either at the official CTransformers's GitHub [issue](https://github.com/marella/ctransformers/issues).
-> or at the official Llama Cpp Python's GitHub [issue](https://github.com/abetlen/llama-cpp-python/issues)
+> take a look either at the official Llama Cpp Python's GitHub [issue](https://github.com/abetlen/llama-cpp-python/issues).
+> or at the official CTransformers's GitHub [issue](https://github.com/marella/ctransformers/issues)
 
 > [!WARNING]
 > Note: it's important to note that the large language model sometimes generates hallucinations or false information.
@@ -90,8 +92,11 @@ To easily install the dependencies we created a make file.
 
 * Check: ```make check```
   * Use it to check that `which pip3` and `which python3` points to the right path.
-* Setup: ```make setup```
-  * Creates an environment and installs all dependencies.
+* Setup:
+  * Setup with NVIDIA CUDA acceleration: ```make setup_cuda```
+    * Creates an environment and installs all dependencies with NVIDIA CUDA acceleration.
+  * Setup with Metal GPU acceleration: ```make setup_metal```
+    * Creates an environment and installs all dependencies with Metal GPU acceleration for macOS system only.
 * Update: ```make update```
   * Update an environment and installs all updated dependencies.
 * Tidy up the code: ```make tidy```
