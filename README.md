@@ -8,6 +8,7 @@
 > The code has been tested on
 >   * `Ubuntu 22.04.2 LTS` running on a Lenovo Legion 5 Pro with twenty `12th Gen Intel® Core™ i7-12700H` and an `NVIDIA GeForce RTX 3060`.
 >   * `MacOS Sonoma 14.3.1` running on a MacBook Pro M1 (2020).
+>
 > If you are using another Operating System or different hardware, and you can't load the models, please
 > take a look either at the official Llama Cpp Python's GitHub [issue](https://github.com/abetlen/llama-cpp-python/issues).
 > or at the official CTransformers's GitHub [issue](https://github.com/marella/ctransformers/issues)
