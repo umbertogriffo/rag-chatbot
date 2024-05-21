@@ -45,7 +45,7 @@ jobs:
       - name: Setup environment
         run: |
           poetry lock --check
-          poetry install --no-root --no-ansi
+          poetry install --extras "gpu-acceleration" --no-root --no-ansi
           . .venv/bin/activate && pip3 install llama-cpp-python==${{ steps.llama-cpp-version.outputs.llama-cpp-version }}
           . .venv/bin/activate && pip3 install ctransformers==${{ steps.ctransformers-version.outputs.ctransformers-version }}
 
