@@ -35,9 +35,8 @@
 ## Introduction
 
 This project combines the power of [CTransformers](https://github.com/marella/ctransformers), [Lama.cpp](https://github.com/abetlen/llama-cpp-python),
-[LangChain](https://python.langchain.com/docs/get_started/introduction.html) (only used for document chunking and
-querying the Vector Database, and we plan to eliminate it entirely), [Chroma](https://github.com/chroma-core/chroma) and
-[Streamlit](https://discuss.streamlit.io/) to build:
+[LangChain](https://python.langchain.com/docs/get_started/introduction.html) (only used for document chunking and querying the Vector Database, and we plan to eliminate it entirely),
+[Chroma](https://github.com/chroma-core/chroma) and [Streamlit](https://discuss.streamlit.io/) to build:
 * a Conversation-aware Chatbot (ChatGPT like experience).
 * a RAG (Retrieval-augmented generation) ChatBot.
 
@@ -68,7 +67,7 @@ To deal with context overflows, we implemented two approaches:
 ## Prerequisites
 
 * Python 3.10+
-* GPU supporting CUDA 12 and up.
+* GPU supporting CUDA 12 and up
 * Poetry 1.7.0
 
 ### Install Poetry
@@ -154,7 +153,6 @@ streamlit run chatbot/rag_chatbot_app.py -- --model openchat --k 2 --synthesis-s
 ```
 
 ![rag_chatbot_example.gif](images%2Frag_chatbot_example.gif)
-
 
 ## How to debug the Streamlit app on Pycharm
 
