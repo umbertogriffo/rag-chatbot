@@ -73,11 +73,18 @@ build-backend = "poetry.core.masonry.api"
 
 # https://docs.astral.sh/ruff/configuration/
 [tool.ruff]
-exclude = [".venv", "docs"]
+exclude = [
+    ".venv",
+    ".ruff_cache",
+    ".pytest_cache",
+    "docs"
+]
 line-length = 120
 indent-width = 4
 
 [tool.ruff.lint]
+# Enable Pyflakes (`F`) and a subset of the pycodestyle (`E`) codes by default.
+# "I" is isort, C901 is McCabe complexity
 select = [
     # Pyflakes
     "F",
@@ -85,8 +92,18 @@ select = [
     "E",
     "W",
     # isort
-    "I"
+    "I",
+    "C901"
 ]
+ignore = []
+
+# Allow fix for all enabled rules (when `--fix`) is provided.
+fixable = ["ALL"]
+unfixable = []
+
+[tool.ruff.lint.mccabe]
+# Flag errors (`C901`) whenever the complexity level exceeds 12.
+max-complexity = 12
 
 [tool.ruff.format]
 # Like Black, use double quotes for strings.
