@@ -14,7 +14,7 @@ install_cuda:
 	echo "Installing..."
 	mkdir -p .venv
 	poetry config virtualenvs.in-project true
-	poetry install --extras "gpu-acceleration" --no-root --no-ansi
+	poetry install --extras "cuda-acceleration" --no-root --no-ansi
 	echo "Installing llama-cpp-python and ctransformers with pip to get NVIDIA CUDA acceleration"
 	. .venv/bin/activate && CMAKE_ARGS="-DLLAMA_CUBLAS=on" pip3 install llama-cpp-python==$(llama_cpp_version)
 	. .venv/bin/activate && pip3 install ctransformers[cuda]==$(ctransformers_version)
@@ -23,7 +23,7 @@ install_metal:
 	echo "Installing..."
 	mkdir -p .venv
 	poetry config virtualenvs.in-project true
-	poetry install --extras "gpu-acceleration" --no-root --no-ansi
+	poetry install --no-root --no-ansi
 	echo "Installing llama-cpp-python and ctransformers with pip to get Metal GPU acceleration for macOS systems only (it doesn't install CUDA dependencies)"
 	. .venv/bin/activate && CMAKE_ARGS="-DLLAMA_METAL=on" pip3 install llama-cpp-python==$(llama_cpp_version)
 	. .venv/bin/activate && CT_METAL=1 pip install ctransformers==$(ctransformers_version) --no-binary ctransformers
