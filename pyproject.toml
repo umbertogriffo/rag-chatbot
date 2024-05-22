@@ -7,8 +7,11 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = ">=3.10,<3.11"
-torch= [{version = "~=2.1.2", source = "pytorch"}]
-sentence-transformers = "~=2.2.2"
+torch = [
+    { version = "~=2.1.2", source = "pytorch", platform = "!=darwin" },
+    { version = "~=2.1.2", source = "PyPI", platform = "darwin" }
+]
+sentence-transformers = { version = "~=2.2.2" }
 tqdm = "~=4.65.0"
 requests = "~=2.31.0"
 numpy = "~=1.24.2"
@@ -20,12 +23,35 @@ streamlit = "~=1.29.0"
 unstructured = "==0.7.7"
 chromadb = "~=0.4.18"
 transformers = "~=4.33.0"
-ctransformers = { version = "~=0.2.27", extras = ["cuda"] }
 rich = "~=13.4.2"
 pyfiglet = "~=0.7"
 clean-text = "~=0.6.0"
 Unidecode = "~=1.3.6"
 nest_asyncio = "~=1.5.8"
+
+# nvidia dependencies
+# PyTorch automatically installs all the Nvidia libraries, even on Darwin. To prevent this behavior,
+# we explicitly make them optional.
+nvidia-cublas-cu12 = { version = "12.1.3.1", optional = true, platform = "!=darwin" }
+nvidia-cuda-cupti-cu12 = { version = "12.1.105", optional = true, platform = "!=darwin" }
+nvidia-cuda-nvrtc-cu12 = { version = "12.1.105", optional = true, platform = "!=darwin" }
+nvidia-cuda-runtime-cu12 = { version = "12.1.105", optional = true, platform = "!=darwin" }
+nvidia-cudnn-cu12 = { version = "8.9.2.26", optional = true, platform = "!=darwin" }
+nvidia-cufft-cu12 = { version = "11.0.2.54", optional = true, platform = "!=darwin" }
+nvidia-curand-cu12 = { version = "10.3.2.106", optional = true, platform = "!=darwin" }
+nvidia-cusolver-cu12 = { version = "11.4.5.107", optional = true, platform = "!=darwin" }
+nvidia-cusparse-cu12 = { version = "12.1.0.106", optional = true, platform = "!=darwin" }
+nvidia-nccl-cu12 = { version = "2.18.1", optional = true, platform = "!=darwin" }
+nvidia-nvjitlink-cu12 = { version = "12.4.127", optional = true, platform = "!=darwin" }
+nvidia-nvtx-cu12 = { version = "12.1.105", optional = true, platform = "!=darwin" }
+
+[tool.poetry.extras]
+cuda-acceleration = [
+    "nvidia-cublas-cu12", "nvidia-cuda-cupti-cu12", "nvidia-cuda-nvrtc-cu12",
+    "nvidia-cuda-runtime-cu12", "nvidia-cudnn-cu12", "nvidia-cufft-cu12",
+    "nvidia-curand-cu12", "nvidia-cusolver-cu12", "nvidia-cusparse-cu12",
+    "nvidia-nccl-cu12", "nvidia-nvjitlink-cu12", "nvidia-nvtx-cu12"
+]
 
 [tool.poetry.group.dev.dependencies]
 pytest = "~=7.2.1"
@@ -47,11 +73,18 @@ build-backend = "poetry.core.masonry.api"
 
 # https://docs.astral.sh/ruff/configuration/
 [tool.ruff]
-exclude= [".venv", "docs"]
+exclude = [
+    ".venv",
+    ".ruff_cache",
+    ".pytest_cache",
+    "docs"
+]
 line-length = 120
 indent-width = 4
 
 [tool.ruff.lint]
+# Enable Pyflakes (`F`) and a subset of the pycodestyle (`E`) codes by default.
+# "I" is isort, C901 is McCabe complexity
 select = [
     # Pyflakes
     "F",
@@ -59,8 +92,18 @@ select = [
     "E",
     "W",
     # isort
-    "I"
+    "I",
+    "C901"
 ]
+ignore = []
+
+# Allow fix for all enabled rules (when `--fix`) is provided.
+fixable = ["ALL"]
+unfixable = []
+
+[tool.ruff.lint.mccabe]
+# Flag errors (`C901`) whenever the complexity level exceeds 12.
+max-complexity = 12
 
 [tool.ruff.format]
 # Like Black, use double quotes for strings.
@@ -74,6 +117,6 @@ line-ending = "auto"
 
 [tool.pytest.ini_options]
 pythonpath = [
-  "chatbot",
-  "tests"
+    "chatbot",
+    "tests"
 ]

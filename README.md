@@ -4,11 +4,14 @@
 [![Code style: Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
 > [!IMPORTANT]
-> Disclaimer: The code has been tested on `Ubuntu 22.04.2 LTS` running on a Lenovo Legion 5 Pro
-> with twenty `12th Gen Intel® Core™ i7-12700H` and an `NVIDIA GeForce RTX 3060`.
+> Disclaimer:
+> The code has been tested on
+>   * `Ubuntu 22.04.2 LTS` running on a Lenovo Legion 5 Pro with twenty `12th Gen Intel® Core™ i7-12700H` and an `NVIDIA GeForce RTX 3060`.
+>   * `MacOS Sonoma 14.3.1` running on a MacBook Pro M1 (2020).
+>
 > If you are using another Operating System or different hardware, and you can't load the models, please
-> take a look either at the official CTransformers's GitHub [issue](https://github.com/marella/ctransformers/issues).
-> or at the official Llama Cpp Python's GitHub [issue](https://github.com/abetlen/llama-cpp-python/issues)
+> take a look either at the official Llama Cpp Python's GitHub [issue](https://github.com/abetlen/llama-cpp-python/issues).
+> or at the official CTransformers's GitHub [issue](https://github.com/marella/ctransformers/issues)
 
 > [!WARNING]
 > Note: it's important to note that the large language model sometimes generates hallucinations or false information.
@@ -32,9 +35,8 @@
 ## Introduction
 
 This project combines the power of [CTransformers](https://github.com/marella/ctransformers), [Lama.cpp](https://github.com/abetlen/llama-cpp-python),
-[LangChain](https://python.langchain.com/docs/get_started/introduction.html) (only used for document chunking and
-querying the Vector Database, and we plan to eliminate it entirely), [Chroma](https://github.com/chroma-core/chroma) and
-[Streamlit](https://discuss.streamlit.io/) to build:
+[LangChain](https://python.langchain.com/docs/get_started/introduction.html) (only used for document chunking and querying the Vector Database, and we plan to eliminate it entirely),
+[Chroma](https://github.com/chroma-core/chroma) and [Streamlit](https://discuss.streamlit.io/) to build:
 * a Conversation-aware Chatbot (ChatGPT like experience).
 * a RAG (Retrieval-augmented generation) ChatBot.
 
@@ -65,7 +67,7 @@ To deal with context overflows, we implemented two approaches:
 ## Prerequisites
 
 * Python 3.10+
-* GPU supporting CUDA 12 and up.
+* GPU supporting CUDA 12 and up
 * Poetry 1.7.0
 
 ### Install Poetry
@@ -90,8 +92,11 @@ To easily install the dependencies we created a make file.
 
 * Check: ```make check```
   * Use it to check that `which pip3` and `which python3` points to the right path.
-* Setup: ```make setup```
-  * Creates an environment and installs all dependencies.
+* Setup:
+  * Setup with NVIDIA CUDA acceleration: ```make setup_cuda```
+    * Creates an environment and installs all dependencies with NVIDIA CUDA acceleration.
+  * Setup with Metal GPU acceleration: ```make setup_metal```
+    * Creates an environment and installs all dependencies with Metal GPU acceleration for macOS system only.
 * Update: ```make update```
   * Update an environment and installs all updated dependencies.
 * Tidy up the code: ```make tidy```
@@ -148,7 +153,6 @@ streamlit run chatbot/rag_chatbot_app.py -- --model openchat --k 2 --synthesis-s
 ```
 
 ![rag_chatbot_example.gif](images%2Frag_chatbot_example.gif)
-
 
 ## How to debug the Streamlit app on Pycharm
 

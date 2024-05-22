@@ -37,12 +37,17 @@ jobs:
         id: llama-cpp-version
         run: echo "llama-cpp-version=$(cat version/llama_cpp)" >> "$GITHUB_OUTPUT"
 
+      - name: Get ctransformers version
+        id: ctransformers-version
+        run: echo "ctransformers-version=$(cat version/ctransformers)" >> "$GITHUB_OUTPUT"
+
       # Installing dependencies and llama-cpp-python without NVIDIA CUDA acceleration.
       - name: Setup environment
         run: |
           poetry lock --check
           poetry install --no-root --no-ansi
-          . .venv/bin/activate && pip3 install llama-cpp-python~=${{ steps.llama-cpp-version.outputs.llama-cpp-version }}
+          . .venv/bin/activate && pip3 install llama-cpp-python==${{ steps.llama-cpp-version.outputs.llama-cpp-version }}
+          . .venv/bin/activate && pip3 install ctransformers==${{ steps.ctransformers-version.outputs.ctransformers-version }}
 
       - name: Run tests
         run: |
