@@ -1,11 +1,14 @@
 from enum import Enum
 
-from bot.model.dolphin import DolphinSettings
-from bot.model.mistral import MistralSettings
-from bot.model.neural_beagle import NeuralBeagleSettings
-from bot.model.openchat import OpenChatSettings
-from bot.model.stablelm_zephyr import StableLMZephyrSettings
-from bot.model.zephyr import ZephyrSettings
+from bot.model.settings.dolphin import DolphinSettings
+from bot.model.settings.llama_3 import LlamaThreeSettings
+from bot.model.settings.mistral import MistralSettings
+from bot.model.settings.neural_beagle import NeuralBeagleSettings
+from bot.model.settings.openchat import OpenChatSettings
+from bot.model.settings.phi_3 import PhiThreeSettings
+from bot.model.settings.stablelm_zephyr import StableLMZephyrSettings
+from bot.model.settings.starling import StarlingSettings
+from bot.model.settings.zephyr import ZephyrSettings
 
 
 class ModelType(Enum):
@@ -14,7 +17,10 @@ class ModelType(Enum):
     DOLPHIN = "dolphin"
     STABLELM_ZEPHYR = "stablelm-zephyr"
     OPENCHAT = "openchat"
+    STARLING = "starling"
     NEURAL_BEAGLE = "neural-beagle"
+    PHI_3 = "phi-3"
+    LLAMA_3 = "llama-3"
 
 
 SUPPORTED_MODELS = {
@@ -23,7 +29,10 @@ SUPPORTED_MODELS = {
     ModelType.DOLPHIN.value: DolphinSettings,
     ModelType.STABLELM_ZEPHYR.value: StableLMZephyrSettings,
     ModelType.OPENCHAT.value: OpenChatSettings,
+    ModelType.STARLING.value: StarlingSettings,
     ModelType.NEURAL_BEAGLE.value: NeuralBeagleSettings,
+    ModelType.PHI_3.value: PhiThreeSettings,
+    ModelType.LLAMA_3.value: LlamaThreeSettings,
 }
 
 
