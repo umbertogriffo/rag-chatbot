@@ -156,7 +156,7 @@ and put them under `docs`.
 Run:
 
 ```shell
-python chat/memory_builder.py --chunk-size 1000
+python chatbot/memory_builder.py --chunk-size 1000
 ```
 
 ## Run the Chatbot
