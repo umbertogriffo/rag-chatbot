@@ -235,14 +235,13 @@ streamlit run chatbot/rag_chatbot_app.py -- --model openchat --k 2 --synthesis-s
 * Text Processing and Cleaning:
     * [clean-text](https://github.com/jfilter/clean-text/tree/main)
 * Open Source Repositories:
-    * [CTransformers](https://github.com/marella/ctransformers)
-    * [GPT4All](https://github.com/nomic-ai/gpt4all)
     * [llama.cpp](https://github.com/ggerganov/llama.cpp)
     * [llama-cpp-python](https://github.com/abetlen/llama-cpp-python)
+    * [CTransformers](https://github.com/marella/ctransformers)
+    * [GPT4All](https://github.com/nomic-ai/gpt4all)
     * [pyllamacpp](https://github.com/abdeladim-s/pyllamacpp)
     * [chroma](https://github.com/chroma-core/chroma)
     * Inspirational repos:
         * [lit-gpt](https://github.com/Lightning-AI/lit-gpt)
         * [api-for-open-llm](https://github.com/xusenlinzy/api-for-open-llm)
-        * [PrivateDocBot](https://github.com/Abhi5h3k/PrivateDocBot)
-        * [Rag_bot - Adaptive Intelligence Chatbot](https://github.com/kylejtobin/rag_bot)
+        * [AnythingLLM](https://useanything.com/)
