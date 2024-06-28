@@ -140,6 +140,13 @@ class TreeSummarizationStrategy(BaseSynthesisStrategy):
         """
         fmt_prompts = []
         node_responses = []
+
+        if not retrieved_contents:
+            qa_prompt = self.llm.generate_qa_prompt(question=question)
+            logger.info("--- Generating a single response ... ---")
+            response = self.llm.start_answer_iterator_streamer(qa_prompt, max_new_tokens=max_new_tokens)
+            return response, qa_prompt
+
         for idx, content in enumerate(retrieved_contents, start=1):
             context = content.page_content
             logger.info(f"--- Generating a response for the chunk {idx} ... ---")
@@ -238,6 +245,15 @@ class AsyncTreeSummarizationStrategy(BaseSynthesisStrategy):
             Any: A response generator.
         """
         fmt_prompts = []
+
+        if not retrieved_contents:
+            qa_prompt = self.llm.generate_qa_prompt(question=question)
+            logger.info("--- Generating a single response ... ---")
+            response = await asyncio.gather(
+                self.llm.async_start_answer_iterator_streamer(qa_prompt, max_new_tokens=max_new_tokens)
+            )
+            return response[0], qa_prompt
+
         for idx, content in enumerate(retrieved_contents, start=1):
             context = content.page_content
             logger.info(f"--- Generating a response for the chunk {idx} ... ---")
@@ -280,6 +296,7 @@ class AsyncTreeSummarizationStrategy(BaseSynthesisStrategy):
         """
         fmt_prompts = []
         for idx in range(0, len(texts), num_children):
+            logger.info(f"--- Creating prompts in batches of size {num_children} ... ---")
             text_batch = texts[idx : idx + num_children]
             context = "\n\n".join([t for t in text_batch])
             fmt_qa_prompt = self.llm.generate_ctx_prompt(question=question, context=context)
