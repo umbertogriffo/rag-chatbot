@@ -72,6 +72,7 @@ requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 # https://docs.astral.sh/ruff/configuration/
+# https://docs.astral.sh/ruff/settings/#lint_isort_known-first-party
 [tool.ruff]
 exclude = [
     ".venv",
