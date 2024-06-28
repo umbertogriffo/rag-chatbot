@@ -18,7 +18,7 @@ def cpu_config():
 
 @pytest.fixture
 def valid_model_settings():
-    model_setting = get_model_setting(ModelType.OPENCHAT.value)
+    model_setting = get_model_setting(ModelType.OPENCHAT_3_5.value)
     return model_setting
 
 
