@@ -36,7 +36,7 @@ def valid_model_settings():
 
 @pytest.fixture
 def invalid_model_settings():
-    return get_model_setting(ModelType.OPENCHAT.value)
+    return get_model_setting(ModelType.OPENCHAT_3_5.value)
 
 
 @pytest.fixture
