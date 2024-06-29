@@ -13,9 +13,9 @@ nest_asyncio.apply()
 
 
 class SynthesisStrategyType(Enum):
-    CREATE_AND_REFINE = "create_and_refine"
-    TREE_SUMMARIZATION = "tree_summarization"
-    ASYNC_TREE_SUMMARIZATION = "async_tree_summarization"
+    CREATE_AND_REFINE = "create-and-refine"
+    TREE_SUMMARIZATION = "tree-summarization"
+    ASYNC_TREE_SUMMARIZATION = "async-tree-summarization"
 
 
 class BaseSynthesisStrategy:

@@ -28,6 +28,7 @@
     - [How to use the make file](#how-to-use-the-make-file)
 - [Using the Open-Source Models Locally](#using-the-open-source-models-locally)
     - [Supported Models](#supported-models)
+- [Supported Response Synthesis strategies](#supported-response-synthesis-strategies)
 - [Example Data](#example-data)
 - [Build the memory index](#build-the-memory-index)
 - [Run the Chatbot](#run-the-chatbot)
@@ -60,19 +61,19 @@ for later use.
 
 When a user asks a question, the RAG ChatBot retrieves the most relevant sections from the Embedding database.
 Since the original question can't be always optimal to retrieve for the LLM, we first prompt an LLM to rewrite the
-question,
-then conduct retrieval-augmented reading.
+question, then conduct retrieval-augmented reading.
 The most relevant sections are then used as context to generate the final answer using a local language model (LLM).
 Additionally, the chatbot is designed to remember previous interactions. It saves the chat history and considers the
 relevant context from previous conversations to provide more accurate answers.
 
-To deal with context overflows, we implemented two approaches:
+To deal with context overflows, we implemented three approaches:
 
 * `Create And Refine the Context`: synthesize a responses sequentially through all retrieved contents.
     * ![create-and-refine-the-context.png](images/create-and-refine-the-context.png)
 * `Hierarchical Summarization of Context`: generate an answer for each relevant section independently, and then
   hierarchically combine the answers.
     * ![hierarchical-summarization.png](images/hierarchical-summarization.png)
+* `Async Hierarchical Summarization of Context`: parallelized version of the Hierarchical Summarization of Context which lead to big speedups in response synthesis.
 
 ## Prerequisites
 
@@ -146,6 +147,14 @@ format.
 | `phi-3` Phi-3 Mini 4K Instruct                | ✅         | 3.8B       | [link](https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf)                                                                                                 |
 | `stablelm-zephyr` StableLM Zephyr OpenOrca    | ✅         | 3B         | [link](https://huggingface.co/TheBloke/stablelm-zephyr-3b-GGUF)                                                                                                      |
 
+## Supported Response Synthesis strategies
+
+| ✨ Response Synthesis strategy                                           | Supported | Notes |
+|-------------------------------------------------------------------------|-----------|-------|
+| `create_and_refine` Create and Refine                                   | ✅         |       |
+| `tree_summarization` Tree Summarization                                 | ✅         |       |
+| `async_tree_summarization` - **Recommended** - Async Tree Summarization | ✅         |       |
+
 ## Example Data
 
 You could download some Markdown pages from
@@ -175,7 +184,7 @@ streamlit run chatbot/chatbot_app.py -- --model openchat-3.6 --max-new-tokens 10
 To interact with a GUI type:
 
 ```shell
-streamlit run chatbot/rag_chatbot_app.py -- --model openchat-3.6 --k 2 --synthesis-strategy async_tree_summarization
+streamlit run chatbot/rag_chatbot_app.py -- --model openchat-3.6 --k 2 --synthesis-strategy async-tree-summarization
 ```
 
 ![rag_chatbot_example.gif](images%2Frag_chatbot_example.gif)
