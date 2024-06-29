@@ -73,6 +73,7 @@ class OpenChat36Settings(Model):
         "n_ctx": 4096,  # The max sequence length to use - note that longer sequence lengths require much more resources
         "n_threads": 8,  # The number of CPU threads to use, tailor to your system and the resulting performance
         "n_gpu_layers": 50,  # The number of layers to offload to GPU, if you have GPU acceleration available
+        "flash_attn": True,  # Use flash attention.
     }
     config_answer = {"temperature": 0.7, "stop": []}
     system_template = (

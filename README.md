@@ -133,18 +133,18 @@ format.
 
 ### Supported Models
 
-| 🤖 Model                                               | Supported | Model Size | Notes and link to the model                                                                                                                                          |
-|--------------------------------------------------------|-----------|------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `llama-3` Meta Llama 3 Instruct                        | ✅         | 8B         | Less accurate than OpenChat - [link](https://huggingface.co/bartowski/Meta-Llama-3-8B-Instruct-GGUF)                                                                 |
-| `openchat-3.6` **Recommended** - OpenChat 3.6 20240522 | ✅         | 8B         | [link](https://huggingface.co/bartowski/openchat-3.6-8b-20240522-GGUF)                                                                                               |
-| `openchat-3.5` - OpenChat 3.5 0106                     | ✅         | 7B         | [link](https://huggingface.co/TheBloke/openchat-3.5-0106-GGUF)                                                                                                       |
-| `starling` Starling Beta                               | ✅         | 7B         | Is trained from `Openchat-3.5-0106`. It's recommended if you prefer more verbosity over OpenChat - [link](https://huggingface.co/bartowski/Starling-LM-7B-beta-GGUF) |
-| `neural-beagle` NeuralBeagle14                         | ✅         | 7B         | [link](https://huggingface.co/TheBloke/NeuralBeagle14-7B-GGUF)                                                                                                       |
-| `dolphin` Dolphin 2.6 Mistral DPO Laser                | ✅         | 7B         | [link](https://huggingface.co/TheBloke/dolphin-2.6-mistral-7B-dpo-laser-GGUF)                                                                                        |
-| `zephyr` Zephyr Beta                                   | ✅         | 7B         | [link](https://huggingface.co/TheBloke/zephyr-7B-beta-GGUF)                                                                                                          |
-| `mistral` Mistral OpenOrca                             | ✅         | 7B         | [link](https://huggingface.co/TheBloke/Mistral-7B-OpenOrca-GGUF)                                                                                                     |
-| `phi-3` Phi-3 Mini 4K Instruct                         | ✅         | 3.8B       | [link](https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf)                                                                                                 |
-| `stablelm-zephyr` StableLM Zephyr OpenOrca             | ✅         | 3B         | [link](https://huggingface.co/TheBloke/stablelm-zephyr-3b-GGUF)                                                                                                      |
+| 🤖 Model                                      | Supported | Model Size | Notes and link to the model                                                                                                                                          |
+|-----------------------------------------------|-----------|------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `llama-3` Meta Llama 3 Instruct               | ✅         | 8B         | Less accurate than OpenChat - [link](https://huggingface.co/bartowski/Meta-Llama-3-8B-Instruct-GGUF)                                                                 |
+| `openchat-3.6` **Recommended** - OpenChat 3.6 | ✅         | 8B         | [link](https://huggingface.co/bartowski/openchat-3.6-8b-20240522-GGUF). Flash attention enabled by default.                                                          |
+| `openchat-3.5` - OpenChat 3.5                 | ✅         | 7B         | [link](https://huggingface.co/TheBloke/openchat-3.5-0106-GGUF)                                                                                                       |
+| `starling` Starling Beta                      | ✅         | 7B         | Is trained from `Openchat-3.5-0106`. It's recommended if you prefer more verbosity over OpenChat - [link](https://huggingface.co/bartowski/Starling-LM-7B-beta-GGUF) |
+| `neural-beagle` NeuralBeagle14                | ✅         | 7B         | [link](https://huggingface.co/TheBloke/NeuralBeagle14-7B-GGUF)                                                                                                       |
+| `dolphin` Dolphin 2.6 Mistral DPO Laser       | ✅         | 7B         | [link](https://huggingface.co/TheBloke/dolphin-2.6-mistral-7B-dpo-laser-GGUF)                                                                                        |
+| `zephyr` Zephyr Beta                          | ✅         | 7B         | [link](https://huggingface.co/TheBloke/zephyr-7B-beta-GGUF)                                                                                                          |
+| `mistral` Mistral OpenOrca                    | ✅         | 7B         | [link](https://huggingface.co/TheBloke/Mistral-7B-OpenOrca-GGUF)                                                                                                     |
+| `phi-3` Phi-3 Mini 4K Instruct                | ✅         | 3.8B       | [link](https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf)                                                                                                 |
+| `stablelm-zephyr` StableLM Zephyr OpenOrca    | ✅         | 3B         | [link](https://huggingface.co/TheBloke/stablelm-zephyr-3b-GGUF)                                                                                                      |
 
 ## Example Data
 
@@ -165,7 +165,7 @@ python chatbot/memory_builder.py --chunk-size 1000
 To interact with a GUI type:
 
 ```shell
-streamlit run chatbot/chatbot_app.py -- --model openchat
+streamlit run chatbot/chatbot_app.py -- --model openchat-3.6 --max-new-tokens 1024
 ```
 
 ![conversation-aware-chatbot.gif](images/conversation-aware-chatbot.gif)
@@ -175,7 +175,7 @@ streamlit run chatbot/chatbot_app.py -- --model openchat
 To interact with a GUI type:
 
 ```shell
-streamlit run chatbot/rag_chatbot_app.py -- --model openchat --k 2 --synthesis-strategy async_tree_summarization
+streamlit run chatbot/rag_chatbot_app.py -- --model openchat-3.6 --k 2 --synthesis-strategy async_tree_summarization
 ```
 
 ![rag_chatbot_example.gif](images%2Frag_chatbot_example.gif)
