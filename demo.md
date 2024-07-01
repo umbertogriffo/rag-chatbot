@@ -16,7 +16,7 @@
 
 - Create a regex to extract dates from logs in Python.
 
-# Programming - 2
+# Writing documentation
 
 Add the docstring in Google format to the following Python function:
 ```
@@ -56,6 +56,13 @@ Add the docstring in Google format to the following Python function:
             fmt_prompts.append(fmt_prompt)
 
         return cur_response, fmt_prompts
+```
+
+Write a Jira ticket about:
+```
+Currently, in case of any error, the client will receive an unexpected error with a fixed message with an HTTP status
+code 500 without the trace information. The error trace is logged only. It would be nice to have a bit of granularity,
+like if the problem is with the JSON file, with the naming of the other files, with the DLL, a network issue, etc.
 ```
 
 # Test if the model is uncensored - 1

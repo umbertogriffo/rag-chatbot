@@ -73,7 +73,8 @@ To deal with context overflows, we implemented three approaches:
 * `Hierarchical Summarization of Context`: generate an answer for each relevant section independently, and then
   hierarchically combine the answers.
     * ![hierarchical-summarization.png](images/hierarchical-summarization.png)
-* `Async Hierarchical Summarization of Context`: parallelized version of the Hierarchical Summarization of Context which lead to big speedups in response synthesis.
+* `Async Hierarchical Summarization of Context`: parallelized version of the Hierarchical Summarization of Context which
+  lead to big speedups in response synthesis.
 
 ## Prerequisites
 
@@ -137,7 +138,7 @@ format.
 | 🤖 Model                                      | Supported | Model Size | Notes and link to the model                                                                                                                                          |
 |-----------------------------------------------|-----------|------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `llama-3` Meta Llama 3 Instruct               | ✅         | 8B         | Less accurate than OpenChat - [link](https://huggingface.co/bartowski/Meta-Llama-3-8B-Instruct-GGUF)                                                                 |
-| `openchat-3.6` **Recommended** - OpenChat 3.6 | ✅         | 8B         | [link](https://huggingface.co/bartowski/openchat-3.6-8b-20240522-GGUF). Flash attention enabled by default.                                                          |
+| `openchat-3.6` **Recommended** - OpenChat 3.6 | ✅         | 8B         | [link](https://huggingface.co/bartowski/openchat-3.6-8b-20240522-GGUF)                                                                                               |
 | `openchat-3.5` - OpenChat 3.5                 | ✅         | 7B         | [link](https://huggingface.co/TheBloke/openchat-3.5-0106-GGUF)                                                                                                       |
 | `starling` Starling Beta                      | ✅         | 7B         | Is trained from `Openchat-3.5-0106`. It's recommended if you prefer more verbosity over OpenChat - [link](https://huggingface.co/bartowski/Starling-LM-7B-beta-GGUF) |
 | `neural-beagle` NeuralBeagle14                | ✅         | 7B         | [link](https://huggingface.co/TheBloke/NeuralBeagle14-7B-GGUF)                                                                                                       |
