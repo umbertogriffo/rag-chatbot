@@ -3,8 +3,8 @@ from bot.model.model import Model
 
 
 class PhiThreeSettings(Model):
-    url = "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf/resolve/main/Phi-3-mini-4k-instruct-q4.gguf"
-    file_name = "Phi-3-mini-4k-instruct-q4.gguf"
+    url = "https://huggingface.co/bartowski/Phi-3.1-mini-4k-instruct-GGUF/resolve/main/Phi-3.1-mini-4k-instruct-Q5_K_M.gguf"
+    file_name = "Phi-3.1-mini-4k-instruct-Q5_K_M.gguf"
     clients = [LlmClientType.LAMA_CPP]
     config = {
         "n_ctx": 4096,  # The max sequence length to use - note that longer sequence lengths require much more resources

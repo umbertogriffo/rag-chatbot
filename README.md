@@ -145,7 +145,7 @@ format.
 | `dolphin` Dolphin 2.6 Mistral DPO Laser       | ✅         | 7B         | [link](https://huggingface.co/TheBloke/dolphin-2.6-mistral-7B-dpo-laser-GGUF)                                                                                        |
 | `zephyr` Zephyr Beta                          | ✅         | 7B         | [link](https://huggingface.co/TheBloke/zephyr-7B-beta-GGUF)                                                                                                          |
 | `mistral` Mistral OpenOrca                    | ✅         | 7B         | [link](https://huggingface.co/TheBloke/Mistral-7B-OpenOrca-GGUF)                                                                                                     |
-| `phi-3` Phi-3 Mini 4K Instruct                | ✅         | 3.8B       | [link](https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf)                                                                                                 |
+| `phi-3` Phi-3 Mini 4K Instruct                | ✅         | 3.8B       | [link](https://huggingface.co/bartowski/Phi-3.1-mini-4k-instruct-GGUF)                                                                                               |
 | `stablelm-zephyr` StableLM Zephyr OpenOrca    | ✅         | 3B         | [link](https://huggingface.co/TheBloke/stablelm-zephyr-3b-GGUF)                                                                                                      |
 
 ## Supported Response Synthesis strategies
