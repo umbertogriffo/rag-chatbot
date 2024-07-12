@@ -12,9 +12,18 @@
 - Could you please provide me with information on the main industries?
 - Could you please remind me about the topic we were discussing earlier?
 
+# Story Chatbot - 3
+
+- Can you help me create a personalized morning routine that would help increase my productivity throughout the day? Start by asking me about my current habits and what activities energize me in the morning.
+- I wake up at 7 am. I have breakfast, go to the bathroom and watch videos on Instagram. I continue to feel sleepy afterwards.
+
 # Programming - 1
 
 - Create a regex to extract dates from logs in Python.
+
+# Programming - 2
+
+- Write a script to automate sending daily email reports in Python, and walk me through how I would set it up.
 
 # Writing documentation
 
