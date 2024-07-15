@@ -199,7 +199,6 @@ streamlit run chatbot/rag_chatbot_app.py -- --model openchat-3.6 --k 2 --synthes
 * LLMs:
     * [Calculating GPU memory for serving LLMs](https://www.substratus.ai/blog/calculating-gpu-memory-for-llm/)
     * [Building Response Synthesis from Scratch](https://gpt-index.readthedocs.io/en/latest/examples/low_level/response_synthesis.html#)
-    * [Attention Sinks in LLMs for endless fluency](https://huggingface.co/blog/tomaarsen/attention-sinks)
     * [GPT in 60 Lines of NumPy](https://jaykmody.com/blog/gpt-from-scratch/)
     * [Introduction to Weight Quantization](https://towardsdatascience.com/introduction-to-weight-quantization-2494701b9c0c)
 * LLM integration and Modules:
@@ -231,6 +230,7 @@ streamlit run chatbot/rag_chatbot_app.py -- --model openchat-3.6 --k 2 --synthes
     * [Rerank](https://txt.cohere.com/rag-chatbot/#implement-reranking)
     * [Conversational awareness](https://langstream.ai/2023/10/13/rag-chatbot-with-conversation/)
     * [Summarization: Improving RAG quality in LLM apps while minimizing vector storage costs](https://www.ninetack.io/post/improving-rag-quality-by-summarization)
+    * [RAG is Dead, Again?](https://jina.ai/news/rag-is-dead-again/)
 * Chatbot Development:
     * [Streamlit](https://discuss.streamlit.io/):
         * [Build a basic LLM chat app](https://docs.streamlit.io/knowledge-base/tutorials/build-conversational-apps#build-a-chatgpt-like-app)
