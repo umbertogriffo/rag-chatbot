@@ -1,9 +1,8 @@
 from enum import Enum
 
 from bot.model.settings.dolphin import DolphinSettings
-from bot.model.settings.llama_3 import Llama3Settings, Llama31Settings
+from bot.model.settings.llama_3 import Llama31Settings
 from bot.model.settings.mistral import MistralSettings
-from bot.model.settings.neural_beagle import NeuralBeagleSettings
 from bot.model.settings.openchat import OpenChat35Settings, OpenChat36Settings
 from bot.model.settings.phi_3 import PhiThreeSettings
 from bot.model.settings.stablelm_zephyr import StableLMZephyrSettings
@@ -19,9 +18,7 @@ class ModelType(Enum):
     OPENCHAT_3_5 = "openchat-3.5"
     OPENCHAT_3_6 = "openchat-3.6"
     STARLING = "starling"
-    NEURAL_BEAGLE = "neural-beagle"
     PHI_3 = "phi-3"
-    LLAMA_3 = "llama-3"
     LLAMA_3_1 = "llama-3.1"
 
 
@@ -33,9 +30,7 @@ SUPPORTED_MODELS = {
     ModelType.OPENCHAT_3_5.value: OpenChat35Settings,
     ModelType.OPENCHAT_3_6.value: OpenChat36Settings,
     ModelType.STARLING.value: StarlingSettings,
-    ModelType.NEURAL_BEAGLE.value: NeuralBeagleSettings,
     ModelType.PHI_3.value: PhiThreeSettings,
-    ModelType.LLAMA_3.value: Llama3Settings,
     ModelType.LLAMA_3_1.value: Llama31Settings,
 }
 

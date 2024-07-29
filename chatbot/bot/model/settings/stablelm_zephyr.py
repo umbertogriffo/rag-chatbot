@@ -12,12 +12,14 @@ class StableLMZephyrSettings(Model):
         "n_gpu_layers": 35,  # The number of layers to offload to GPU, if you have GPU acceleration available
     }
     config_answer = {"temperature": 0.7, "stop": []}
-    system_template = "You are a helpful, respectful and honest assistant. "
-    qa_prompt_template = """<|user|>{system}\nAnswer the question below:
+    system_template = ""
+    qa_prompt_template = """<|user|>
+Answer the question below:
 {question}<|endoftext|>
 <|assistant|>
 """
-    ctx_prompt_template = """<|user|>{system}\nContext information is below.
+    ctx_prompt_template = """<|user|>
+Context information is below.
 ---------------------
 {context}
 ---------------------
@@ -25,7 +27,8 @@ Given the context information and not prior knowledge, answer the question below
 {question}<|endoftext|>
 <|assistant|>
 """
-    refined_ctx_prompt_template = """<|user|>{system}\nThe original query is as follows: {question}
+    refined_ctx_prompt_template = """<|user|>
+The original query is as follows: {question}
 We have provided an existing answer: {existing_answer}
 We have the opportunity to refine the existing answer
 (only if needed) with some more context below.
@@ -37,7 +40,7 @@ If the context isn't useful, return the original answer.
 Refined Answer:<|endoftext|>
 <|assistant|>
 """
-    refined_question_conversation_awareness_prompt_template = """<|user|>{system}\n
+    refined_question_conversation_awareness_prompt_template = """<|user|>
 Chat History:
 ---------------------
 {chat_history}
@@ -48,10 +51,10 @@ Standalone question:<|endoftext|>
 <|assistant|>
 """
 
-    refined_answer_conversation_awareness_prompt_template = """<|user|>\n
+    refined_answer_conversation_awareness_prompt_template = """<|user|>
 You are engaging in a conversation with a human participant who is unaware that they might be interacting
-with a machine. \nYour goal is to respond in a way that convincingly simulates human-like intelligence and behavior. \n
-The conversation should be natural, coherent, and contextually relevant. \n
+with a machine. Your goal is to respond in a way that convincingly simulates human-like intelligence and behavior.
+The conversation should be natural, coherent, and contextually relevant.
 Chat History:
 ---------------------
 {chat_history}

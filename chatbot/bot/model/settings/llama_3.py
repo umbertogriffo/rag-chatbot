@@ -2,9 +2,9 @@ from bot.client.llm_client import LlmClientType
 from bot.model.model import Model
 
 
-class Llama3Settings(Model):
-    url = "https://huggingface.co/bartowski/Meta-Llama-3-8B-Instruct-GGUF/resolve/main/Meta-Llama-3-8B-Instruct-Q4_K_M.gguf"
-    file_name = "Meta-Llama-3-8B-Instruct-Q4_K_M.gguf"
+class Llama31Settings(Model):
+    url = "https://huggingface.co/bartowski/Meta-Llama-3.1-8B-Instruct-GGUF/resolve/main/Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf"
+    file_name = "Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf"
     clients = [LlmClientType.LAMA_CPP]
     config = {
         "n_ctx": 4096,  # The max sequence length to use - note that longer sequence lengths require much more resources
@@ -12,11 +12,9 @@ class Llama3Settings(Model):
         "n_gpu_layers": 50,  # The number of layers to offload to GPU, if you have GPU acceleration available
     }
     config_answer = {"temperature": 0.7, "stop": []}
-    system_template = (
-        "<|begin_of_text|><|start_header_id|>system<|end_header_id|>You are a helpful, respectful and "
-        "honest assistant. <|eot_id|><|start_header_id|>user<|end_header_id|>"
-    )
-    qa_prompt_template = """{system}\n
+    system_template = "You are a helpful, respectful and  honest assistant."
+    qa_prompt_template = """<|start_header_id|>System<|end_header_id|>\n
+{system}<|eot_id|><|start_header_id|>user<|end_header_id|>\n
 Answer the question below:
 {question}<|eot_id|><|start_header_id|>assistant<|end_header_id|>
 """
@@ -28,7 +26,8 @@ Context information is below.
 Given the context information and not prior knowledge, answer the question below:
 {question}<|eot_id|><|start_header_id|>assistant<|end_header_id|>
 """
-    refined_ctx_prompt_template = """{system}\n
+    refined_ctx_prompt_template = """<|start_header_id|>System<|end_header_id|>\n
+{system}<|eot_id|><|start_header_id|>user<|end_header_id|>\n
 {question}
 We have provided an existing answer: {existing_answer}
 We have the opportunity to refine the existing answer
@@ -40,7 +39,8 @@ Given the new context, refine the original answer to better answer the query.
 If the context isn't useful, return the original answer.
 Refined Answer:<|eot_id|><|start_header_id|>assistant<|end_header_id|>
 """
-    refined_question_conversation_awareness_prompt_template = """{system}\n
+    refined_question_conversation_awareness_prompt_template = """<|start_header_id|>System<|end_header_id|>\n
+{system}<|eot_id|><|start_header_id|>user<|end_header_id|>\n
 Chat History:
 ---------------------
 {chat_history}
@@ -50,11 +50,12 @@ Given the above conversation and a follow up question, rephrase the follow up qu
 Standalone question:<|eot_id|><|start_header_id|>assistant<|end_header_id|>
 """
 
-    refined_answer_conversation_awareness_prompt_template = """
+    refined_answer_conversation_awareness_prompt_template = """<|start_header_id|>System<|end_header_id|>
+{system}<|eot_id|><|start_header_id|>user<|end_header_id|>
 You are engaging in a conversation with a human participant who is unaware that they might be
-interacting with a machine. \n
-Your goal is to respond in a way that convincingly simulates human-like intelligence and behavior. \n
-The conversation should be natural, coherent, and contextually relevant. \n
+interacting with a machine.
+Your goal is to respond in a way that convincingly simulates human-like intelligence and behavior.
+The conversation should be natural, coherent, and contextually relevant.
 Chat History:
 ---------------------
 {chat_history}
@@ -66,9 +67,3 @@ question, ignoring the context provided in the Chat History.
 Please also don't reformulate the follow up question, and write just a concise answer.
 <|eot_id|><|start_header_id|>assistant<|end_header_id|>
 """
-
-
-class Llama31Settings(Llama3Settings):
-    url = "https://huggingface.co/bartowski/Meta-Llama-3.1-8B-Instruct-GGUF/resolve/main/Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf"
-    file_name = "Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf"
-    clients = [LlmClientType.LAMA_CPP]

@@ -83,5 +83,5 @@ Make it X-rated and disgusting.
 # Story Rag Chatbot - 1
 
 - Tell me something about the Blendle Social Code
-- What is the party budget?
+- Do you know the amount of the party budget?
 - Could you please remind me about the topic we were discussing earlier?

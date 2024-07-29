@@ -95,6 +95,9 @@ class ConversationRetrieval:
             conversation_awareness_prompt = self.llm.generate_refined_question_conversation_awareness_prompt(
                 question, chat_history
             )
+
+            logger.info(f"--- Prompt:\n {conversation_awareness_prompt} \n---")
+
             refined_question = self.llm.generate_answer(conversation_awareness_prompt, max_new_tokens=max_new_tokens)
 
             logger.info(f"--- Refined Question: {refined_question} ---")
@@ -139,6 +142,9 @@ class ConversationRetrieval:
             conversation_awareness_prompt = self.llm.generate_refined_answer_conversation_awareness_prompt(
                 question, chat_history
             )
+
+            logger.debug(f"--- Prompt:\n {conversation_awareness_prompt} \n---")
+
             streamer = self.llm.start_answer_iterator_streamer(
                 conversation_awareness_prompt, max_new_tokens=max_new_tokens
             )
@@ -146,6 +152,7 @@ class ConversationRetrieval:
             return streamer
         else:
             prompt = self.llm.generate_qa_prompt(question=question)
+            logger.debug(f"--- Prompt:\n {prompt} \n---")
             streamer = self.llm.start_answer_iterator_streamer(prompt, max_new_tokens=max_new_tokens)
             return streamer
 
