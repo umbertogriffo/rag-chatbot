@@ -137,7 +137,7 @@ format.
 
 | 🤖 Model                                   | Supported | Model Size | Notes and link to the model                                                                                                                                          |
 |--------------------------------------------|-----------|------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `llama-3.1` Meta Llama 3.1 Instruct        | ✅         | 8B         | [link](https://huggingface.co/bartowski/Meta-Llama-3.1-8B-Instruct-GGUF)                                                                                             |
+| `llama-3` Meta Llama 3.1 Instruct          | ✅         | 8B         | [link](https://huggingface.co/bartowski/Meta-Llama-3.1-8B-Instruct-GGUF)                                                                                             |
 | `openchat-3.6` - OpenChat 3.6              | ✅         | 8B         | [link](https://huggingface.co/bartowski/openchat-3.6-8b-20240522-GGUF)                                                                                               |
 | `openchat-3.5` - OpenChat 3.5              | ✅         | 7B         | **Recommended model** [link](https://huggingface.co/TheBloke/openchat-3.5-0106-GGUF)                                                                                 |
 | `starling` Starling Beta                   | ✅         | 7B         | Is trained from `Openchat-3.5-0106`. It's recommended if you prefer more verbosity over OpenChat - [link](https://huggingface.co/bartowski/Starling-LM-7B-beta-GGUF) |
@@ -151,9 +151,9 @@ format.
 
 | ✨ Response Synthesis strategy                                           | Supported | Notes |
 |-------------------------------------------------------------------------|-----------|-------|
-| `create_and_refine` Create and Refine                                   | ✅         |       |
-| `tree_summarization` Tree Summarization                                 | ✅         |       |
-| `async_tree_summarization` - **Recommended** - Async Tree Summarization | ✅         |       |
+| `create-and-refine` Create and Refine                                   | ✅         |       |
+| `tree-summarization` Tree Summarization                                 | ✅         |       |
+| `async-tree-summarization` - **Recommended** - Async Tree Summarization | ✅         |       |
 
 ## Example Data
 

@@ -2,7 +2,7 @@ from bot.client.llm_client import LlmClientType
 from bot.model.model import Model
 
 
-class Llama31Settings(Model):
+class Llama3Settings(Model):
     url = "https://huggingface.co/bartowski/Meta-Llama-3.1-8B-Instruct-GGUF/resolve/main/Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf"
     file_name = "Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf"
     clients = [LlmClientType.LAMA_CPP]
