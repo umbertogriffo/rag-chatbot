@@ -79,7 +79,7 @@ To deal with context overflows, we implemented three approaches:
 ## Prerequisites
 
 * Python 3.10+
-* GPU supporting CUDA 12 and up
+* GPU supporting CUDA 12.1, 12.2, 12.3, or 12.4
 * Poetry 1.7.0
 
 ### Install Poetry
