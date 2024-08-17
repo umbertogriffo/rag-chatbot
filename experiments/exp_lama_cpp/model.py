@@ -127,6 +127,28 @@ class Model:
         output = self.llm(prompt, max_tokens=max_new_tokens, echo=True)
         return output["choices"][0]["text"].split("<|assistant|>")[-1]
 
+    def generate_answer_template(self, prompt: str, max_new_tokens: int = 1024) -> str:
+        output = self.llm.create_chat_completion(
+            messages=[
+                {"role": "system", "content": "You are an assistant who perfectly describes images."},
+                {"role": "user", "content": f"{prompt}"},
+            ],
+            max_tokens=max_new_tokens,
+        )
+        return output["choices"][0]["message"]["content"]
+
     def start_answer_iterator_streamer(self, prompt: str, max_new_tokens: int = 1024):
         stream = self.llm.create_completion(prompt, max_tokens=max_new_tokens, temperature=0.8, stream=True)
+        return stream
+
+    def start_answer_iterator_streamer_template(self, prompt: str, max_new_tokens: int = 1024):
+        stream = self.llm.create_chat_completion(
+            messages=[
+                {"role": "system", "content": "You are an assistant who perfectly describes images."},
+                {"role": "user", "content": f"{prompt}"},
+            ],
+            max_tokens=max_new_tokens,
+            temperature=0.8,
+            stream=True,
+        )
         return stream

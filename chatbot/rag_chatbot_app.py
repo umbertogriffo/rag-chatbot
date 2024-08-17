@@ -4,8 +4,7 @@ import time
 from pathlib import Path
 
 import streamlit as st
-from bot.client.client_settings import get_client, get_clients
-from bot.client.llm_client import LlmClient
+from bot.client.lama_cpp_client import LamaCppClient
 from bot.conversation.conversation_retrieval import ConversationRetrieval
 from bot.conversation.ctx_strategy import (
     BaseSynthesisStrategy,
@@ -22,24 +21,21 @@ logger = get_logger(__name__)
 
 
 @st.cache_resource()
-def load_llm_client(llm_client_name: str, model_folder: Path, model_name: str) -> LlmClient:
+def load_llm_client(model_folder: Path, model_name: str) -> LamaCppClient:
     model_settings = get_model_setting(model_name)
-    clients = [client.value for client in model_settings.clients]
-    if llm_client_name not in clients:
-        llm_client_name = clients[0]
-    llm = get_client(llm_client_name, model_folder=model_folder, model_settings=model_settings)
+    llm = LamaCppClient(model_folder=model_folder, model_settings=model_settings)
 
     return llm
 
 
 @st.cache_resource()
-def load_conversational_retrieval(_llm: LlmClient) -> ConversationRetrieval:
+def load_conversational_retrieval(_llm: LamaCppClient) -> ConversationRetrieval:
     conversation_retrieval = ConversationRetrieval(_llm)
     return conversation_retrieval
 
 
 @st.cache_resource()
-def load_ctx_synthesis_strategy(ctx_synthesis_strategy_name: str, _llm: LlmClient) -> BaseSynthesisStrategy:
+def load_ctx_synthesis_strategy(ctx_synthesis_strategy_name: str, _llm: LamaCppClient) -> BaseSynthesisStrategy:
     ctx_synthesis_strategy = get_ctx_synthesis_strategy(ctx_synthesis_strategy_name, llm=_llm)
     return ctx_synthesis_strategy
 
@@ -121,12 +117,11 @@ def main(parameters) -> None:
     vector_store_path = root_folder / "vector_store" / "docs_index"
     Path(model_folder).parent.mkdir(parents=True, exist_ok=True)
 
-    client_name = parameters.client
     model_name = parameters.model
     synthesis_strategy_name = parameters.synthesis_strategy
 
     init_page(root_folder)
-    llm = load_llm_client(client_name, model_folder, model_name)
+    llm = load_llm_client(model_folder, model_name)
     conversational_retrieval = load_conversational_retrieval(_llm=llm)
     ctx_synthesis_strategy = load_ctx_synthesis_strategy(synthesis_strategy_name, _llm=llm)
     index = load_index(vector_store_path)
@@ -195,25 +190,11 @@ def main(parameters) -> None:
 def get_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="RAG Chatbot")
 
-    client_list = get_clients()
-    default_client = client_list[0]
-
     model_list = get_models()
     default_model = model_list[0]
 
     synthesis_strategy_list = get_ctx_synthesis_strategies()
     default_synthesis_strategy = synthesis_strategy_list[0]
-
-    parser.add_argument(
-        "--client",
-        type=str,
-        choices=client_list,
-        help=f"Client to be used. Defaults to {default_client}.",
-        required=False,
-        const=default_client,
-        nargs="?",
-        default=default_client,
-    )
 
     parser.add_argument(
         "--model",
