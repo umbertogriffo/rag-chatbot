@@ -25,54 +25,54 @@
 
 - Write a script to automate sending daily email reports in Python, and walk me through how I would set it up.
 
-# Writing documentation
+## Writing docstring
 
 Add the docstring in Google format to the following Python function:
 ```
-    def generate_response(
-        self, retrieved_contents: List[Document], question: str, max_new_tokens: int = 512
-    ) -> Union[str, Any]:
-        cur_response = None
-        fmt_prompts = []
+def delete_folders_older_than_x_days(path: Path, days: int):
+    """
+    Deletes folders older than x days in the given directory.
 
-        if not retrieved_contents:
-            qa_prompt = self.llm.generate_qa_prompt(question=question)
-            logger.info("--- Generating a single response ... ---")
-            response = self.llm.start_answer_iterator_streamer(qa_prompt, max_new_tokens=max_new_tokens)
-            return response, qa_prompt
+    Args:
+        path (Path): The directory to search within.
+        days (int): The number of days to consider a folder as old.
 
-        num_of_contents = len(retrieved_contents)
+    """
 
-        for idx, node in enumerate(retrieved_contents, start=1):
-            logger.info(f"--- Generating an answer for the chunk {idx} ... ---")
-            context = node.page_content
-            logger.debug(f"--- Context: '{context}' ... ---")
-            if idx == 0:
-                fmt_prompt = self.llm.generate_ctx_prompt(question=question, context=context)
-            else:
-                fmt_prompt = self.llm.generate_refined_ctx_prompt(
-                    context=context,
-                    question=question,
-                    existing_answer=str(cur_response),
-                )
+    current_time = time.time()
+    seconds_in_a_day = 24 * 60 * 60
 
-            if idx == num_of_contents:
-                cur_response = self.llm.start_answer_iterator_streamer(fmt_prompt, max_new_tokens=max_new_tokens)
-
-            else:
-                cur_response = self.llm.generate_answer(fmt_prompt, max_new_tokens=max_new_tokens)
-                logger.debug(f"--- Current response: '{cur_response}' ... ---")
-            fmt_prompts.append(fmt_prompt)
-
-        return cur_response, fmt_prompts
+    for folder in path.iterdir():
+        if folder.is_dir():
+            # `mtime` stands for `modification time`. It is the timestamp of the last time the contents of a file or directory were modified.
+            if folder.stat().st_mtime < (current_time - (days * seconds_in_a_day)):
+                logger.warning(f"Deleting {folder} that is older than {days} days ")
+                shutil.rmtree(folder)
 ```
 
-Write a Jira ticket about:
-```
-Currently, in case of any error, the client will receive an unexpected error with a fixed message with an HTTP status
-code 500 without the trace information. The error trace is logged only. It would be nice to have a bit of granularity,
-like if the problem is with the JSON file, with the naming of the other files, with the DLL, a network issue, etc.
-```
+## Write a Jira ticket
+Given the contex and the template write a Jira ticket (including the title):
+
+CONTEXT:
+Currently the business logic of the endopoints is entirely implemented in the definition of the endpoints. This lead to have a lot of duplicate code and no separation of concerns. To improve the maintanability of the application endpoints we should separe the business logic to `services` functions that are gonna be used by the endpoints. We will have common service functions that can be reused by every endpoint and specific funtions for the endpoint.
+THis way would be also easir to manage multiple versions of the same endpoint in the future.
+
+
+TEMPLATE:
+**Problem**
+Define the problem (what has happened and how does is it different from what you expected)
+
+**Solution/experiment**
+Describe the solution or experiment to resolve the problem
+
+**Task breakdown (in hours)**
+Break down the solution/experiment in small tasks inc. estimates in hours (2, 4, 8, 16)
+
+**Validation tests (if needed)**
+Include a list of tests (short description) to be created and validated before merging the PR related to this issue.
+
+**Acceptance criteria**
+Write down under what criteria you accept the solution.
 
 # Test if the model is uncensored - 1
 
