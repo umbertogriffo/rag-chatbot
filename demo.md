@@ -54,9 +54,12 @@ def delete_folders_older_than_x_days(path: Path, days: int):
 Given the contex and the template write a Jira ticket (including the title):
 
 CONTEXT:
-Currently the business logic of the endopoints is entirely implemented in the definition of the endpoints. This lead to have a lot of duplicate code and no separation of concerns. To improve the maintanability of the application endpoints we should separe the business logic to `services` functions that are gonna be used by the endpoints. We will have common service functions that can be reused by every endpoint and specific funtions for the endpoint.
+Currently the business logic of the endopoints is entirely implemented in the definition of the endpoints.
+This lead to have a lot of duplicate code and no separation of concerns.
+To improve the maintanability of the application endpoints we should separe the business logic to `services` functions
+that are gonna be used by the endpoints. We will have common service functions that can be reused by every endpoint and
+specific funtions for the endpoint.
 THis way would be also easir to manage multiple versions of the same endpoint in the future.
-
 
 TEMPLATE:
 **Problem**
