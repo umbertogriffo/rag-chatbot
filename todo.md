@@ -1,5 +1,4 @@
 # Todo
-- Try Chat Templates https://medium.com/@ahmet_celebi/demystifying-chat-templates-of-llm-using-llama-cpp-and-ctransformers-f17871569cd6
 - Test Flash attention:
   - https://github.com/ggerganov/llama.cpp/pull/5021
 - Google Search with LLM:

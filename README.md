@@ -12,9 +12,8 @@
 >   * `MacOS Sonoma 14.3.1` running on a MacBook Pro M1 (2020).
 >
 > If you are using another Operating System or different hardware, and you can't load the models, please
-> take a look either at the official Llama Cpp Python's
+> take a look at the official Llama Cpp Python's
 > GitHub [issue](https://github.com/abetlen/llama-cpp-python/issues).
-> or at the official CTransformers's GitHub [issue](https://github.com/marella/ctransformers/issues)
 
 > [!WARNING]
 > Note: it's important to note that the large language model sometimes generates hallucinations or false information.
@@ -39,10 +38,8 @@
 ## Introduction
 
 This project combines the power
-of [Lama.cpp](https://github.com/abetlen/llama-cpp-python), [CTransformers](https://github.com/marella/ctransformers),
-[LangChain](https://python.langchain.com/docs/get_started/introduction.html) (only used for document chunking and
-querying the Vector Database, and we plan to eliminate it entirely),
-[Chroma](https://github.com/chroma-core/chroma) and [Streamlit](https://discuss.streamlit.io/) to build:
+of [Lama.cpp](https://github.com/abetlen/llama-cpp-python), [LangChain](https://python.langchain.com/docs/get_started/introduction.html) (only used for document chunking and querying the Vector Database, and we plan to
+eliminate it entirely), [Chroma](https://github.com/chroma-core/chroma) and [Streamlit](https://discuss.streamlit.io/) to build:
 
 * a Conversation-aware Chatbot (ChatGPT like experience).
 * a RAG (Retrieval-augmented generation) ChatBot.
@@ -79,7 +76,7 @@ To deal with context overflows, we implemented three approaches:
 ## Prerequisites
 
 * Python 3.10+
-* GPU supporting CUDA 12.1, 12.2, 12.3, or 12.4
+* GPU supporting CUDA 12.1+
 * Poetry 1.7.0
 
 ### Install Poetry
@@ -124,14 +121,13 @@ To easily install the dependencies we created a make file.
 
 ## Using the Open-Source Models Locally
 
-We utilize two open-source libraries, [Lama.cpp](https://github.com/abetlen/llama-cpp-python)
-and [CTransformers](https://github.com/marella/ctransformers),
-which allow us to work efficiently with transformer-based models efficiently.
-Running the LLMs architecture on a local PC is impossible due to the large (~7 billion) number of
-parameters. These libraries enable us to run them either on a `CPU` or `GPU`.
+We utilize the open-source library [llama-cpp-python](https://github.com/abetlen/llama-cpp-python), a binding for [llama-cpp](https://github.com/ggerganov/llama.cpp),
+allowing us to utilize it within a Python environment.
+`llama-cpp` serves as a C++ backend designed to work efficiently with transformer-based models.
+Running the LLMs architecture on a local PC is impossible due to the large (~7 billion) number of parameters.
+This library enable us to run them either on a `CPU` or `GPU`.
 Additionally, we use the `Quantization and 4-bit precision` to reduce number of bits required to represent the numbers.
-The quantized models are stored in [GGML/GGUF](https://medium.com/@phillipgimmi/what-is-gguf-and-ggml-e364834d241c)
-format.
+The quantized models are stored in [GGML/GGUF](https://medium.com/@phillipgimmi/what-is-gguf-and-ggml-e364834d241c) format.
 
 ### Supported Models
 
@@ -244,7 +240,6 @@ streamlit run chatbot/rag_chatbot_app.py -- --model openchat-3.6 --k 2 --synthes
 * Open Source Repositories:
     * [llama.cpp](https://github.com/ggerganov/llama.cpp)
     * [llama-cpp-python](https://github.com/abetlen/llama-cpp-python)
-    * [CTransformers](https://github.com/marella/ctransformers)
     * [GPT4All](https://github.com/nomic-ai/gpt4all)
     * [pyllamacpp](https://github.com/abdeladim-s/pyllamacpp)
     * [chroma](https://github.com/chroma-core/chroma)
