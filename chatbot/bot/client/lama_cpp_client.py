@@ -12,6 +12,7 @@ from bot.client.prompt import (
     REFINED_ANSWER_CONVERSATION_AWARENESS_PROMPT_TEMPLATE,
     REFINED_CTX_PROMPT_TEMPLATE,
     REFINED_QUESTION_CONVERSATION_AWARENESS_PROMPT_TEMPLATE,
+    SYSTEM_TEMPLATE,
     generate_conversation_awareness_prompt,
     generate_ctx_prompt,
     generate_qa_prompt,
@@ -22,7 +23,7 @@ from bot.model.model import Model
 
 class LamaCppClient:
     """
-    Class for implementing language model clients.
+    Class for implementing language model client.
     """
 
     def __init__(self, model_folder: Path, model_settings: Model):
@@ -99,7 +100,7 @@ class LamaCppClient:
 
         output = self.llm.create_chat_completion(
             messages=[
-                {"role": "system", "content": self.model_settings.system_template},
+                {"role": "system", "content": SYSTEM_TEMPLATE},
                 {"role": "user", "content": f"{prompt}"},
             ],
             max_tokens=max_new_tokens,
@@ -123,7 +124,7 @@ class LamaCppClient:
         """
         output = self.llm.create_chat_completion(
             messages=[
-                {"role": "system", "content": self.model_settings.system_template},
+                {"role": "system", "content": SYSTEM_TEMPLATE},
                 {"role": "user", "content": f"{prompt}"},
             ],
             max_tokens=max_new_tokens,
@@ -168,7 +169,7 @@ class LamaCppClient:
         """
         stream = self.llm.create_chat_completion(
             messages=[
-                {"role": "system", "content": self.model_settings.system_template},
+                {"role": "system", "content": SYSTEM_TEMPLATE},
                 {"role": "user", "content": f"{prompt}"},
             ],
             max_tokens=max_new_tokens,
@@ -192,7 +193,7 @@ class LamaCppClient:
         """
         stream = self.llm.create_chat_completion(
             messages=[
-                {"role": "system", "content": self.model_settings.system_template},
+                {"role": "system", "content": SYSTEM_TEMPLATE},
                 {"role": "user", "content": f"{prompt}"},
             ],
             max_tokens=max_new_tokens,
@@ -217,7 +218,7 @@ class LamaCppClient:
         """
         return generate_qa_prompt(
             template=QA_PROMPT_TEMPLATE,
-            system=self.model_settings.system_template,
+            system=SYSTEM_TEMPLATE,
             question=question,
         )
 
@@ -234,7 +235,7 @@ class LamaCppClient:
         """
         return generate_ctx_prompt(
             template=CTX_PROMPT_TEMPLATE,
-            system=self.model_settings.system_template,
+            system=SYSTEM_TEMPLATE,
             question=question,
             context=context,
         )
@@ -253,7 +254,7 @@ class LamaCppClient:
         """
         return generate_refined_ctx_prompt(
             template=REFINED_CTX_PROMPT_TEMPLATE,
-            system=self.model_settings.system_template,
+            system=SYSTEM_TEMPLATE,
             question=question,
             context=context,
             existing_answer=existing_answer,
@@ -262,7 +263,7 @@ class LamaCppClient:
     def generate_refined_question_conversation_awareness_prompt(self, question: str, chat_history: str) -> str:
         return generate_conversation_awareness_prompt(
             template=REFINED_QUESTION_CONVERSATION_AWARENESS_PROMPT_TEMPLATE,
-            system=self.model_settings.system_template,
+            system=SYSTEM_TEMPLATE,
             question=question,
             chat_history=chat_history,
         )
@@ -270,7 +271,7 @@ class LamaCppClient:
     def generate_refined_answer_conversation_awareness_prompt(self, question: str, chat_history: str) -> str:
         return generate_conversation_awareness_prompt(
             template=REFINED_ANSWER_CONVERSATION_AWARENESS_PROMPT_TEMPLATE,
-            system=self.model_settings.system_template,
+            system=SYSTEM_TEMPLATE,
             question=question,
             chat_history=chat_history,
         )

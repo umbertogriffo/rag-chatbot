@@ -10,4 +10,3 @@ class PhiThreeSettings(Model):
         "n_gpu_layers": 33,  # The number of layers to offload to GPU, if you have GPU acceleration available
     }
     config_answer = {"temperature": 0.7, "stop": []}
-    system_template = "You are a helpful, respectful and honest assistant. "

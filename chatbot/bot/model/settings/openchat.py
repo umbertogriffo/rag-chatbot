@@ -10,7 +10,6 @@ class OpenChat35Settings(Model):
         "n_gpu_layers": 50,  # The number of layers to offload to GPU, if you have GPU acceleration available
     }
     config_answer = {"temperature": 0.7, "stop": []}
-    system_template = "You are a helpful, respectful and honest assistant. "
 
 
 class OpenChat36Settings(Model):
@@ -23,4 +22,3 @@ class OpenChat36Settings(Model):
         "flash_attn": False,  # Use flash attention.
     }
     config_answer = {"temperature": 0.7, "stop": []}
-    system_template = ""

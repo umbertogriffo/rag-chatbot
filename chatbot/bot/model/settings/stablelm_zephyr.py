@@ -10,4 +10,3 @@ class StableLMZephyrSettings(Model):
         "n_gpu_layers": 35,  # The number of layers to offload to GPU, if you have GPU acceleration available
     }
     config_answer = {"temperature": 0.7, "stop": []}
-    system_template = ""
