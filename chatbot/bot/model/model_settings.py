@@ -1,13 +1,10 @@
 from enum import Enum
 
-from bot.model.settings.dolphin import DolphinSettings
 from bot.model.settings.llama_3 import Llama3Settings
-from bot.model.settings.mistral import MistralSettings
 from bot.model.settings.openchat import OpenChat35Settings, OpenChat36Settings
 from bot.model.settings.phi_3 import PhiThreeSettings
 from bot.model.settings.stablelm_zephyr import StableLMZephyrSettings
 from bot.model.settings.starling import StarlingSettings
-from bot.model.settings.zephyr import ZephyrSettings
 
 
 class ModelType(Enum):
@@ -23,9 +20,6 @@ class ModelType(Enum):
 
 
 SUPPORTED_MODELS = {
-    ModelType.ZEPHYR.value: ZephyrSettings,
-    ModelType.MISTRAL.value: MistralSettings,
-    ModelType.DOLPHIN.value: DolphinSettings,
     ModelType.STABLELM_ZEPHYR.value: StableLMZephyrSettings,
     ModelType.OPENCHAT_3_5.value: OpenChat35Settings,
     ModelType.OPENCHAT_3_6.value: OpenChat36Settings,

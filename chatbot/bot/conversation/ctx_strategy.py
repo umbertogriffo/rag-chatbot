@@ -6,7 +6,7 @@ import nest_asyncio
 from helpers.log import get_logger
 from langchain_core.documents import Document
 
-from bot.client.llm_client import LlmClient
+from bot.client.lama_cpp_client import LamaCppClient
 
 logger = get_logger(__name__)
 nest_asyncio.apply()
@@ -26,7 +26,7 @@ class BaseSynthesisStrategy:
         llm (LlmClient): The language model client used for generating responses.
     """
 
-    def __init__(self, llm: LlmClient) -> None:
+    def __init__(self, llm: LamaCppClient) -> None:
         """
         Initialize the synthesis strategy with the provided LlmClient.
 
@@ -57,7 +57,7 @@ class CreateAndRefineStrategy(BaseSynthesisStrategy):
     Strategy for sequential refinement of responses using retrieved contents.
     """
 
-    def __init__(self, llm: LlmClient):
+    def __init__(self, llm: LamaCppClient):
         super().__init__(llm)
 
     def generate_response(
@@ -122,7 +122,7 @@ class TreeSummarizationStrategy(BaseSynthesisStrategy):
     Strategy for hierarchical summarization of contents.
     """
 
-    def __init__(self, llm: LlmClient):
+    def __init__(self, llm: LamaCppClient):
         super().__init__(llm)
 
     def generate_response(
@@ -222,7 +222,7 @@ class AsyncTreeSummarizationStrategy(BaseSynthesisStrategy):
     Asynchronous version of TreeSummarizationStrategy.
     """
 
-    def __init__(self, llm: LlmClient):
+    def __init__(self, llm: LamaCppClient):
         super().__init__(llm)
 
     async def generate_response(

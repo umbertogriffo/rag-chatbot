@@ -18,24 +18,14 @@ def cpu_config():
 
 @pytest.fixture
 def valid_model_settings():
-    model_setting = get_model_setting(ModelType.OPENCHAT_3_5.value)
+    model_setting = get_model_setting(ModelType.PHI_3.value)
     return model_setting
-
-
-@pytest.fixture
-def invalid_model_settings():
-    return get_model_setting(ModelType.ZEPHYR.value)
 
 
 @pytest.fixture
 def lamacpp_client(mock_model_folder, valid_model_settings, cpu_config):
     with patch.object(valid_model_settings, "config", cpu_config):
         return LamaCppClient(mock_model_folder, valid_model_settings)
-
-
-def test_init_raises_value_error_for_invalid_client_type(mock_model_folder, invalid_model_settings):
-    with pytest.raises(ValueError):
-        LamaCppClient(mock_model_folder, invalid_model_settings)
 
 
 def test_generate_answer(lamacpp_client):
@@ -55,7 +45,7 @@ def test_start_answer_iterator_streamer(lamacpp_client):
     stream = lamacpp_client.start_answer_iterator_streamer(prompt, max_new_tokens=10)
     generated_answer = ""
     for output in stream:
-        generated_answer += output["choices"][0]["text"]
+        generated_answer += output["choices"][0]["delta"].get("content", "")
     assert "rome" in generated_answer.lower()
 
 
@@ -83,5 +73,5 @@ async def test_async_start_answer_iterator_streamer(lamacpp_client):
     stream = await asyncio.gather(task)
     generated_answer = ""
     for output in stream[0]:
-        generated_answer += output["choices"][0]["text"]
+        generated_answer += output["choices"][0]["delta"].get("content", "")
     assert "rome" in generated_answer.lower()

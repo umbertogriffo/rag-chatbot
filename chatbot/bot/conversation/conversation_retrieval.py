@@ -4,7 +4,7 @@ from typing import Any, List, Tuple
 from helpers.log import get_logger
 from langchain_core.documents import Document
 
-from bot.client.llm_client import LlmClient
+from bot.client.lama_cpp_client import LamaCppClient
 from bot.conversation.ctx_strategy import AsyncTreeSummarizationStrategy, BaseSynthesisStrategy
 
 logger = get_logger(__name__)
@@ -20,7 +20,7 @@ class ConversationRetrieval:
             history as tuples of questions and answers.
     """
 
-    def __init__(self, llm: LlmClient) -> None:
+    def __init__(self, llm: LamaCppClient) -> None:
         """
         Initializes a new instance of the ConversationRetrieval class.
 

@@ -3,7 +3,7 @@ import sys
 import time
 from pathlib import Path
 
-from bot.client.client_settings import get_client, get_clients
+from bot.client.lama_cpp_client import LamaCppClient
 from bot.conversation.conversation_retrieval import ConversationRetrieval
 from bot.conversation.ctx_strategy import get_ctx_synthesis_strategies, get_ctx_synthesis_strategy
 from bot.memory.embedder import EmbedderHuggingFace
@@ -22,25 +22,11 @@ logger = get_logger(__name__)
 def get_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="AI Chatbot")
 
-    client_list = get_clients()
-    default_client = client_list[0]
-
     model_list = get_models()
     default_model = model_list[0]
 
     synthesis_strategy_list = get_ctx_synthesis_strategies()
     default_synthesis_strategy = synthesis_strategy_list[0]
-
-    parser.add_argument(
-        "--client",
-        type=str,
-        choices=client_list,
-        help=f"Client to be used. Defaults to {default_client}.",
-        required=False,
-        const=default_client,
-        nargs="?",
-        default=default_client,
-    )
 
     parser.add_argument(
         "--model",
@@ -143,12 +129,7 @@ def main(parameters):
     model_folder = root_folder / "models"
     vector_store_path = root_folder / "vector_store" / "docs_index"
 
-    client = parameters.client
-    clients = [client.value for client in model_settings.clients]
-    if parameters.client not in clients:
-        client = clients[0]
-
-    llm = get_client(client, model_folder=model_folder, model_settings=model_settings)
+    llm = LamaCppClient(model_folder=model_folder, model_settings=model_settings)
 
     synthesis_strategy = get_ctx_synthesis_strategy(parameters.synthesis_strategy, llm=llm)
 
