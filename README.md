@@ -233,7 +233,6 @@ streamlit run chatbot/rag_chatbot_app.py -- --model openchat-3.6 --k 2 --synthes
         * [st.cache_resource](https://docs.streamlit.io/library/api-reference/performance/st.cache_resource)
         * [Handling External Command Line Arguments](https://github.com/streamlit/streamlit/issues/337)
     * [(Investigate) FastServe - Serve Llama-cpp with FastAPI](https://github.com/aniketmaurya/fastserve)
-    * [(Investigate) Chat Templates to standardise the format](https://huggingface.co/blog/chat-templates)
     * [(Investigate) Ollama](https://github.com/ollama/ollama)
 * Text Processing and Cleaning:
     * [clean-text](https://github.com/jfilter/clean-text/tree/main)
@@ -241,7 +240,6 @@ streamlit run chatbot/rag_chatbot_app.py -- --model openchat-3.6 --k 2 --synthes
     * [llama.cpp](https://github.com/ggerganov/llama.cpp)
     * [llama-cpp-python](https://github.com/abetlen/llama-cpp-python)
     * [GPT4All](https://github.com/nomic-ai/gpt4all)
-    * [pyllamacpp](https://github.com/abdeladim-s/pyllamacpp)
     * [chroma](https://github.com/chroma-core/chroma)
     * Inspirational repos:
         * [lit-gpt](https://github.com/Lightning-AI/lit-gpt)
