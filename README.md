@@ -16,6 +16,9 @@
 > GitHub [issue](https://github.com/abetlen/llama-cpp-python/issues).
 
 > [!WARNING]
+> lama_cpp_pyhon doesn't use GPU on M1 if you are running an x86 version of Python. More info [here](https://github.com/abetlen/llama-cpp-python/issues/756#issuecomment-1870324323)
+
+> [!WARNING]
 > Note: it's important to note that the large language model sometimes generates hallucinations or false information.
 
 ## Table of contents
