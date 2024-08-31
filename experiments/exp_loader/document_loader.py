@@ -89,7 +89,7 @@ class DirectoryLoader:
                     pbar.update(1)
 
 
-def split_chunks(sources: List[Document], chunk_size: int = 512, chunk_overlap: int = 0) -> List[str]:
+def split_chunks(sources: List[Document], chunk_size: int = 512, chunk_overlap: int = 0) -> List[Document]:
     """
     Splits a list of sources into smaller chunks.
 
@@ -104,8 +104,9 @@ def split_chunks(sources: List[Document], chunk_size: int = 512, chunk_overlap: 
     chunks = []
     for source in sources:
         text = source.page_content
+        metadata = source.metadata
         for i in range(0, len(text), chunk_size - chunk_overlap):
-            chunks.append(text[i : i + chunk_size])
+            chunks.append(Document(page_content=text[i : i + chunk_size], metadata=metadata))
     return chunks
 
 
