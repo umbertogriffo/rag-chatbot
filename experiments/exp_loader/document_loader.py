@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Any, List
 
 from document import Document
+from exp_loader.text_splitter import MarkdownTextSplitter
 from helpers.log import get_logger
 from tqdm import tqdm
 from unstructured.partition.md import partition_md
@@ -79,11 +80,9 @@ class DirectoryLoader:
             try:
                 logger.debug(f"Processing file: {str(item)}")
                 # Loads Markdown document from the specified path
-                doc_elements = partition_md(filename=str(item))
-                sub_doc_content = ""
-                for element in doc_elements:
-                    sub_doc_content = sub_doc_content + element.text + "\n"
-                docs.extend([Document(page_content=sub_doc_content, metadata={"source": item})])
+                elements = partition_md(filename=str(item))
+                text = "\n\n".join([str(el) for el in elements])
+                docs.extend([Document(page_content=text, metadata={"source": item})])
             finally:
                 if pbar:
                     pbar.update(1)
@@ -110,6 +109,25 @@ def split_chunks(sources: List[Document], chunk_size: int = 512, chunk_overlap: 
     return chunks
 
 
+def split_chunks_2(sources: List, chunk_size: int = 512, chunk_overlap: int = 0) -> List:
+    """
+    Splits a list of sources into smaller chunks.
+
+    Args:
+        sources (List): The list of sources to be split into chunks.
+        chunk_size (int, optional): The maximum size of each chunk. Defaults to 512.
+        chunk_overlap (int, optional): The amount of overlap between consecutive chunks. Defaults to 0.
+
+    Returns:
+        List: A list of smaller chunks obtained from the input sources.
+    """
+    chunks = []
+    splitter = MarkdownTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
+    for chunk in splitter.split_documents(sources):
+        chunks.append(chunk)
+    return chunks
+
+
 if __name__ == "__main__":
     root_folder = Path(__file__).resolve().parent.parent.parent
     docs_path = root_folder / "docs"
@@ -121,6 +139,6 @@ if __name__ == "__main__":
         show_progress=True,
     )
     documents = loader.load()
-    chunks = split_chunks(documents, chunk_size=512, chunk_overlap=0)
+    chunks = split_chunks_2(documents, chunk_size=512, chunk_overlap=0)
     for chunk in chunks:
         print(chunk)
