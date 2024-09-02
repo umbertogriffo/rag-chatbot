@@ -5,28 +5,73 @@ import logging
 import re
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import Any, Callable, Iterable, List, Optional
+from typing import Any, Callable, Iterable
 
-from exp_loader.document import Document
+from entities.document import Document
 
 logger = logging.getLogger(__name__)
 
 
-def _split_text_with_regex(text: str, separator: str, keep_separator: bool) -> List[str]:
-    # Now that we have the separator, split the text
-    if separator:
-        if keep_separator:
-            # The parentheses in the pattern keep the delimiters in the result.
-            _splits = re.split(f"({separator})", text)
-            splits = [_splits[i] + _splits[i + 1] for i in range(1, len(_splits), 2)]
-            if len(_splits) % 2 == 0:
-                splits += _splits[-1:]
-            splits = [_splits[0]] + splits
-        else:
-            splits = re.split(separator, text)
+class Format(str, Enum):
+    MARKDOWN = "markdown"
+    HTML = "html"
+
+
+def __get_separators(format: Format) -> list[str]:
+    if format == Format.MARKDOWN:
+        return [
+            # First, try to split along Markdown headings (starting with level 2)
+            "\n#{1,6} ",
+            # Note the alternative syntax for headings (below) is not handled here
+            # Heading level 2
+            # ---------------
+            # End of code block
+            "```\n",
+            # Horizontal lines
+            "\n\\*\\*\\*+\n",
+            "\n---+\n",
+            "\n___+\n",
+            # Note that this splitter doesn't handle horizontal lines defined
+            # by *three or more* of ***, ---, or ___, but this is not handled
+            "\n\n",
+            "\n",
+            " ",
+            "",
+        ]
+    elif format == Format.HTML:
+        return [
+            # First, try to split along HTML tags
+            "<body",
+            "<div",
+            "<p",
+            "<br",
+            "<li",
+            "<h1",
+            "<h2",
+            "<h3",
+            "<h4",
+            "<h5",
+            "<h6",
+            "<span",
+            "<table",
+            "<tr",
+            "<td",
+            "<th",
+            "<ul",
+            "<ol",
+            "<header",
+            "<footer",
+            "<nav",
+            # Head
+            "<head",
+            "<style",
+            "<script",
+            "<meta",
+            "<title",
+            "",
+        ]
     else:
-        splits = list(text)
-    return [s for s in splits if s != ""]
+        raise ValueError(f"Language {format} is not supported! " f"Please choose from {list(Format)}")
 
 
 class TextSplitter(ABC):
@@ -34,8 +79,8 @@ class TextSplitter(ABC):
 
     def __init__(
         self,
-        chunk_size: int = 4000,
-        chunk_overlap: int = 200,
+        chunk_size: int = 1000,
+        chunk_overlap: int = 50,
         length_function: Callable[[str], int] = len,
         keep_separator: bool = False,
         add_start_index: bool = False,
@@ -44,13 +89,14 @@ class TextSplitter(ABC):
         """Create a new TextSplitter.
 
         Args:
-            chunk_size: Maximum size of chunks to return
-            chunk_overlap: Overlap in characters between chunks
-            length_function: Function that measures the length of given chunks
-            keep_separator: Whether to keep the separator in the chunks
-            add_start_index: If `True`, includes chunk's start index in metadata
-            strip_whitespace: If `True`, strips whitespace from the start and end of
-                              every document
+            chunk_size: Maximum size of chunks to return.
+            chunk_overlap: Overlap in characters between chunks. A strategy employed to maintain context continuity
+                           between adjacent chunks. A small overlap ensures that critical information is not lost at
+                           the boundaries of chunks.
+            length_function: Function that measures the length of given chunks.
+            keep_separator: Whether to keep the separator in the chunks.
+            add_start_index: If `True`, includes chunk's start index in metadata.
+            strip_whitespace: If `True`, strips whitespace from the start and end of every document.
         """
         if chunk_overlap > chunk_size:
             raise ValueError(
@@ -64,10 +110,10 @@ class TextSplitter(ABC):
         self._strip_whitespace = strip_whitespace
 
     @abstractmethod
-    def split_text(self, text: str) -> List[str]:
+    def split_text(self, text: str) -> list[str]:
         """Split text into multiple components."""
 
-    def create_documents(self, texts: List[str], metadatas: Optional[List[dict]] = None) -> List[Document]:
+    def create_documents(self, texts: list[str], metadatas: list[dict] | None = None) -> list[Document]:
         """Create documents from a list of texts."""
         _metadatas = metadatas or [{}] * len(texts)
         documents = []
@@ -82,7 +128,7 @@ class TextSplitter(ABC):
                 documents.append(new_doc)
         return documents
 
-    def split_documents(self, documents: Iterable[Document]) -> List[Document]:
+    def split_documents(self, documents: Iterable[Document]) -> list[Document]:
         """Split documents."""
         texts, metadatas = [], []
         for doc in documents:
@@ -90,7 +136,17 @@ class TextSplitter(ABC):
             metadatas.append(doc.metadata)
         return self.create_documents(texts, metadatas=metadatas)
 
-    def _join_docs(self, docs: List[str], separator: str) -> Optional[str]:
+    def _join_docs(self, docs: list[str], separator: str) -> str | None:
+        """
+        Joins a list of document strings using the specified separator.
+
+        Args:
+            docs (list[str]): The list of document strings to join.
+            separator (str): The separator to use for joining the document strings.
+
+        Returns:
+            str | None: The joined document string, or None if the resulting string is empty.
+        """
         text = separator.join(docs)
         if self._strip_whitespace:
             text = text.strip()
@@ -99,13 +155,13 @@ class TextSplitter(ABC):
         else:
             return text
 
-    def _merge_splits(self, splits: Iterable[str], separator: str) -> List[str]:
+    def _merge_splits(self, splits: Iterable[str], separator: str) -> list[str]:
         # We now want to combine these smaller pieces into medium size
         # chunks to send to the LLM.
         separator_len = self._length_function(separator)
 
         docs = []
-        current_doc: List[str] = []
+        current_doc: list[str] = []
         total = 0
         for d in splits:
             _len = self._length_function(d)
@@ -134,23 +190,17 @@ class TextSplitter(ABC):
         return docs
 
 
-class Language(str, Enum):
-    """Enum of the programming languages."""
-
-    MARKDOWN = "markdown"
-    HTML = "html"
-
-
 class RecursiveCharacterTextSplitter(TextSplitter):
-    """Splitting text by recursively look at characters.
+    """
+    Splitting text by recursively divides text based on a hierarchy of separators (e.g., paragraphs, sentences,
+    and words). This approach allows for more nuanced splitting, ensuring that chunks maintain semantic coherence.
 
-    Recursively tries to split by different characters to find one
-    that works.
+    Recursively tries to split by different characters to find one that works.
     """
 
     def __init__(
         self,
-        separators: Optional[List[str]] = None,
+        separators: list[str] | None = None,
         keep_separator: bool = True,
         is_separator_regex: bool = False,
         **kwargs: Any,
@@ -160,7 +210,7 @@ class RecursiveCharacterTextSplitter(TextSplitter):
         self._separators = separators or ["\n\n", "\n", " ", ""]
         self._is_separator_regex = is_separator_regex
 
-    def _split_text(self, text: str, separators: List[str]) -> List[str]:
+    def _split_text(self, text: str, separators: list[str]) -> list[str]:
         """Split incoming text and return chunks."""
         final_chunks = []
         # Get appropriate separator to use
@@ -177,7 +227,7 @@ class RecursiveCharacterTextSplitter(TextSplitter):
                 break
 
         _separator = separator if self._is_separator_regex else re.escape(separator)
-        splits = _split_text_with_regex(text, _separator, self._keep_separator)
+        splits = self._split_text_with_regex(text, _separator, self._keep_separator)
 
         # Now go merging things, recursively splitting longer texts.
         _good_splits = []
@@ -200,71 +250,49 @@ class RecursiveCharacterTextSplitter(TextSplitter):
             final_chunks.extend(merged_text)
         return final_chunks
 
-    def split_text(self, text: str) -> List[str]:
+    def split_text(self, text: str) -> list[str]:
         return self._split_text(text, self._separators)
 
     @staticmethod
-    def get_separators_for_language(language: Language) -> List[str]:
-        if language == Language.MARKDOWN:
-            return [
-                # First, try to split along Markdown headings (starting with level 2)
-                "\n#{1,6} ",
-                # Note the alternative syntax for headings (below) is not handled here
-                # Heading level 2
-                # ---------------
-                # End of code block
-                "```\n",
-                # Horizontal lines
-                "\n\\*\\*\\*+\n",
-                "\n---+\n",
-                "\n___+\n",
-                # Note that this splitter doesn't handle horizontal lines defined
-                # by *three or more* of ***, ---, or ___, but this is not handled
-                "\n\n",
-                "\n",
-                " ",
-                "",
-            ]
-        elif language == Language.HTML:
-            return [
-                # First, try to split along HTML tags
-                "<body",
-                "<div",
-                "<p",
-                "<br",
-                "<li",
-                "<h1",
-                "<h2",
-                "<h3",
-                "<h4",
-                "<h5",
-                "<h6",
-                "<span",
-                "<table",
-                "<tr",
-                "<td",
-                "<th",
-                "<ul",
-                "<ol",
-                "<header",
-                "<footer",
-                "<nav",
-                # Head
-                "<head",
-                "<style",
-                "<script",
-                "<meta",
-                "<title",
-                "",
-            ]
+    def _split_text_with_regex(text: str, separator: str, keep_separator: bool) -> list[str]:
+        """
+        Splits the input text using the specified separator.
+
+        Args:
+            text (str): The text to be split.
+            separator (str): The separator to use for splitting the text.
+            keep_separator (bool): If True, the separator is included in the resulting splits.
+
+        Returns:
+            List[str]: A list of strings resulting from the split operation.
+
+        """
+        # Now that we have the separator, split the text
+        if separator:
+            if keep_separator:
+                # The parentheses in the pattern keep the delimiters in the result.
+                _splits = re.split(f"({separator})", text)
+                splits = [_splits[i] + _splits[i + 1] for i in range(1, len(_splits), 2)]
+                if len(_splits) % 2 == 0:
+                    splits += _splits[-1:]
+                splits = [_splits[0]] + splits
+            else:
+                splits = re.split(separator, text)
         else:
-            raise ValueError(f"Language {language} is not supported! " f"Please choose from {list(Language)}")
+            splits = list(text)
+        return [s for s in splits if s != ""]
 
 
-class MarkdownTextSplitter(RecursiveCharacterTextSplitter):
-    """Attempts to split the text along Markdown-formatted headings."""
+def create_recursive_text_splitter(format: Format, **kwargs: Any) -> RecursiveCharacterTextSplitter:
+    """
+    Factory function to create a RecursiveCharacterTextSplitter instance based on the specified format.
 
-    def __init__(self, **kwargs: Any) -> None:
-        """Initialize a MarkdownTextSplitter."""
-        separators = self.get_separators_for_language(Language.MARKDOWN)
-        super().__init__(separators=separators, **kwargs)
+    Args:
+        format (Format): The format of the text to be split. It can be either 'markdown' or 'html'.
+        **kwargs (Any): Additional keyword arguments to be passed to the RecursiveCharacterTextSplitter constructor.
+
+    Returns:
+        An instance of RecursiveCharacterTextSplitter configured with the appropriate separators.
+    """
+    separators = __get_separators(format)
+    return RecursiveCharacterTextSplitter(separators=separators, **kwargs)

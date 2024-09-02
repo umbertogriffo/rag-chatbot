@@ -162,7 +162,7 @@ and put them under `docs`.
 Run:
 
 ```shell
-python chatbot/memory_builder.py --chunk-size 1000
+python chatbot/memory_builder.py --chunk-size 1000 --chunk-overlap 50
 ```
 
 ## Run the Chatbot
@@ -170,7 +170,7 @@ python chatbot/memory_builder.py --chunk-size 1000
 To interact with a GUI type:
 
 ```shell
-streamlit run chatbot/chatbot_app.py -- --model openchat-3.6 --max-new-tokens 1024
+streamlit run chatbot/chatbot_app.py -- --model llama-3 --max-new-tokens 1024
 ```
 
 ![conversation-aware-chatbot.gif](images/conversation-aware-chatbot.gif)
@@ -180,7 +180,7 @@ streamlit run chatbot/chatbot_app.py -- --model openchat-3.6 --max-new-tokens 10
 To interact with a GUI type:
 
 ```shell
-streamlit run chatbot/rag_chatbot_app.py -- --model openchat-3.6 --k 2 --synthesis-strategy async-tree-summarization
+streamlit run chatbot/rag_chatbot_app.py -- --model llama-3 --k 2 --synthesis-strategy async-tree-summarization
 ```
 
 ![rag_chatbot_example.gif](images%2Frag_chatbot_example.gif)

@@ -1,18 +1,17 @@
 import concurrent.futures
 from pathlib import Path
-from typing import Any, List
+from typing import Any
 
-from document import Document
-from exp_loader.text_splitter import MarkdownTextSplitter
+from entities.document import Document
 from helpers.log import get_logger
 from tqdm import tqdm
-from unstructured.partition.md import partition_md
+from unstructured.partition.auto import partition
 
 logger = get_logger(__name__)
 
 
 class DirectoryLoader:
-    """Load from a directory."""
+    """Load documents from a directory."""
 
     def __init__(
         self,
@@ -22,6 +21,7 @@ class DirectoryLoader:
         show_progress: bool = False,
         use_multithreading: bool = False,
         max_concurrency: int = 4,
+        **partition_kwargs: Any,
     ):
         """Initialize with a path to directory and how to glob over it.
 
@@ -33,6 +33,7 @@ class DirectoryLoader:
             show_progress: Whether to show a progress bar. Defaults to False.
             use_multithreading: Whether to use multithreading. Defaults to False.
             max_concurrency: The maximum number of threads to use. Defaults to 4.
+            partition_kwargs: Keyword arguments to pass to unstructured `partition` function.
         """
         self.path = path
         self.glob = glob
@@ -40,15 +41,16 @@ class DirectoryLoader:
         self.show_progress = show_progress
         self.use_multithreading = use_multithreading
         self.max_concurrency = max_concurrency
+        self.partition_kwargs = partition_kwargs
 
-    def load(self) -> List[Document]:
+    def load(self) -> list[Document]:
         """Load documents."""
         if not self.path.exists():
             raise FileNotFoundError(f"Directory not found: '{self.path}'")
         if not self.path.is_dir():
             raise ValueError(f"Expected directory, got file: '{self.path}'")
 
-        docs: List[Document] = []
+        docs: list[Document] = []
         items = list(self.path.rglob(self.glob) if self.recursive else self.path.glob(self.glob))
 
         pbar = None
@@ -67,65 +69,28 @@ class DirectoryLoader:
 
         return docs
 
-    def load_file(self, item: Path, docs: List[Document], pbar: Any | None) -> None:
-        """Load a file.
+    def load_file(self, doc_path: Path, docs: list[Document], pbar: Any | None) -> None:
+        """
+        Load document from the specified path.
 
         Args:
-            item (str): The path to the documents.
+            doc_path (str): The path to the document.
             docs: List of documents to append to.
             pbar: Progress bar. Defaults to None.
 
         """
-        if item.is_file():
+        if doc_path.is_file():
             try:
-                logger.debug(f"Processing file: {str(item)}")
-                # Loads Markdown document from the specified path
-                elements = partition_md(filename=str(item))
+                logger.debug(f"Processing file: {str(doc_path)}")
+                # Loads document from the specified path.
+                # The unstructured `partition` function and will automatically detect the file type with libmagic to
+                # determine the file's type and route it to the appropriate partitioning function.
+                elements = partition(filename=str(doc_path), **self.partition_kwargs)
                 text = "\n\n".join([str(el) for el in elements])
-                docs.extend([Document(page_content=text, metadata={"source": item})])
+                docs.extend([Document(page_content=text, metadata={"source": str(doc_path)})])
             finally:
                 if pbar:
                     pbar.update(1)
-
-
-def split_chunks(sources: List[Document], chunk_size: int = 512, chunk_overlap: int = 0) -> List[Document]:
-    """
-    Splits a list of sources into smaller chunks.
-
-    Args:
-        sources (List): The list of sources to be split into chunks.
-        chunk_size (int, optional): The maximum size of each chunk. Defaults to 512.
-        chunk_overlap (int, optional): The amount of overlap between consecutive chunks. Defaults to 0.
-
-    Returns:
-        List: A list of smaller chunks obtained from the input sources.
-    """
-    chunks = []
-    for source in sources:
-        text = source.page_content
-        metadata = source.metadata
-        for i in range(0, len(text), chunk_size - chunk_overlap):
-            chunks.append(Document(page_content=text[i : i + chunk_size], metadata=metadata))
-    return chunks
-
-
-def split_chunks_2(sources: List, chunk_size: int = 512, chunk_overlap: int = 0) -> List:
-    """
-    Splits a list of sources into smaller chunks.
-
-    Args:
-        sources (List): The list of sources to be split into chunks.
-        chunk_size (int, optional): The maximum size of each chunk. Defaults to 512.
-        chunk_overlap (int, optional): The amount of overlap between consecutive chunks. Defaults to 0.
-
-    Returns:
-        List: A list of smaller chunks obtained from the input sources.
-    """
-    chunks = []
-    splitter = MarkdownTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
-    for chunk in splitter.split_documents(sources):
-        chunks.append(chunk)
-    return chunks
 
 
 if __name__ == "__main__":
@@ -139,6 +104,4 @@ if __name__ == "__main__":
         show_progress=True,
     )
     documents = loader.load()
-    chunks = split_chunks_2(documents, chunk_size=512, chunk_overlap=0)
-    for chunk in chunks:
-        print(chunk)
+    print(f"Loaded {len(documents)} documents.")
