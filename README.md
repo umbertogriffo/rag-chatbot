@@ -193,21 +193,13 @@ streamlit run chatbot/rag_chatbot_app.py -- --model llama-3 --k 2 --synthesis-st
 
 * LLMs:
     * [Calculating GPU memory for serving LLMs](https://www.substratus.ai/blog/calculating-gpu-memory-for-llm/)
-    * [Building Response Synthesis from Scratch](https://gpt-index.readthedocs.io/en/latest/examples/low_level/response_synthesis.html#)
     * [GPT in 60 Lines of NumPy](https://jaykmody.com/blog/gpt-from-scratch/)
     * [Introduction to Weight Quantization](https://towardsdatascience.com/introduction-to-weight-quantization-2494701b9c0c)
-* LLM integration and Modules:
-    * [LangChain](https://python.langchain.com/docs/get_started/introduction.html):
-        * [MarkdownTextSplitter](https://api.python.langchain.com/en/latest/_modules/langchain/text_splitter.html#MarkdownTextSplitter)
-        * [Chroma Integration](https://python.langchain.com/docs/modules/data_connection/vectorstores/integrations/chroma)
-        * [The Problem With LangChain](https://minimaxir.com/2023/07/langchain-problem/#:~:text=The%20problem%20with%20LangChain%20is,don't%20start%20with%20LangChain)
 * Embeddings:
     * [all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2)
         * This is a `sentence-transformers` model: It maps sentences & paragraphs to a 384 dimensional dense vector
           space and can be used for tasks like clustering or semantic search.
 * Vector Databases:
-    * [Chroma](https://www.trychroma.com/)
-    * [Food Discovery with Qdrant](https://qdrant.tech/articles/new-recommendation-api/#)
     * Indexing algorithms:
         * There are many algorithms for building indexes to optimize vector search. Most vector databases
           implement `Hierarchical Navigable Small World (HNSW)` and/or `Inverted File Index (IVF)`. Here are some great
@@ -218,13 +210,16 @@ streamlit run chatbot/rag_chatbot_app.py -- --model llama-3 --k 2 --synthesis-st
             * [From NVIDIA - Accelerating Vector Search: Fine-Tuning GPU Index Algorithms](https://developer.nvidia.com/blog/accelerating-vector-search-fine-tuning-gpu-index-algorithms/)
             * > PS: Flat indexes (i.e. no optimisation) can be used to maintain 100% recall and precision, at the
               expense of speed.
+    * [Chroma](https://www.trychroma.com/)
+    * [Food Discovery with Qdrant](https://qdrant.tech/articles/new-recommendation-api/#)
 * Retrieval Augmented Generation (RAG):
+    * [Building A Generative AI Platform](https://huyenchip.com/2024/07/25/genai-platform.html)
     * [Rewrite-Retrieve-Read](https://github.com/langchain-ai/langchain/blob/master/cookbook/rewrite.ipynb)
         * > Because the original query can not be always optimal to retrieve for the LLM, especially in the real world,
           we first prompt an LLM to rewrite the queries, then conduct retrieval-augmented reading.
     * [Rerank](https://txt.cohere.com/rag-chatbot/#implement-reranking)
+    * [Building Response Synthesis from Scratch](https://gpt-index.readthedocs.io/en/latest/examples/low_level/response_synthesis.html#)
     * [Conversational awareness](https://langstream.ai/2023/10/13/rag-chatbot-with-conversation/)
-    * [Summarization: Improving RAG quality in LLM apps while minimizing vector storage costs](https://www.ninetack.io/post/improving-rag-quality-by-summarization)
     * [RAG is Dead, Again?](https://jina.ai/news/rag-is-dead-again/)
 * Chatbot Development:
     * [Streamlit](https://discuss.streamlit.io/):
