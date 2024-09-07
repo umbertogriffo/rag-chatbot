@@ -1,10 +1,10 @@
 from pathlib import Path
 
 import chromadb
-from bot.memory.embedder import EmbedderHuggingFace
+from bot.memory.embedder import HuggingFaceEmbedder
 from bot.memory.vector_memory import VectorMemory
 from helpers.prettier import prettify_source
-from langchain_community.vectorstores.chroma import Chroma
+from vector_database.chroma import Chroma
 
 if __name__ == "__main__":
     root_folder = Path(__file__).resolve().parent.parent
@@ -13,7 +13,7 @@ if __name__ == "__main__":
     # Contains an extract of things the user said in the past;
     episodic_vector_store_path = root_folder / "vector_store" / "episodic_index"
 
-    embedding = EmbedderHuggingFace().get_embedding()
+    embedding = HuggingFaceEmbedder()
     index = VectorMemory(vector_store_path=str(declarative_vector_store_path), embedding=embedding)
 
     # query = "<write_your_query_here>"

@@ -3,8 +3,8 @@ from enum import Enum
 from typing import Any, List, Union
 
 import nest_asyncio
+from entities.document import Document
 from helpers.log import get_logger
-from langchain_core.documents import Document
 
 from bot.client.lama_cpp_client import LamaCppClient
 

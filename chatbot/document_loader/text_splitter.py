@@ -2,74 +2,13 @@ import copy
 import logging
 import re
 from abc import ABC, abstractmethod
-from enum import Enum
 from typing import Any, Callable, Iterable
 
 from entities.document import Document
 
+from document_loader.format import get_separators
+
 logger = logging.getLogger(__name__)
-
-
-class Format(str, Enum):
-    MARKDOWN = "markdown"
-    HTML = "html"
-
-
-def __get_separators(format: Format) -> list[str]:
-    if format == Format.MARKDOWN:
-        return [
-            # First, try to split along Markdown headings (starting with level 2)
-            "\n#{1,6} ",
-            # Note the alternative syntax for headings (below) is not handled here
-            # Heading level 2
-            # ---------------
-            # End of code block
-            "```\n",
-            # Horizontal lines
-            "\n\\*\\*\\*+\n",
-            "\n---+\n",
-            "\n___+\n",
-            # Note that this splitter doesn't handle horizontal lines defined
-            # by *three or more* of ***, ---, or ___, but this is not handled
-            "\n\n",
-            "\n",
-            " ",
-            "",
-        ]
-    elif format == Format.HTML:
-        return [
-            # First, try to split along HTML tags
-            "<body",
-            "<div",
-            "<p",
-            "<br",
-            "<li",
-            "<h1",
-            "<h2",
-            "<h3",
-            "<h4",
-            "<h5",
-            "<h6",
-            "<span",
-            "<table",
-            "<tr",
-            "<td",
-            "<th",
-            "<ul",
-            "<ol",
-            "<header",
-            "<footer",
-            "<nav",
-            # Head
-            "<head",
-            "<style",
-            "<script",
-            "<meta",
-            "<title",
-            "",
-        ]
-    else:
-        raise ValueError(f"Language {format} is not supported! " f"Please choose from {list(Format)}")
 
 
 class TextSplitter(ABC):
@@ -157,10 +96,9 @@ class TextSplitter(ABC):
         # We now want to combine these smaller pieces into medium size
         # chunks to send to the LLM.
         separator_len = self._length_function(separator)
-
-        docs = []
-        current_doc: list[str] = []
+        docs, current_doc = [], []
         total = 0
+
         for d in splits:
             _len = self._length_function(d)
             if total + _len + (separator_len if len(current_doc) > 0 else 0) > self._chunk_size:
@@ -281,7 +219,7 @@ class RecursiveCharacterTextSplitter(TextSplitter):
         return [s for s in splits if s != ""]
 
 
-def create_recursive_text_splitter(format: Format, **kwargs: Any) -> RecursiveCharacterTextSplitter:
+def create_recursive_text_splitter(format: str, **kwargs: Any) -> RecursiveCharacterTextSplitter:
     """
     Factory function to create a RecursiveCharacterTextSplitter instance based on the specified format.
 
@@ -292,5 +230,5 @@ def create_recursive_text_splitter(format: Format, **kwargs: Any) -> RecursiveCh
     Returns:
         An instance of RecursiveCharacterTextSplitter configured with the appropriate separators.
     """
-    separators = __get_separators(format)
+    separators = get_separators(format)
     return RecursiveCharacterTextSplitter(separators=separators, **kwargs)

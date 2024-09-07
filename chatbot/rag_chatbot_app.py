@@ -11,7 +11,7 @@ from bot.conversation.ctx_strategy import (
     get_ctx_synthesis_strategies,
     get_ctx_synthesis_strategy,
 )
-from bot.memory.embedder import EmbedderHuggingFace
+from bot.memory.embedder import HuggingFaceEmbedder
 from bot.memory.vector_memory import VectorMemory
 from bot.model.model_settings import get_model_setting, get_models
 from helpers.log import get_logger
@@ -51,7 +51,7 @@ def load_index(vector_store_path: Path) -> VectorMemory:
     Returns:
         VectorMemory: An instance of the VectorMemory class with the loaded index.
     """
-    embedding = EmbedderHuggingFace().get_embedding()
+    embedding = HuggingFaceEmbedder()
     index = VectorMemory(vector_store_path=str(vector_store_path), embedding=embedding)
 
     return index

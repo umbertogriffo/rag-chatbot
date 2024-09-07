@@ -1,8 +1,8 @@
 from asyncio import get_event_loop
 from typing import Any, List, Tuple
 
+from entities.document import Document
 from helpers.log import get_logger
-from langchain_core.documents import Document
 
 from bot.client.lama_cpp_client import LamaCppClient
 from bot.conversation.ctx_strategy import AsyncTreeSummarizationStrategy, BaseSynthesisStrategy
