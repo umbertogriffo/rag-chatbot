@@ -6,7 +6,7 @@ from pathlib import Path
 from bot.client.lama_cpp_client import LamaCppClient
 from bot.conversation.conversation_retrieval import ConversationRetrieval
 from bot.conversation.ctx_strategy import get_ctx_synthesis_strategies, get_ctx_synthesis_strategy
-from bot.memory.embedder import HuggingFaceEmbedder
+from bot.memory.embedder import Embedder
 from bot.memory.vector_memory import VectorMemory
 from bot.model.model_settings import get_model_setting, get_models
 from helpers.log import get_logger
@@ -135,7 +135,7 @@ def main(parameters):
 
     conversation = ConversationRetrieval(llm)
 
-    embedding = HuggingFaceEmbedder()
+    embedding = Embedder()
     index = VectorMemory(vector_store_path=str(vector_store_path), embedding=embedding)
 
     loop(conversation, synthesis_strategy, index, parameters)

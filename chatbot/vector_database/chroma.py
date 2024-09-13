@@ -5,8 +5,9 @@ from typing import Any, Callable, Iterable
 
 import chromadb
 import chromadb.config
-from bot.memory.embedder import HuggingFaceEmbedder
+from bot.memory.embedder import Embedder
 from chromadb.api.types import ID, OneOrMany, Where, WhereDocument
+from chromadb.utils.batch_utils import create_batches
 from entities.document import Document
 
 logger = logging.getLogger(__name__)
@@ -32,13 +33,12 @@ def _results_to_docs_and_scores(results: Any) -> list[tuple[Document, float]]:
 class Chroma:
     def __init__(
         self,
-        embedding_function: HuggingFaceEmbedder | None = None,
+        embedding_function: Embedder | None = None,
         persist_directory: str | None = None,
         client_settings: chromadb.config.Settings | None = None,
         collection_name: str = "default",
         collection_metadata: dict | None = None,
         client: chromadb.Client = None,
-        relevance_score_fn: Callable[[float], float] | None = None,
     ) -> None:
         """Initialize with a Chroma client."""
 
@@ -68,10 +68,9 @@ class Chroma:
             embedding_function=None,
             metadata=collection_metadata,
         )
-        self.override_relevance_score_fn = relevance_score_fn
 
     @property
-    def embeddings(self) -> HuggingFaceEmbedder | None:
+    def embeddings(self) -> Embedder | None:
         return self._embedding_function
 
     def __query_collection(
@@ -94,6 +93,7 @@ class Chroma:
             **kwargs,
         )
 
+    @classmethod
     def add_texts(
         self,
         texts: Iterable[str],
@@ -112,7 +112,7 @@ class Chroma:
         """
         # TODO: Handle the case where the user doesn't provide ids on the Collection
         if ids is None:
-            ids = [str(uuid.uuid1()) for _ in texts]
+            ids = [str(uuid.uuid4()) for _ in texts]
         embeddings = None
         texts = list(texts)
         if self._embedding_function is not None:
@@ -164,6 +164,203 @@ class Chroma:
                 ids=ids,
             )
         return ids
+
+    @classmethod
+    def from_texts(
+        cls,
+        texts: list[str],
+        embedding: Embedder | None = None,
+        metadatas: list[dict] | None = None,
+        ids: list[str] | None = None,
+        collection_name: str = "default",
+        persist_directory: str | None = None,
+        client_settings: chromadb.config.Settings | None = None,
+        client=None,
+        collection_metadata: dict | None = None,
+    ):
+        """Create a Chroma vectorstore from a raw documents.
+
+        If a persist_directory is specified, the collection will be persisted there.
+        Otherwise, the data will be ephemeral in-memory.
+
+        Args:
+            texts (List[str]): List of texts to add to the collection.
+            collection_name (str): Name of the collection to create.
+            persist_directory (Optional[str]): Directory to persist the collection.
+            embedding (Optional[Embeddings]): Embedding function. Defaults to None.
+            metadatas (Optional[List[dict]]): List of metadatas. Defaults to None.
+            ids (Optional[List[str]]): List of document IDs. Defaults to None.
+            client_settings (Optional[chromadb.config.Settings]): Chroma client settings
+            collection_metadata (Optional[Dict]): Collection configurations.
+                                                  Defaults to None.
+
+        Returns:
+            Chroma: Chroma vectorstore.
+        """
+        chroma_collection = cls(
+            collection_name=collection_name,
+            embedding_function=embedding,
+            persist_directory=persist_directory,
+            client_settings=client_settings,
+            client=client,
+            collection_metadata=collection_metadata,
+        )
+        if ids is None:
+            ids = [str(uuid.uuid4()) for _ in texts]
+
+        for batch in create_batches(
+            api=chroma_collection._client,
+            ids=ids,
+            metadatas=metadatas,
+            documents=texts,
+        ):
+            chroma_collection.add_texts(
+                texts=batch[3] if batch[3] else [],
+                metadatas=batch[2] if batch[2] else None,
+                ids=batch[0],
+            )
+        return chroma_collection
+
+    def update_document(self, document_id: str, document: Document) -> None:
+        """Update a document in the collection.
+
+        Args:
+            document_id (str): ID of the document to update.
+            document (Document): Document to update.
+        """
+        return self.update_documents([document_id], [document])
+
+    def update_documents(self, ids: list[str], documents: list[Document]) -> None:
+        """Update a document in the collection.
+
+        Args:
+            ids (List[str]): List of ids of the document to update.
+            documents (List[Document]): List of documents to update.
+        """
+        text = [document.page_content for document in documents]
+        metadata = [document.metadata for document in documents]
+        if self._embedding_function is None:
+            raise ValueError("For update, you must specify an embedding function on creation.")
+        embeddings = self._embedding_function.embed_documents(text)
+
+        for batch in create_batches(
+            api=self._collection._client,
+            ids=ids,
+            metadatas=metadata,
+            documents=text,
+            embeddings=embeddings,
+        ):
+            self._collection.update(
+                ids=batch[0],
+                embeddings=batch[1],
+                documents=batch[3],
+                metadatas=batch[2],
+            )
+
+    def get(
+        self,
+        ids: OneOrMany[ID] | None = None,
+        where: Where | None = None,
+        limit: int | None = None,
+        offset: int | None = None,
+        where_document: WhereDocument | None = None,
+        include: list[str] | None = None,
+    ) -> dict[str, Any]:
+        """Gets the collection.
+
+        Args:
+            ids: The ids of the embeddings to get. Optional.
+            where: A Where type dict used to filter results by.
+                   E.g. `{"color" : "red", "price": 4.20}`. Optional.
+            limit: The number of documents to return. Optional.
+            offset: The offset to start returning results from.
+                    Useful for paging results with limit. Optional.
+            where_document: A WhereDocument type dict used to filter by the documents.
+                            E.g. `{$contains: "hello"}`. Optional.
+            include: A list of what to include in the results.
+                     Can contain `"embeddings"`, `"metadatas"`, `"documents"`.
+                     Ids are always included.
+                     Defaults to `["metadatas", "documents"]`. Optional.
+        """
+        kwargs = {
+            "ids": ids,
+            "where": where,
+            "limit": limit,
+            "offset": offset,
+            "where_document": where_document,
+        }
+
+        if include is not None:
+            kwargs["include"] = include
+
+        return self._collection.get(**kwargs)
+
+    def delete(self, ids: list[str] | None = None, **kwargs: Any) -> None:
+        """Delete by vector IDs.
+
+        Args:
+            ids: List of ids to delete.
+        """
+        self._collection.delete(ids=ids, **kwargs)
+
+    def delete_collection(self) -> None:
+        """Delete the collection."""
+        self._client.delete_collection(self._collection.name)
+
+    @staticmethod
+    def _cosine_relevance_score_fn(distance: float) -> float:
+        """Normalize the distance to a score on a scale [0, 1]."""
+
+        return 1.0 - distance
+
+    @staticmethod
+    def _euclidean_relevance_score_fn(distance: float) -> float:
+        """Return a similarity score on a scale [0, 1]."""
+        # The 'correct' relevance function
+        # may differ depending on a few things, including:
+        # - the distance / similarity metric used by the VectorStore
+        # - the scale of your embeddings (OpenAI's are unit normed. Many
+        #  others are not!)
+        # - embedding dimensionality
+        # - etc.
+        # This function converts the euclidean norm of normalized embeddings
+        # (0 is most similar, sqrt(2) most dissimilar)
+        # to a similarity function (0 to 1)
+        return 1.0 - distance / math.sqrt(2)
+
+    @staticmethod
+    def _max_inner_product_relevance_score_fn(distance: float) -> float:
+        """Normalize the distance to a score on a scale [0, 1]."""
+        if distance > 0:
+            return 1.0 - distance
+
+        return -1.0 * distance
+
+    def _select_relevance_score_fn(self) -> Callable[[float], float]:
+        """
+        The 'correct' relevance function
+        may differ depending on a few things, including:
+        - the distance / similarity metric used by the VectorStore
+        - the scale of your embeddings (OpenAI's are unit normed. Many others are not!)
+        - embedding dimensionality
+        - etc.
+        """
+
+        distance = "l2"
+        distance_key = "hnsw:space"
+        metadata = self._collection.metadata
+
+        if metadata and distance_key in metadata:
+            distance = metadata[distance_key]
+
+        if distance == "cosine":
+            return self._cosine_relevance_score_fn
+        elif distance == "l2":
+            return self._euclidean_relevance_score_fn
+        elif distance == "ip":
+            return self._max_inner_product_relevance_score_fn
+        else:
+            raise ValueError("No supported normalization function" f" for distance metric of type: {distance}.")
 
     def similarity_search(
         self,
@@ -222,67 +419,6 @@ class Chroma:
             )
 
         return _results_to_docs_and_scores(results)
-
-    @staticmethod
-    def _cosine_relevance_score_fn(distance: float) -> float:
-        """Normalize the distance to a score on a scale [0, 1]."""
-
-        return 1.0 - distance
-
-    @staticmethod
-    def _euclidean_relevance_score_fn(distance: float) -> float:
-        """Return a similarity score on a scale [0, 1]."""
-        # The 'correct' relevance function
-        # may differ depending on a few things, including:
-        # - the distance / similarity metric used by the VectorStore
-        # - the scale of your embeddings (OpenAI's are unit normed. Many
-        #  others are not!)
-        # - embedding dimensionality
-        # - etc.
-        # This function converts the euclidean norm of normalized embeddings
-        # (0 is most similar, sqrt(2) most dissimilar)
-        # to a similarity function (0 to 1)
-        return 1.0 - distance / math.sqrt(2)
-
-    @staticmethod
-    def _max_inner_product_relevance_score_fn(distance: float) -> float:
-        """Normalize the distance to a score on a scale [0, 1]."""
-        if distance > 0:
-            return 1.0 - distance
-
-        return -1.0 * distance
-
-    def _select_relevance_score_fn(self) -> Callable[[float], float]:
-        """
-        The 'correct' relevance function
-        may differ depending on a few things, including:
-        - the distance / similarity metric used by the VectorStore
-        - the scale of your embeddings (OpenAI's are unit normed. Many others are not!)
-        - embedding dimensionality
-        - etc.
-        """
-        if self.override_relevance_score_fn:
-            return self.override_relevance_score_fn
-
-        distance = "l2"
-        distance_key = "hnsw:space"
-        metadata = self._collection.metadata
-
-        if metadata and distance_key in metadata:
-            distance = metadata[distance_key]
-
-        if distance == "cosine":
-            return self._cosine_relevance_score_fn
-        elif distance == "l2":
-            return self._euclidean_relevance_score_fn
-        elif distance == "ip":
-            return self._max_inner_product_relevance_score_fn
-        else:
-            raise ValueError(
-                "No supported normalization function"
-                f" for distance metric of type: {distance}."
-                "Consider providing relevance_score_fn to Chroma constructor."
-            )
 
     def _similarity_search_with_relevance_scores(
         self,
@@ -346,161 +482,3 @@ class Chroma:
                     "No relevant docs were retrieved using the relevance score" f" threshold {score_threshold}"
                 )
         return docs_and_similarities
-
-    def delete_collection(self) -> None:
-        """Delete the collection."""
-        self._client.delete_collection(self._collection.name)
-
-    def get(
-        self,
-        ids: OneOrMany[ID] | None = None,
-        where: Where | None = None,
-        limit: int | None = None,
-        offset: int | None = None,
-        where_document: WhereDocument | None = None,
-        include: list[str] | None = None,
-    ) -> dict[str, Any]:
-        """Gets the collection.
-
-        Args:
-            ids: The ids of the embeddings to get. Optional.
-            where: A Where type dict used to filter results by.
-                   E.g. `{"color" : "red", "price": 4.20}`. Optional.
-            limit: The number of documents to return. Optional.
-            offset: The offset to start returning results from.
-                    Useful for paging results with limit. Optional.
-            where_document: A WhereDocument type dict used to filter by the documents.
-                            E.g. `{$contains: "hello"}`. Optional.
-            include: A list of what to include in the results.
-                     Can contain `"embeddings"`, `"metadatas"`, `"documents"`.
-                     Ids are always included.
-                     Defaults to `["metadatas", "documents"]`. Optional.
-        """
-        kwargs = {
-            "ids": ids,
-            "where": where,
-            "limit": limit,
-            "offset": offset,
-            "where_document": where_document,
-        }
-
-        if include is not None:
-            kwargs["include"] = include
-
-        return self._collection.get(**kwargs)
-
-    def update_document(self, document_id: str, document: Document) -> None:
-        """Update a document in the collection.
-
-        Args:
-            document_id (str): ID of the document to update.
-            document (Document): Document to update.
-        """
-        return self.update_documents([document_id], [document])
-
-    def update_documents(self, ids: list[str], documents: list[Document]) -> None:
-        """Update a document in the collection.
-
-        Args:
-            ids (List[str]): List of ids of the document to update.
-            documents (List[Document]): List of documents to update.
-        """
-        text = [document.page_content for document in documents]
-        metadata = [document.metadata for document in documents]
-        if self._embedding_function is None:
-            raise ValueError("For update, you must specify an embedding function on creation.")
-        embeddings = self._embedding_function.embed_documents(text)
-
-        if hasattr(self._collection._client, "max_batch_size"):  # for Chroma 0.4.10 and above
-            from chromadb.utils.batch_utils import create_batches
-
-            for batch in create_batches(
-                api=self._collection._client,
-                ids=ids,
-                metadatas=metadata,
-                documents=text,
-                embeddings=embeddings,
-            ):
-                self._collection.update(
-                    ids=batch[0],
-                    embeddings=batch[1],
-                    documents=batch[3],
-                    metadatas=batch[2],
-                )
-        else:
-            self._collection.update(
-                ids=ids,
-                embeddings=embeddings,
-                documents=text,
-                metadatas=metadata,
-            )
-
-    @classmethod
-    def from_texts(
-        cls,
-        texts: list[str],
-        embedding: HuggingFaceEmbedder | None = None,
-        metadatas: list[dict] | None = None,
-        ids: list[str] | None = None,
-        collection_name: str = "default",
-        persist_directory: str | None = None,
-        client_settings: chromadb.config.Settings | None = None,
-        client=None,
-        collection_metadata: dict | None = None,
-        **kwargs: Any,
-    ):
-        """Create a Chroma vectorstore from a raw documents.
-
-        If a persist_directory is specified, the collection will be persisted there.
-        Otherwise, the data will be ephemeral in-memory.
-
-        Args:
-            texts (List[str]): List of texts to add to the collection.
-            collection_name (str): Name of the collection to create.
-            persist_directory (Optional[str]): Directory to persist the collection.
-            embedding (Optional[Embeddings]): Embedding function. Defaults to None.
-            metadatas (Optional[List[dict]]): List of metadatas. Defaults to None.
-            ids (Optional[List[str]]): List of document IDs. Defaults to None.
-            client_settings (Optional[chromadb.config.Settings]): Chroma client settings
-            collection_metadata (Optional[Dict]): Collection configurations.
-                                                  Defaults to None.
-
-        Returns:
-            Chroma: Chroma vectorstore.
-        """
-        chroma_collection = cls(
-            collection_name=collection_name,
-            embedding_function=embedding,
-            persist_directory=persist_directory,
-            client_settings=client_settings,
-            client=client,
-            collection_metadata=collection_metadata,
-            **kwargs,
-        )
-        if ids is None:
-            ids = [str(uuid.uuid1()) for _ in texts]
-        if hasattr(chroma_collection._client, "max_batch_size"):  # for Chroma 0.4.10 and above
-            from chromadb.utils.batch_utils import create_batches
-
-            for batch in create_batches(
-                api=chroma_collection._client,
-                ids=ids,
-                metadatas=metadatas,
-                documents=texts,
-            ):
-                chroma_collection.add_texts(
-                    texts=batch[3] if batch[3] else [],
-                    metadatas=batch[2] if batch[2] else None,
-                    ids=batch[0],
-                )
-        else:
-            chroma_collection.add_texts(texts=texts, metadatas=metadatas, ids=ids)
-        return chroma_collection
-
-    def delete(self, ids: list[str] | None = None, **kwargs: Any) -> None:
-        """Delete by vector IDs.
-
-        Args:
-            ids: List of ids to delete.
-        """
-        self._collection.delete(ids=ids)

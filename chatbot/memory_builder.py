@@ -3,10 +3,11 @@ import sys
 from pathlib import Path
 from typing import List
 
-from bot.memory.embedder import HuggingFaceEmbedder
+from bot.memory.embedder import Embedder
 from bot.memory.vector_memory import VectorMemory
+from document_loader.format import Format
 from document_loader.loader import DirectoryLoader
-from document_loader.text_splitter import Format, create_recursive_text_splitter
+from document_loader.text_splitter import create_recursive_text_splitter
 from entities.document import Document
 from helpers.log import get_logger
 
@@ -62,7 +63,7 @@ def build_memory_index(docs_path: Path, vector_store_path: str, chunk_size: int,
     logger.info(f"Number of generated chunks: {len(chunks)}")
 
     logger.info("Creating memory index...")
-    embedding = HuggingFaceEmbedder()
+    embedding = Embedder()
     VectorMemory.create_memory_index(embedding, chunks, vector_store_path)
     logger.info("Memory Index has been created successfully!")
 
