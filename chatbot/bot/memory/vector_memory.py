@@ -1,9 +1,9 @@
 from typing import Any, Dict, List, Tuple
 
 from cleantext import clean
+from entities.document import Document
 from helpers.log import get_logger
-from langchain.vectorstores import Chroma
-from langchain_core.documents import Document
+from vector_database.chroma import Chroma
 
 logger = get_logger(__name__)
 
@@ -81,6 +81,8 @@ class VectorMemory:
         # 0 is dissimilar, 1 is most similar.
         matched_docs = self.index.similarity_search_with_relevance_scores(query, k=k)
         filtered_docs_by_threshold = [doc for doc in matched_docs if doc[1] > threshold]
+        if len(filtered_docs_by_threshold) == 0:
+            logger.warning("No relevant docs were retrieved using the relevance score" f" threshold {threshold}")
         sorted_matched_docs_by_relevance_score = sorted(filtered_docs_by_threshold, key=lambda x: x[1], reverse=True)
         retrieved_contents = [doc[0] for doc in sorted_matched_docs_by_relevance_score]
         sources = []
@@ -99,10 +101,9 @@ class VectorMemory:
     def create_memory_index(embedding: Any, chunks: List, vector_store_path: str):
         texts = [clean(doc.page_content, no_emoji=True) for doc in chunks]
         metadatas = [doc.metadata for doc in chunks]
-        memory_index = Chroma.from_texts(
+        Chroma.from_texts(
             texts=texts,
             embedding=embedding,
             metadatas=metadatas,
             persist_directory=vector_store_path,
         )
-        memory_index.persist()
