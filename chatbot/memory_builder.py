@@ -1,7 +1,6 @@
 import argparse
 import sys
 from pathlib import Path
-from typing import List
 
 from bot.memory.embedder import Embedder
 from bot.memory.vector_memory import VectorMemory
@@ -14,7 +13,7 @@ from helpers.log import get_logger
 logger = get_logger(__name__)
 
 
-def load_documents(docs_path: Path) -> List[Document]:
+def load_documents(docs_path: Path) -> list[Document]:
     """
     Loads Markdown documents from the specified path.
 
@@ -32,7 +31,7 @@ def load_documents(docs_path: Path) -> List[Document]:
     return loader.load()
 
 
-def split_chunks(sources: List, chunk_size: int = 512, chunk_overlap: int = 25) -> List:
+def split_chunks(sources: list, chunk_size: int = 512, chunk_overlap: int = 25) -> list:
     """
     Splits a list of sources into smaller chunks.
 

@@ -3,7 +3,6 @@ from enum import Enum
 
 class Format(Enum):
     MARKDOWN = "markdown"
-    HTML = "html"
 
 
 SUPPORTED_FORMATS = {
@@ -25,42 +24,23 @@ SUPPORTED_FORMATS = {
         "\n",
         " ",
         "",
-    ],
-    Format.HTML.value: [
-        # First, try to split along HTML tags
-        "<body",
-        "<div",
-        "<p",
-        "<br",
-        "<li",
-        "<h1",
-        "<h2",
-        "<h3",
-        "<h4",
-        "<h5",
-        "<h6",
-        "<span",
-        "<table",
-        "<tr",
-        "<td",
-        "<th",
-        "<ul",
-        "<ol",
-        "<header",
-        "<footer",
-        "<nav",
-        # Head
-        "<head",
-        "<style",
-        "<script",
-        "<meta",
-        "<title",
-        "",
-    ],
+    ]
 }
 
 
 def get_separators(format: str):
+    """
+    Retrieve the list of separators for a given format.
+
+    Args:
+        format (str): The format for which to retrieve separators.
+
+    Returns:
+        list[str]: A list of separators for the specified format.
+
+    Raises:
+        KeyError: If the format is not supported.
+    """
     separators = SUPPORTED_FORMATS.get(format)
 
     # validate input

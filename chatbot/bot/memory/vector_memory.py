@@ -81,6 +81,8 @@ class VectorMemory:
         # 0 is dissimilar, 1 is most similar.
         matched_docs = self.index.similarity_search_with_relevance_scores(query, k=k)
         filtered_docs_by_threshold = [doc for doc in matched_docs if doc[1] > threshold]
+        if len(filtered_docs_by_threshold) == 0:
+            logger.warning("No relevant docs were retrieved using the relevance score" f" threshold {threshold}")
         sorted_matched_docs_by_relevance_score = sorted(filtered_docs_by_threshold, key=lambda x: x[1], reverse=True)
         retrieved_contents = [doc[0] for doc in sorted_matched_docs_by_relevance_score]
         sources = []

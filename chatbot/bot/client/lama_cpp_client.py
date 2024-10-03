@@ -203,10 +203,12 @@ class LamaCppClient:
 
         return stream
 
-    def parse_token(self, token):
+    @staticmethod
+    def parse_token(token):
         return token["choices"][0]["delta"].get("content", "")
 
-    def generate_qa_prompt(self, question: str) -> str:
+    @staticmethod
+    def generate_qa_prompt(question: str) -> str:
         """
         Generates a question-answering (QA) prompt using predefined templates.
 
@@ -222,7 +224,8 @@ class LamaCppClient:
             question=question,
         )
 
-    def generate_ctx_prompt(self, question: str, context: str) -> str:
+    @staticmethod
+    def generate_ctx_prompt(question: str, context: str) -> str:
         """
         Generates a context-based prompt using predefined templates.
 
@@ -240,7 +243,8 @@ class LamaCppClient:
             context=context,
         )
 
-    def generate_refined_ctx_prompt(self, question: str, context: str, existing_answer: str) -> str:
+    @staticmethod
+    def generate_refined_ctx_prompt(question: str, context: str, existing_answer: str) -> str:
         """
         Generates a refined prompt for question-answering with existing answer.
 
@@ -260,7 +264,8 @@ class LamaCppClient:
             existing_answer=existing_answer,
         )
 
-    def generate_refined_question_conversation_awareness_prompt(self, question: str, chat_history: str) -> str:
+    @staticmethod
+    def generate_refined_question_conversation_awareness_prompt(question: str, chat_history: str) -> str:
         return generate_conversation_awareness_prompt(
             template=REFINED_QUESTION_CONVERSATION_AWARENESS_PROMPT_TEMPLATE,
             system=SYSTEM_TEMPLATE,
@@ -268,7 +273,8 @@ class LamaCppClient:
             chat_history=chat_history,
         )
 
-    def generate_refined_answer_conversation_awareness_prompt(self, question: str, chat_history: str) -> str:
+    @staticmethod
+    def generate_refined_answer_conversation_awareness_prompt(question: str, chat_history: str) -> str:
         return generate_conversation_awareness_prompt(
             template=REFINED_ANSWER_CONVERSATION_AWARENESS_PROMPT_TEMPLATE,
             system=SYSTEM_TEMPLATE,

@@ -59,7 +59,7 @@ class DirectoryLoader:
 
         if self.use_multithreading:
             with concurrent.futures.ThreadPoolExecutor(max_workers=self.max_concurrency) as executor:
-                executor.map(lambda i: self.load_file(i, docs, pbar), items)
+                executor.map(lambda item: self.load_file(item, docs, pbar), items)
         else:
             for i in items:
                 self.load_file(i, docs, pbar)

@@ -1,4 +1,6 @@
 # Todo
+- Provide the chat history in the `context_aware_answer`
+- Investigate Chroma batch querying: https://github.com/langchain-ai/langchain/blob/907c758d67764385828c8abad14a3e64cf44d05b/libs/community/langchain_community/vectorstores/chroma.py#L42
 - Test Flash attention:
   - https://github.com/ggerganov/llama.cpp/pull/5021
 - Google Search with LLM:

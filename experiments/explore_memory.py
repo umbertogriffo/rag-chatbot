@@ -17,7 +17,7 @@ if __name__ == "__main__":
     index = VectorMemory(vector_store_path=str(declarative_vector_store_path), embedding=embedding)
 
     # query = "<write_your_query_here>"
-    query = "tell me a joke about ClearML"
+    query = "Tell me something about the Blendle Social Code"
 
     matched_docs, sources = index.similarity_search(query)
 

@@ -1,3 +1,27 @@
+"""
+MIT License
+
+Copyright (c) LangChain, Inc.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+"""
+
 import copy
 import logging
 import re
@@ -12,7 +36,10 @@ logger = logging.getLogger(__name__)
 
 
 class TextSplitter(ABC):
-    """Interface for splitting text into chunks."""
+    """
+    Interface for splitting text into chunks.
+    TextSplitter class has been extracted and refactored from LangChain's project.
+    """
 
     def __init__(
         self,
@@ -131,7 +158,7 @@ class RecursiveCharacterTextSplitter(TextSplitter):
     Splitting text by recursively divides text based on a hierarchy of separators (e.g., paragraphs, sentences,
     and words). This approach allows for more nuanced splitting, ensuring that chunks maintain semantic coherence.
 
-    Recursively tries to split by different characters to find one that works.
+    RecursiveCharacterTextSplitter class has been extracted and refactored from LangChain's project.
     """
 
     def __init__(
@@ -147,7 +174,17 @@ class RecursiveCharacterTextSplitter(TextSplitter):
         self._is_separator_regex = is_separator_regex
 
     def _split_text(self, text: str, separators: list[str]) -> list[str]:
-        """Split incoming text and return chunks."""
+        """
+        Given a large text it recursively tries to split it based on a specified chunk size.
+        It does this by using a set of characters. The default characters provided to it are ["\n\n", "\n", " ", ""].
+        It takes in the large text then tries to split it by the first character \n\n.
+        If the first split by \n\n is still large then it moves to the next character which is \n and tries to split
+        by it.
+        If it is still larger than our specified chunk size it moves to the next character in the set until we get a
+        split that is less than our specified chunk size.
+
+        More details here https://dev.to/eteimz/understanding-langchains-recursivecharactertextsplitter-2846
+        """
         final_chunks = []
         # Get appropriate separator to use
         separator = separators[-1]
@@ -224,7 +261,7 @@ def create_recursive_text_splitter(format: str, **kwargs: Any) -> RecursiveChara
     Factory function to create a RecursiveCharacterTextSplitter instance based on the specified format.
 
     Args:
-        format (Format): The format of the text to be split. It can be either 'markdown' or 'html'.
+        format (Format): The format of the text to be split.
         **kwargs (Any): Additional keyword arguments to be passed to the RecursiveCharacterTextSplitter constructor.
 
     Returns:
