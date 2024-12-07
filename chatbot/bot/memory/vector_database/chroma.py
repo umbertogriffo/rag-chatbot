@@ -29,8 +29,8 @@ from typing import Any, Callable, Iterable
 import chromadb
 import chromadb.config
 from bot.memory.embedder import Embedder
+from bot.memory.vector_database.distance_metric import DistanceMetric, get_relevance_score_fn
 from chromadb.utils.batch_utils import create_batches
-from distance_metric import DistanceMetric, get_relevance_score_fn
 from entities.document import Document
 
 logger = logging.getLogger(__name__)

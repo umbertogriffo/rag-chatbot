@@ -3,7 +3,8 @@ from typing import Any, Dict, List, Tuple
 from cleantext import clean
 from entities.document import Document
 from helpers.log import get_logger
-from vector_database.chroma import Chroma
+
+from bot.memory.vector_database.chroma import Chroma
 
 logger = get_logger(__name__)
 
