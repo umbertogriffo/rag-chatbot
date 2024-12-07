@@ -52,7 +52,8 @@ class Chroma:
         where_document: dict[str, str] | None = None,
         **kwargs: Any,
     ):
-        """Query the chroma collection.
+        """
+        Query the chroma collection.
 
         Args:
             query_texts: List of query texts.
@@ -86,7 +87,8 @@ class Chroma:
         metadatas: list[dict] | None = None,
         ids: list[str] | None = None,
     ) -> list[str]:
-        """Run more texts through the embeddings and add to the vectorstore.
+        """
+        Run more texts through the embeddings and add to the vectorstore.
 
         Args:
             texts (Iterable[str]): Texts to add to the vectorstore.
@@ -249,7 +251,8 @@ class Chroma:
         return retrieved_contents, sources
 
     def similarity_search(self, query: str, k: int = 4, filter: dict[str, str] | None = None) -> list[Document]:
-        """Run similarity search with Chroma.
+        """
+        Run similarity search with Chroma.
 
         Args:
             query (str): Query text to search for.
