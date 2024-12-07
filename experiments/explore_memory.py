@@ -2,9 +2,8 @@ from pathlib import Path
 
 import chromadb
 from bot.memory.embedder import Embedder
-from bot.memory.vector_memory import VectorMemory
+from bot.memory.vector_database.chroma import Chroma
 from helpers.prettier import prettify_source
-from vector_database.chroma import Chroma
 
 if __name__ == "__main__":
     root_folder = Path(__file__).resolve().parent.parent
@@ -14,12 +13,12 @@ if __name__ == "__main__":
     episodic_vector_store_path = root_folder / "vector_store" / "episodic_index"
 
     embedding = Embedder()
-    index = VectorMemory(vector_store_path=str(declarative_vector_store_path), embedding=embedding)
+    index = Chroma(persist_directory=str(declarative_vector_store_path), embedding=embedding)
 
     # query = "<write_your_query_here>"
     query = "Tell me something about the Blendle Social Code"
 
-    matched_docs, sources = index.similarity_search(query)
+    matched_docs, sources = index.similarity_search_with_threshold(query)
 
     for source in sources:
         print(prettify_source(source))
@@ -30,7 +29,7 @@ if __name__ == "__main__":
     chroma = Chroma(
         client=persistent_client,
         collection_name="episodic_memory",
-        embedding_function=embedding,
+        embedding=embedding,
     )
     docs = chroma.similarity_search("a")
     docs_with_score = chroma.similarity_search_with_score("a")

@@ -12,7 +12,7 @@ from bot.conversation.ctx_strategy import (
     get_ctx_synthesis_strategy,
 )
 from bot.memory.embedder import Embedder
-from bot.memory.vector_memory import VectorMemory
+from bot.memory.vector_database.chroma import Chroma
 from bot.model.model_settings import get_model_setting, get_models
 from helpers.log import get_logger
 from helpers.prettier import prettify_source
@@ -41,18 +41,18 @@ def load_ctx_synthesis_strategy(ctx_synthesis_strategy_name: str, _llm: LamaCppC
 
 
 @st.cache_resource()
-def load_index(vector_store_path: Path) -> VectorMemory:
+def load_index(vector_store_path: Path) -> Chroma:
     """
-    Loads a Vector Memory index based on the specified vector store path.
+    Loads a Vector Database index based on the specified vector store path.
 
     Args:
         vector_store_path (Path): The path to the vector store.
 
     Returns:
-        VectorMemory: An instance of the VectorMemory class with the loaded index.
+        Chroma: An instance of the Vector Database.
     """
     embedding = Embedder()
-    index = VectorMemory(vector_store_path=str(vector_store_path), embedding=embedding)
+    index = Chroma(persist_directory=str(vector_store_path), embedding=embedding)
 
     return index
 
@@ -146,7 +146,9 @@ def main(parameters) -> None:
                 text="Refining the question and Retrieving the docs – hang tight! " "This should take seconds."
             ):
                 refined_user_input = conversational_retrieval.refine_question(user_input)
-                retrieved_contents, sources = index.similarity_search(query=refined_user_input, k=parameters.k)
+                retrieved_contents, sources = index.similarity_search_with_threshold(
+                    query=refined_user_input, k=parameters.k
+                )
                 if retrieved_contents:
                     full_response += "Here are the retrieved text chunks with a content preview: \n\n"
                     message_placeholder.markdown(full_response)

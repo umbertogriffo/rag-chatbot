@@ -1,27 +1,3 @@
-"""
-MIT License
-
-Copyright (c) LangChain, Inc.
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-"""
-
 import logging
 import uuid
 from typing import Any, Callable, Iterable
@@ -31,20 +7,17 @@ import chromadb.config
 from bot.memory.embedder import Embedder
 from bot.memory.vector_database.distance_metric import DistanceMetric, get_relevance_score_fn
 from chromadb.utils.batch_utils import create_batches
+from cleantext import clean
 from entities.document import Document
 
 logger = logging.getLogger(__name__)
 
 
 class Chroma:
-    """
-    Chroma classes have been extracted and refactored from LangChain's project.
-    https://github.com/langchain-ai/langchain/blob/907c758d67764385828c8abad14a3e64cf44d05b/libs/partners/chroma/langchain_chroma/vectorstores.py#L133
-    """
-
     def __init__(
         self,
-        embedding_function: Embedder | None = None,
+        client: chromadb.Client = None,
+        embedding: Embedder | None = None,
         persist_directory: str | None = None,
         collection_name: str = "default",
         collection_metadata: dict | None = None,
@@ -53,10 +26,14 @@ class Chroma:
         client_settings = chromadb.config.Settings(is_persistent=is_persistent)
         client_settings.persist_directory = persist_directory
 
-        self.client = chromadb.Client(client_settings)
+        if client is not None:
+            self.client = client
+        else:
+            self.client = chromadb.Client(client_settings)
 
-        self._embedding_function = embedding_function
-        self._collection = self.client.get_or_create_collection(
+        self.embedding = embedding
+
+        self.collection = self.client.get_or_create_collection(
             name=collection_name,
             embedding_function=None,
             metadata=collection_metadata,
@@ -64,7 +41,7 @@ class Chroma:
 
     @property
     def embeddings(self) -> Embedder | None:
-        return self._embedding_function
+        return self.embedding
 
     def __query_collection(
         self,
@@ -94,7 +71,7 @@ class Chroma:
         See more: https://docs.trychroma.com/reference/py-collection#query
         """
 
-        return self._collection.query(
+        return self.collection.query(
             query_texts=query_texts,
             query_embeddings=query_embeddings,
             n_results=n_results,
@@ -123,8 +100,8 @@ class Chroma:
             ids = [str(uuid.uuid4()) for _ in texts]
         embeddings = None
         texts = list(texts)
-        if self._embedding_function is not None:
-            embeddings = self._embedding_function.embed_documents(texts)
+        if self.embedding is not None:
+            embeddings = self.embedding.embed_documents(texts)
         if metadatas:
             # fill metadatas with empty dicts if somebody
             # did not specify metadata for all texts
@@ -144,7 +121,7 @@ class Chroma:
                 embeddings_with_metadatas = [embeddings[idx] for idx in non_empty_ids] if embeddings else None
                 ids_with_metadata = [ids[idx] for idx in non_empty_ids]
                 try:
-                    self._collection.upsert(
+                    self.collection.upsert(
                         metadatas=metadatas,
                         embeddings=embeddings_with_metadatas,
                         documents=texts_with_metadatas,
@@ -160,70 +137,116 @@ class Chroma:
                 texts_without_metadatas = [texts[j] for j in empty_ids]
                 embeddings_without_metadatas = [embeddings[j] for j in empty_ids] if embeddings else None
                 ids_without_metadatas = [ids[j] for j in empty_ids]
-                self._collection.upsert(
+                self.collection.upsert(
                     embeddings=embeddings_without_metadatas,
                     documents=texts_without_metadatas,
                     ids=ids_without_metadatas,
                 )
         else:
-            self._collection.upsert(
+            self.collection.upsert(
                 embeddings=embeddings,
                 documents=texts,
                 ids=ids,
             )
         return ids
 
-    @classmethod
     def from_texts(
         self,
         texts: list[str],
-        embedding: Embedder | None = None,
         metadatas: list[dict] | None = None,
         ids: list[str] | None = None,
-        collection_name: str = "default",
-        persist_directory: str | None = None,
-        collection_metadata: dict | None = None,
-    ):
-        """Create a Chroma vectorstore from a raw documents.
-
-        If a persist_directory is specified, the collection will be persisted there.
-        Otherwise, the data will be ephemeral in-memory.
+    ) -> None:
+        """
+        Adds a batch of texts to the Chroma collection, optionally with metadata and IDs.
 
         Args:
-            texts (List[str]): List of texts to add to the collection.
-            collection_name (str): Name of the collection to create.
-            persist_directory (Optional[str]): Directory to persist the collection.
-            embedding (Optional[Embeddings]): Embedding function. Defaults to None.
-            metadatas (Optional[List[dict]]): List of metadatas. Defaults to None.
-            ids (Optional[List[str]]): List of document IDs. Defaults to None.
-            client_settings (Optional[chromadb.config.Settings]): Chroma client settings
-            collection_metadata (Optional[Dict]): Collection configurations.
-                                                  Defaults to None.
+            texts (list[str]): List of texts to add to the collection.
+            metadatas (list[dict], optional): List of metadata dictionaries corresponding to the texts.
+                Defaults to None.
+            ids (list[str], optional): List of IDs for the texts. If not provided, UUIDs will be generated.
+                Defaults to None.
 
         Returns:
-            Chroma: Chroma vectorstore.
+            None
         """
-        chroma_collection = self(
-            collection_name=collection_name,
-            embedding_function=embedding,
-            persist_directory=persist_directory,
-            collection_metadata=collection_metadata,
-        )
         if ids is None:
             ids = [str(uuid.uuid4()) for _ in texts]
 
         for batch in create_batches(
-            api=chroma_collection.client,
+            api=self.client,
             ids=ids,
             metadatas=metadatas,
             documents=texts,
         ):
-            chroma_collection.add_texts(
+            self.add_texts(
                 texts=batch[3] if batch[3] else [],
                 metadatas=batch[2] if batch[2] else None,
                 ids=batch[0],
             )
-        return chroma_collection
+
+    def from_chunks(self, chunks: list) -> None:
+        """
+        Adds a batch of documents to the Chroma collection.
+
+        Args:
+            chunks (list): List of Document objects to add to the collection.
+        """
+        texts = [clean(doc.page_content, no_emoji=True) for doc in chunks]
+        metadatas = [doc.metadata for doc in chunks]
+        self.from_texts(
+            texts=texts,
+            metadatas=metadatas,
+        )
+
+    def similarity_search_with_threshold(
+        self,
+        query: str,
+        k: int = 4,
+        threshold: float | None = 0.2,
+    ) -> tuple[list[Document], list[dict[str, Any]]]:
+        """
+        Performs similarity search on the given query.
+
+        Parameters:
+        -----------
+        query : str
+            The query string.
+
+        k : int, optional
+            The number of retrievals to consider (default is 4).
+
+        threshold : float, optional
+            The threshold for considering similarity scores (default is 0.2).
+
+        Returns:
+        -------
+        tuple[list[Document], list[dict[str, Any]]]
+            A tuple containing the list of matched documents and a list of their sources.
+
+        """
+        # `similarity_search_with_relevance_scores` return docs and relevance scores in the range [0, 1].
+        # 0 is dissimilar, 1 is most similar.
+        docs_and_scores = self.similarity_search_with_relevance_scores(query, k)
+
+        if threshold is not None:
+            docs_and_scores = [doc for doc in docs_and_scores if doc[1] > threshold]
+            if len(docs_and_scores) == 0:
+                logger.warning("No relevant docs were retrieved using the relevance score" f" threshold {threshold}")
+
+            docs_and_scores = sorted(docs_and_scores, key=lambda x: x[1], reverse=True)
+
+        retrieved_contents = [doc[0] for doc in docs_and_scores]
+        sources = []
+        for doc, score in docs_and_scores:
+            sources.append(
+                {
+                    "score": round(score, 3),
+                    "document": doc.metadata.get("source"),
+                    "content_preview": f"{doc.page_content[0:256]}...",
+                }
+            )
+
+        return retrieved_contents, sources
 
     def similarity_search(self, query: str, k: int = 4, filter: dict[str, str] | None = None) -> list[Document]:
         """Run similarity search with Chroma.
@@ -261,7 +284,7 @@ class Chroma:
             the query text and cosine distance in float for each.
             Lower score represents more similarity.
         """
-        if self._embedding_function is None:
+        if self.embedding is None:
             results = self.__query_collection(
                 query_texts=[query],
                 n_results=k,
@@ -269,7 +292,7 @@ class Chroma:
                 where_document=where_document,
             )
         else:
-            query_embedding = self._embedding_function.embed_query(query)
+            query_embedding = self.embedding.embed_query(query)
             results = self.__query_collection(
                 query_embeddings=[query_embedding],
                 n_results=k,
@@ -292,7 +315,7 @@ class Chroma:
 
         distance = DistanceMetric.L2
         distance_key = "hnsw:space"
-        metadata = self._collection.metadata
+        metadata = self.collection.metadata
 
         if metadata and distance_key in metadata:
             distance = metadata[distance_key]

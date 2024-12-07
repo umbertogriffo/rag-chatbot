@@ -3,7 +3,7 @@ import sys
 from pathlib import Path
 
 from bot.memory.embedder import Embedder
-from bot.memory.vector_memory import VectorMemory
+from bot.memory.vector_database.chroma import Chroma
 from document_loader.format import Format
 from document_loader.loader import DirectoryLoader
 from document_loader.text_splitter import create_recursive_text_splitter
@@ -63,7 +63,8 @@ def build_memory_index(docs_path: Path, vector_store_path: str, chunk_size: int,
 
     logger.info("Creating memory index...")
     embedding = Embedder()
-    VectorMemory.create_memory_index(embedding, chunks, vector_store_path)
+    vector_database = Chroma(persist_directory=str(vector_store_path), embedding=embedding)
+    vector_database.from_chunks(chunks)
     logger.info("Memory Index has been created successfully!")
 
 
