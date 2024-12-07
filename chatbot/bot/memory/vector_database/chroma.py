@@ -46,29 +46,17 @@ class Chroma:
         self,
         embedding_function: Embedder | None = None,
         persist_directory: str | None = None,
-        client_settings: chromadb.config.Settings | None = None,
         collection_name: str = "default",
         collection_metadata: dict | None = None,
-        client: chromadb.Client = None,
+        is_persistent: bool = True,
     ) -> None:
-        if client is not None:
-            self._client_settings = client_settings
-            self._client = client
-            self._persist_directory = persist_directory
-        else:
-            if client_settings:
-                # If client_settings is provided with persist_directory specified,
-                # then it is "in-memory and persisting to disk" mode.
-                client_settings.persist_directory = persist_directory or client_settings.persist_directory
-                _client_settings = client_settings
-            else:
-                _client_settings = chromadb.config.Settings()
-            self._client_settings = _client_settings
-            self._client = chromadb.Client(_client_settings)
-            self._persist_directory = _client_settings.persist_directory or persist_directory
+        client_settings = chromadb.config.Settings(is_persistent=is_persistent)
+        client_settings.persist_directory = persist_directory
+
+        self.client = chromadb.Client(client_settings)
 
         self._embedding_function = embedding_function
-        self._collection = self._client.get_or_create_collection(
+        self._collection = self.client.get_or_create_collection(
             name=collection_name,
             embedding_function=None,
             metadata=collection_metadata,
@@ -194,8 +182,6 @@ class Chroma:
         ids: list[str] | None = None,
         collection_name: str = "default",
         persist_directory: str | None = None,
-        client_settings: chromadb.config.Settings | None = None,
-        client=None,
         collection_metadata: dict | None = None,
     ):
         """Create a Chroma vectorstore from a raw documents.
@@ -221,15 +207,13 @@ class Chroma:
             collection_name=collection_name,
             embedding_function=embedding,
             persist_directory=persist_directory,
-            client_settings=client_settings,
-            client=client,
             collection_metadata=collection_metadata,
         )
         if ids is None:
             ids = [str(uuid.uuid4()) for _ in texts]
 
         for batch in create_batches(
-            api=chroma_collection._client,
+            api=chroma_collection.client,
             ids=ids,
             metadatas=metadatas,
             documents=texts,
