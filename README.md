@@ -50,7 +50,7 @@ based on the context provided by those files.
 ![rag-chatbot-architecture-1.png](images/rag-chatbot-architecture-1.png)
 
 > [!NOTE]
-> We decided to grab and refactor the `RecursiveCharacterTextSplitter` class from `LangChain` to properly chunk Markdown.
+> We decided to grab and refactor the `RecursiveCharacterTextSplitter` class from `LangChain` to effectively chunk Markdown files without adding LangChain as a dependency.
 
 The `Memory Builder` component of the project loads Markdown pages from the `docs` folder.
 It then divides these pages into smaller sections, calculates the embeddings (a numerical representation) of these
