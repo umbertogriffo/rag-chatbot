@@ -1,6 +1,6 @@
 import asyncio
 from enum import Enum
-from typing import Any, List, Union
+from typing import Any
 
 import nest_asyncio
 from entities.document import Document
@@ -35,7 +35,7 @@ class BaseSynthesisStrategy:
         """
         self.llm = llm
 
-    def generate_response(self, retrieved_contents: List[Document], question: str, max_new_tokens: int = 512):
+    def generate_response(self, retrieved_contents: list[Document], question: str, max_new_tokens: int = 512):
         """
         Generate a response using the synthesis strategy.
 
@@ -61,8 +61,8 @@ class CreateAndRefineStrategy(BaseSynthesisStrategy):
         super().__init__(llm)
 
     def generate_response(
-        self, retrieved_contents: List[Document], question: str, max_new_tokens: int = 512
-    ) -> Union[str, Any]:
+        self, retrieved_contents: list[Document], question: str, max_new_tokens: int = 512
+    ) -> str | Any:
         """
         Generate a response using create and refine strategy.
 
@@ -126,7 +126,7 @@ class TreeSummarizationStrategy(BaseSynthesisStrategy):
         super().__init__(llm)
 
     def generate_response(
-        self, retrieved_contents: List[Document], question: str, max_new_tokens: int = 512, num_children: int = 2
+        self, retrieved_contents: list[Document], question: str, max_new_tokens: int = 512, num_children: int = 2
     ) -> Any:
         """
         Generate a response using hierarchical summarization strategy.
@@ -170,9 +170,9 @@ class TreeSummarizationStrategy(BaseSynthesisStrategy):
 
     def combine_results(
         self,
-        texts: List[str],
+        texts: list[str],
         question: str,
-        cur_prompt_list: List[str],
+        cur_prompt_list: list[str],
         max_new_tokens: int = 512,
         num_children: int = 2,
     ) -> Any:
@@ -227,7 +227,7 @@ class AsyncTreeSummarizationStrategy(BaseSynthesisStrategy):
 
     async def generate_response(
         self,
-        retrieved_contents: List[Document],
+        retrieved_contents: list[Document],
         question: str,
         max_new_tokens: int = 512,
         num_children: int = 2,
@@ -278,9 +278,9 @@ class AsyncTreeSummarizationStrategy(BaseSynthesisStrategy):
 
     async def combine_results(
         self,
-        texts: List[str],
+        texts: list[str],
         question: str,
-        cur_prompt_list: List[str],
+        cur_prompt_list: list[str],
         max_new_tokens: int = 512,
         num_children: int = 2,
     ):

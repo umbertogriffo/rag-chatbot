@@ -1,5 +1,5 @@
 from asyncio import get_event_loop
-from typing import Any, List, Tuple
+from typing import Any
 
 from entities.document import Document
 from helpers.log import get_logger
@@ -30,7 +30,7 @@ class ConversationRetrieval:
         self.llm = llm
         self.chat_history = []
 
-    def get_chat_history(self) -> List[Tuple[str, str]]:
+    def get_chat_history(self) -> list[tuple[str, str]]:
         """
         Gets the chat history.
 
@@ -40,7 +40,7 @@ class ConversationRetrieval:
         """
         return self.chat_history
 
-    def update_chat_history(self, question: str, answer: str) -> List[Tuple[str, str]]:
+    def update_chat_history(self, question: str, answer: str) -> list[tuple[str, str]]:
         """
         Updates the chat history.
 
@@ -57,7 +57,7 @@ class ConversationRetrieval:
 
         return self.chat_history
 
-    def keep_chat_history_size(self, max_size: int = 2) -> List[Tuple[str, str]]:
+    def keep_chat_history_size(self, max_size: int = 2) -> list[tuple[str, str]]:
         """
         Keeps the list of chat history at the specified maximum size by popping out the oldest elements.
 
@@ -160,7 +160,7 @@ class ConversationRetrieval:
     def context_aware_answer(
         ctx_synthesis_strategy: BaseSynthesisStrategy,
         question: str,
-        retrieved_contents: List[Document],
+        retrieved_contents: list[Document],
         max_new_tokens: int = 512,
     ):
         if isinstance(ctx_synthesis_strategy, AsyncTreeSummarizationStrategy):

@@ -92,8 +92,8 @@ class Chroma:
 
         Args:
             texts (Iterable[str]): Texts to add to the vectorstore.
-            metadatas (Optional[List[dict]], optional): Optional list of metadatas.
-            ids (Optional[List[str]], optional): Optional list of IDs.
+            metadatas (list[dict] | None): Optional list of metadatas.
+            ids (list[dict] | None): Optional list of IDs.
 
         Returns:
             List[str]: List of IDs of the added texts.
@@ -257,7 +257,7 @@ class Chroma:
         Args:
             query (str): Query text to search for.
             k (int): Number of results to return. Defaults to 4.
-            filter (Optional[Dict[str, str]]): Filter by metadata. Defaults to None.
+            filter (dict[str, str]|None): Filter by metadata. Defaults to None.
 
         Returns:
             List[Document]: List of documents most similar to the query text.
@@ -278,8 +278,8 @@ class Chroma:
         Args:
             query (str): Query text to search for.
             k (int): Number of results to return. Defaults to 4.
-            filter (Optional[Dict[str, str]]): Filter by metadata. Defaults to None.
-            where_document (Optional[Dict[str, str]]): Filter by document content. Defaults to None.
+            filter (dict[str, str]|None): Filter by metadata. Defaults to None.
+            where_document (dict[str, str]|None): Filter by document content. Defaults to None.
             **kwargs (Any): Additional keyword arguments.
 
         Returns:

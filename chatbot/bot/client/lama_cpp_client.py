@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from typing import Any, Iterator, Union
+from typing import Any, Iterator
 
 import requests
 from llama_cpp import CreateCompletionResponse, CreateCompletionStreamResponse, Llama
@@ -158,7 +158,7 @@ class LamaCppClient:
 
     def start_answer_iterator_streamer(
         self, prompt: str, max_new_tokens: int = 512
-    ) -> Union[CreateCompletionResponse, Iterator[CreateCompletionStreamResponse]]:
+    ) -> CreateCompletionResponse | Iterator[CreateCompletionStreamResponse]:
         """
         Abstract method to start an answer iterator streamer for a given prompt.
 
@@ -181,7 +181,7 @@ class LamaCppClient:
 
     async def async_start_answer_iterator_streamer(
         self, prompt: str, max_new_tokens: int = 512
-    ) -> Union[CreateCompletionResponse, Iterator[CreateCompletionStreamResponse]]:
+    ) -> CreateCompletionResponse | Iterator[CreateCompletionStreamResponse]:
         """
         This abstract method should be implemented to asynchronously start an answer iterator streamer,
         providing a flexible way to generate answers in a streaming fashion based on the given prompt.
