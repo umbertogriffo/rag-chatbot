@@ -86,5 +86,6 @@ Make it X-rated and disgusting.
 # Story Rag Chatbot - 1
 
 - Tell me something about the Blendle Social Code
-- Do you know the amount of the party budget?
+- What is the number of holidays per year?
+- What are the perks and benefits?
 - Could you please remind me about the topic we were discussing earlier?

@@ -6,8 +6,8 @@ from pathlib import Path
 from bot.client.lama_cpp_client import LamaCppClient
 from bot.conversation.conversation_retrieval import ConversationRetrieval
 from bot.conversation.ctx_strategy import get_ctx_synthesis_strategies, get_ctx_synthesis_strategy
-from bot.memory.embedder import EmbedderHuggingFace
-from bot.memory.vector_memory import VectorMemory
+from bot.memory.embedder import Embedder
+from bot.memory.vector_database.chroma import Chroma
 from bot.model.model_settings import get_model_setting, get_models
 from helpers.log import get_logger
 from helpers.prettier import prettify_source
@@ -91,7 +91,7 @@ def loop(conversation, synthesis_strategy, index, parameters) -> None:
         start_time = time.time()
         refined_question = conversation.refine_question(question)
 
-        retrieved_contents, sources = index.similarity_search(query=refined_question, k=parameters.k)
+        retrieved_contents, sources = index.similarity_search_with_threshold(query=refined_question, k=parameters.k)
 
         console.print("\n[bold magenta]Sources:[/bold magenta]")
         for source in sources:
@@ -135,8 +135,8 @@ def main(parameters):
 
     conversation = ConversationRetrieval(llm)
 
-    embedding = EmbedderHuggingFace().get_embedding()
-    index = VectorMemory(vector_store_path=str(vector_store_path), embedding=embedding)
+    embedding = Embedder()
+    index = Chroma(persist_directory=str(vector_store_path), embedding=embedding)
 
     loop(conversation, synthesis_strategy, index, parameters)
 

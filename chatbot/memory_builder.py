@@ -1,45 +1,37 @@
 import argparse
 import sys
 from pathlib import Path
-from typing import List
 
-from bot.memory.embedder import EmbedderHuggingFace
-from bot.memory.vector_memory import VectorMemory
+from bot.memory.embedder import Embedder
+from bot.memory.vector_database.chroma import Chroma
+from document_loader.format import Format
+from document_loader.loader import DirectoryLoader
+from document_loader.text_splitter import create_recursive_text_splitter
+from entities.document import Document
 from helpers.log import get_logger
-from langchain.document_loaders import DirectoryLoader, UnstructuredMarkdownLoader
-from langchain.text_splitter import MarkdownTextSplitter
 
 logger = get_logger(__name__)
 
 
-def load_documents(docs_path: str) -> List:
+def load_documents(docs_path: Path) -> list[Document]:
     """
     Loads Markdown documents from the specified path.
 
     Args:
-        docs_path (str): The path to the documents.
+        docs_path (Path): The path to the documents.
 
     Returns:
-        List: A list of loaded documents.
-
-    Raises:
-        None
-
-    Example:
-        >>> load_documents('/path/to/documents')
-        [document1, document2, document3]
+        List[Document]: A list of loaded documents.
     """
     loader = DirectoryLoader(
-        docs_path,
+        path=docs_path,
         glob="**/*.md",
-        loader_cls=UnstructuredMarkdownLoader,
-        # loader_kwargs={"mode": "elements"},
         show_progress=True,
     )
     return loader.load()
 
 
-def split_chunks(sources: List, chunk_size: int = 512, chunk_overlap: int = 0) -> List:
+def split_chunks(sources: list, chunk_size: int = 512, chunk_overlap: int = 25) -> list:
     """
     Splits a list of sources into smaller chunks.
 
@@ -52,19 +44,27 @@ def split_chunks(sources: List, chunk_size: int = 512, chunk_overlap: int = 0) -
         List: A list of smaller chunks obtained from the input sources.
     """
     chunks = []
-    splitter = MarkdownTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
+    splitter = create_recursive_text_splitter(
+        format=Format.MARKDOWN.value, chunk_size=chunk_size, chunk_overlap=chunk_overlap
+    )
     for chunk in splitter.split_documents(sources):
         chunks.append(chunk)
     return chunks
 
 
-def build_memory_index(docs_path: str, vector_store_path: str, chunk_size: int, chunk_overlap: int):
-    sources = load_documents(str(docs_path))
-    logger.info(f"Number of Documents: {len(sources)}")
+def build_memory_index(docs_path: Path, vector_store_path: str, chunk_size: int, chunk_overlap: int):
+    logger.info(f"Loading documents from: {docs_path}")
+    sources = load_documents(docs_path)
+    logger.info(f"Number of loaded documents: {len(sources)}")
+
+    logger.info("Chunking documents...")
     chunks = split_chunks(sources, chunk_size=chunk_size, chunk_overlap=chunk_overlap)
-    logger.info(f"Number of Chunks: {len(chunks)}")
-    embedding = EmbedderHuggingFace().get_embedding()
-    VectorMemory.create_memory_index(embedding, chunks, vector_store_path)
+    logger.info(f"Number of generated chunks: {len(chunks)}")
+
+    logger.info("Creating memory index...")
+    embedding = Embedder()
+    vector_database = Chroma(persist_directory=str(vector_store_path), embedding=embedding)
+    vector_database.from_chunks(chunks)
     logger.info("Memory Index has been created successfully!")
 
 
@@ -80,9 +80,9 @@ def get_args() -> argparse.Namespace:
     parser.add_argument(
         "--chunk-overlap",
         type=int,
-        help="The amount of overlap between consecutive chunks. Defaults to 0.",
+        help="The amount of overlap between consecutive chunks. Defaults to 25.",
         required=False,
-        default=0,
+        default=25,
     )
 
     return parser.parse_args()
@@ -94,7 +94,7 @@ def main(parameters):
     vector_store_path = root_folder / "vector_store" / "docs_index"
 
     build_memory_index(
-        str(doc_path),
+        doc_path,
         str(vector_store_path),
         parameters.chunk_size,
         parameters.chunk_overlap,

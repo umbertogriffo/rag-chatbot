@@ -16,10 +16,8 @@
 > GitHub [issue](https://github.com/abetlen/llama-cpp-python/issues).
 
 > [!WARNING]
-> lama_cpp_pyhon doesn't use GPU on M1 if you are running an x86 version of Python. More info [here](https://github.com/abetlen/llama-cpp-python/issues/756#issuecomment-1870324323)
-
-> [!WARNING]
-> Note: it's important to note that the large language model sometimes generates hallucinations or false information.
+> - `lama_cpp_pyhon` doesn't use `GPU` on `M1` if you are running an `x86` version of `Python`. More info [here](https://github.com/abetlen/llama-cpp-python/issues/756#issuecomment-1870324323).
+> - It's important to note that the large language model sometimes generates hallucinations or false information.
 
 ## Table of contents
 
@@ -40,12 +38,13 @@
 
 ## Introduction
 
-This project combines the power
-of [Lama.cpp](https://github.com/abetlen/llama-cpp-python), [LangChain](https://python.langchain.com/docs/get_started/introduction.html) (only used for document chunking and querying the Vector Database, and we plan to
-eliminate it entirely), [Chroma](https://github.com/chroma-core/chroma) and [Streamlit](https://discuss.streamlit.io/) to build:
+This project combines the power of [Lama.cpp](https://github.com/abetlen/llama-cpp-python), [Chroma](https://github.com/chroma-core/chroma) and [Streamlit](https://discuss.streamlit.io/) to build:
 
 * a Conversation-aware Chatbot (ChatGPT like experience).
 * a RAG (Retrieval-augmented generation) ChatBot.
+
+> [!NOTE]
+> We decided to utilize and refactor the `RecursiveCharacterTextSplitter` class from `LangChain` to properly chunk Markdown.
 
 The RAG Chatbot works by taking a collection of Markdown files as input and, when asked a question, provides the
 corresponding answer
@@ -162,7 +161,7 @@ and put them under `docs`.
 Run:
 
 ```shell
-python chatbot/memory_builder.py --chunk-size 1000
+python chatbot/memory_builder.py --chunk-size 1000 --chunk-overlap 50
 ```
 
 ## Run the Chatbot
@@ -170,7 +169,7 @@ python chatbot/memory_builder.py --chunk-size 1000
 To interact with a GUI type:
 
 ```shell
-streamlit run chatbot/chatbot_app.py -- --model openchat-3.6 --max-new-tokens 1024
+streamlit run chatbot/chatbot_app.py -- --model llama-3 --max-new-tokens 1024
 ```
 
 ![conversation-aware-chatbot.gif](images/conversation-aware-chatbot.gif)
@@ -180,7 +179,7 @@ streamlit run chatbot/chatbot_app.py -- --model openchat-3.6 --max-new-tokens 10
 To interact with a GUI type:
 
 ```shell
-streamlit run chatbot/rag_chatbot_app.py -- --model openchat-3.6 --k 2 --synthesis-strategy async-tree-summarization
+streamlit run chatbot/rag_chatbot_app.py -- --model llama-3 --k 2 --synthesis-strategy async-tree-summarization
 ```
 
 ![rag_chatbot_example.gif](images%2Frag_chatbot_example.gif)
@@ -193,21 +192,13 @@ streamlit run chatbot/rag_chatbot_app.py -- --model openchat-3.6 --k 2 --synthes
 
 * LLMs:
     * [Calculating GPU memory for serving LLMs](https://www.substratus.ai/blog/calculating-gpu-memory-for-llm/)
-    * [Building Response Synthesis from Scratch](https://gpt-index.readthedocs.io/en/latest/examples/low_level/response_synthesis.html#)
     * [GPT in 60 Lines of NumPy](https://jaykmody.com/blog/gpt-from-scratch/)
     * [Introduction to Weight Quantization](https://towardsdatascience.com/introduction-to-weight-quantization-2494701b9c0c)
-* LLM integration and Modules:
-    * [LangChain](https://python.langchain.com/docs/get_started/introduction.html):
-        * [MarkdownTextSplitter](https://api.python.langchain.com/en/latest/_modules/langchain/text_splitter.html#MarkdownTextSplitter)
-        * [Chroma Integration](https://python.langchain.com/docs/modules/data_connection/vectorstores/integrations/chroma)
-        * [The Problem With LangChain](https://minimaxir.com/2023/07/langchain-problem/#:~:text=The%20problem%20with%20LangChain%20is,don't%20start%20with%20LangChain)
 * Embeddings:
     * [all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2)
         * This is a `sentence-transformers` model: It maps sentences & paragraphs to a 384 dimensional dense vector
           space and can be used for tasks like clustering or semantic search.
 * Vector Databases:
-    * [Chroma](https://www.trychroma.com/)
-    * [Food Discovery with Qdrant](https://qdrant.tech/articles/new-recommendation-api/#)
     * Indexing algorithms:
         * There are many algorithms for building indexes to optimize vector search. Most vector databases
           implement `Hierarchical Navigable Small World (HNSW)` and/or `Inverted File Index (IVF)`. Here are some great
@@ -218,13 +209,16 @@ streamlit run chatbot/rag_chatbot_app.py -- --model openchat-3.6 --k 2 --synthes
             * [From NVIDIA - Accelerating Vector Search: Fine-Tuning GPU Index Algorithms](https://developer.nvidia.com/blog/accelerating-vector-search-fine-tuning-gpu-index-algorithms/)
             * > PS: Flat indexes (i.e. no optimisation) can be used to maintain 100% recall and precision, at the
               expense of speed.
+    * [Chroma](https://www.trychroma.com/)
+    * [Food Discovery with Qdrant](https://qdrant.tech/articles/new-recommendation-api/#)
 * Retrieval Augmented Generation (RAG):
+    * [Building A Generative AI Platform](https://huyenchip.com/2024/07/25/genai-platform.html)
     * [Rewrite-Retrieve-Read](https://github.com/langchain-ai/langchain/blob/master/cookbook/rewrite.ipynb)
         * > Because the original query can not be always optimal to retrieve for the LLM, especially in the real world,
           we first prompt an LLM to rewrite the queries, then conduct retrieval-augmented reading.
     * [Rerank](https://txt.cohere.com/rag-chatbot/#implement-reranking)
+    * [Building Response Synthesis from Scratch](https://gpt-index.readthedocs.io/en/latest/examples/low_level/response_synthesis.html#)
     * [Conversational awareness](https://langstream.ai/2023/10/13/rag-chatbot-with-conversation/)
-    * [Summarization: Improving RAG quality in LLM apps while minimizing vector storage costs](https://www.ninetack.io/post/improving-rag-quality-by-summarization)
     * [RAG is Dead, Again?](https://jina.ai/news/rag-is-dead-again/)
 * Chatbot Development:
     * [Streamlit](https://discuss.streamlit.io/):

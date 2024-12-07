@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from typing import Any, Iterator, Union
+from typing import Any, Iterator
 
 import requests
 from llama_cpp import CreateCompletionResponse, CreateCompletionStreamResponse, Llama
@@ -158,7 +158,7 @@ class LamaCppClient:
 
     def start_answer_iterator_streamer(
         self, prompt: str, max_new_tokens: int = 512
-    ) -> Union[CreateCompletionResponse, Iterator[CreateCompletionStreamResponse]]:
+    ) -> CreateCompletionResponse | Iterator[CreateCompletionStreamResponse]:
         """
         Abstract method to start an answer iterator streamer for a given prompt.
 
@@ -181,7 +181,7 @@ class LamaCppClient:
 
     async def async_start_answer_iterator_streamer(
         self, prompt: str, max_new_tokens: int = 512
-    ) -> Union[CreateCompletionResponse, Iterator[CreateCompletionStreamResponse]]:
+    ) -> CreateCompletionResponse | Iterator[CreateCompletionStreamResponse]:
         """
         This abstract method should be implemented to asynchronously start an answer iterator streamer,
         providing a flexible way to generate answers in a streaming fashion based on the given prompt.
@@ -203,10 +203,12 @@ class LamaCppClient:
 
         return stream
 
-    def parse_token(self, token):
+    @staticmethod
+    def parse_token(token):
         return token["choices"][0]["delta"].get("content", "")
 
-    def generate_qa_prompt(self, question: str) -> str:
+    @staticmethod
+    def generate_qa_prompt(question: str) -> str:
         """
         Generates a question-answering (QA) prompt using predefined templates.
 
@@ -222,7 +224,8 @@ class LamaCppClient:
             question=question,
         )
 
-    def generate_ctx_prompt(self, question: str, context: str) -> str:
+    @staticmethod
+    def generate_ctx_prompt(question: str, context: str) -> str:
         """
         Generates a context-based prompt using predefined templates.
 
@@ -240,7 +243,8 @@ class LamaCppClient:
             context=context,
         )
 
-    def generate_refined_ctx_prompt(self, question: str, context: str, existing_answer: str) -> str:
+    @staticmethod
+    def generate_refined_ctx_prompt(question: str, context: str, existing_answer: str) -> str:
         """
         Generates a refined prompt for question-answering with existing answer.
 
@@ -260,7 +264,8 @@ class LamaCppClient:
             existing_answer=existing_answer,
         )
 
-    def generate_refined_question_conversation_awareness_prompt(self, question: str, chat_history: str) -> str:
+    @staticmethod
+    def generate_refined_question_conversation_awareness_prompt(question: str, chat_history: str) -> str:
         return generate_conversation_awareness_prompt(
             template=REFINED_QUESTION_CONVERSATION_AWARENESS_PROMPT_TEMPLATE,
             system=SYSTEM_TEMPLATE,
@@ -268,7 +273,8 @@ class LamaCppClient:
             chat_history=chat_history,
         )
 
-    def generate_refined_answer_conversation_awareness_prompt(self, question: str, chat_history: str) -> str:
+    @staticmethod
+    def generate_refined_answer_conversation_awareness_prompt(question: str, chat_history: str) -> str:
         return generate_conversation_awareness_prompt(
             template=REFINED_ANSWER_CONVERSATION_AWARENESS_PROMPT_TEMPLATE,
             system=SYSTEM_TEMPLATE,

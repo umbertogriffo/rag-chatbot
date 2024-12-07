@@ -1,9 +1,9 @@
 from abc import ABC
-from typing import Any, Dict, Optional
+from typing import Any
 
 
 class Model(ABC):
     url: str
     file_name: str
-    config: Dict[str, Any]
-    config_answer: Optional[Dict[str, Any]]
+    config: dict[str, Any]
+    config_answer: dict[str, Any] | None
