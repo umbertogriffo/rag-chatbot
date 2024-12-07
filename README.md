@@ -43,6 +43,9 @@ This project combines the power of [Lama.cpp](https://github.com/abetlen/llama-c
 * a Conversation-aware Chatbot (ChatGPT like experience).
 * a RAG (Retrieval-augmented generation) ChatBot.
 
+> [!NOTE]
+> We decided to utilize and refactor the `RecursiveCharacterTextSplitter` class from `LangChain` to properly chunk Markdown.
+
 The RAG Chatbot works by taking a collection of Markdown files as input and, when asked a question, provides the
 corresponding answer
 based on the context provided by those files.
