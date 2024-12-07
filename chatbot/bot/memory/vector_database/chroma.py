@@ -30,8 +30,8 @@ import chromadb
 import chromadb.config
 from bot.memory.embedder import Embedder
 from chromadb.utils.batch_utils import create_batches
+from distance_metric import DistanceMetric, get_relevance_score_fn
 from entities.document import Document
-from vector_database.distance_metric import DistanceMetric, get_relevance_score_fn
 
 logger = logging.getLogger(__name__)
 
@@ -51,8 +51,6 @@ class Chroma:
         collection_metadata: dict | None = None,
         client: chromadb.Client = None,
     ) -> None:
-        """Initialize with a Chroma client."""
-
         if client is not None:
             self._client_settings = client_settings
             self._client = client
@@ -63,10 +61,6 @@ class Chroma:
                 # then it is "in-memory and persisting to disk" mode.
                 client_settings.persist_directory = persist_directory or client_settings.persist_directory
                 _client_settings = client_settings
-            elif persist_directory:
-                # Maintain backwards compatibility with chromadb < 0.4.0
-                _client_settings = chromadb.config.Settings(is_persistent=True)
-                _client_settings.persist_directory = persist_directory
             else:
                 _client_settings = chromadb.config.Settings()
             self._client_settings = _client_settings

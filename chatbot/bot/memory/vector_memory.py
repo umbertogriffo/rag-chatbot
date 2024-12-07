@@ -61,9 +61,6 @@ class VectorMemory:
         query : str
             The query string.
 
-        index : Chroma
-            The Chroma index to perform the search on.
-
         k : int, optional
             The number of retrievals to consider (default is 4).
 
