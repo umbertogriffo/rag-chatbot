@@ -1,6 +1,8 @@
 # Todo
 - Add:
   - https://huggingface.co/bartowski/Phi-3.1-mini-128k-instruct-GGUF
+  - https://huggingface.co/bartowski/Phi-3.5-mini-instruct-GGUF
+  - https://huggingface.co/bartowski/Llama-3.2-3B-Instruct-GGUF
   - https://huggingface.co/bartowski/Qwen2.5-Coder-7B-Instruct-abliterated-GGUF
   - https://huggingface.co/bartowski/Qwen2.5-Coder-7B-Instruct-GGUF
 - Provide the chat history in the `context_aware_answer`
