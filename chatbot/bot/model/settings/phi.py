@@ -1,7 +1,7 @@
-from bot.model.model_settings import ModelSetting
+from bot.model.model import ModelSettings
 
 
-class Phi31Settings(ModelSetting):
+class Phi31Settings(ModelSettings):
     url = "https://huggingface.co/bartowski/Phi-3.1-mini-128k-instruct-GGUF/resolve/main/Phi-3.1-mini-128k-instruct-Q5_K_M.gguf"
     file_name = "Phi-3.1-mini-128k-instruct-Q5_K_M.gguf"
     config = {
@@ -12,7 +12,7 @@ class Phi31Settings(ModelSetting):
     config_answer = {"temperature": 0.7, "stop": []}
 
 
-class Phi35Settings(ModelSetting):
+class Phi35Settings(ModelSettings):
     url = "https://huggingface.co/bartowski/Phi-3.5-mini-instruct-GGUF/resolve/main/Phi-3.5-mini-instruct-Q5_K_M.gguf"
     file_name = "Phi-3.5-mini-instruct-Q5_K_M.gguf.gguf"
     config = {

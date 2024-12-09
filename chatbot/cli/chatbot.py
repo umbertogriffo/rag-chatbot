@@ -4,7 +4,7 @@ import time
 from pathlib import Path
 
 from bot.client.lama_cpp_client import LamaCppClient
-from bot.model.model_settings import get_model_setting, get_models
+from bot.model.model_settings import get_model_settings, get_models
 from helpers.log import get_logger
 from helpers.reader import read_input
 from pyfiglet import Figlet
@@ -67,7 +67,7 @@ def loop(llm):
 
 
 def main(parameters):
-    model_settings = get_model_setting(parameters.model)
+    model_settings = get_model_settings(parameters.model)
 
     root_folder = Path(__file__).resolve().parent.parent.parent
     model_folder = root_folder / "models"

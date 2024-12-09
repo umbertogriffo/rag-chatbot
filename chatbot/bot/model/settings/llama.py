@@ -1,7 +1,7 @@
-from bot.model.model_settings import ModelSetting
+from bot.model.model import ModelSettings
 
 
-class Llama31Settings(ModelSetting):
+class Llama31Settings(ModelSettings):
     url = "https://huggingface.co/bartowski/Meta-Llama-3.1-8B-Instruct-GGUF/resolve/main/Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf"
     file_name = "Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf"
     config = {
@@ -12,7 +12,7 @@ class Llama31Settings(ModelSetting):
     config_answer = {"temperature": 0.7, "stop": []}
 
 
-class Llama32Settings(ModelSetting):
+class Llama32Settings(ModelSettings):
     # There is also the uncensored version: https://huggingface.co/bartowski/Llama-3.2-3B-Instruct-uncensored-GGUF
     url = "https://huggingface.co/bartowski/Llama-3.2-3B-Instruct-GGUF/resolve/main/Llama-3.2-3B-Instruct-Q5_K_M.gguf"
     file_name = "Llama-3.2-3B-Instruct-Q5_K_M.gguf"

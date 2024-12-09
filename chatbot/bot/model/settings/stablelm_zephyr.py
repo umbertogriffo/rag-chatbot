@@ -1,7 +1,7 @@
-from bot.model.model_settings import ModelSetting
+from bot.model.model import ModelSettings
 
 
-class StableLMZephyrSettings(ModelSetting):
+class StableLMZephyrSettings(ModelSettings):
     url = "https://huggingface.co/TheBloke/stablelm-zephyr-3b-GGUF/resolve/main/stablelm-zephyr-3b.Q5_K_M.gguf"
     file_name = "stablelm-zephyr-3b.Q5_K_M.gguf"
     config = {

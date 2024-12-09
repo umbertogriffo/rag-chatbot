@@ -6,7 +6,7 @@ from pathlib import Path
 import streamlit as st
 from bot.client.lama_cpp_client import LamaCppClient
 from bot.conversation.conversation_retrieval import ConversationRetrieval
-from bot.model.model_settings import get_model_setting, get_models
+from bot.model.model_settings import get_model_settings, get_models
 from helpers.log import get_logger
 
 logger = get_logger(__name__)
@@ -17,7 +17,7 @@ def load_llm(model_name: str, model_folder: Path) -> LamaCppClient:
     """
     Create a LLM session object that points to the model.
     """
-    model_settings = get_model_setting(model_name)
+    model_settings = get_model_settings(model_name)
     llm = LamaCppClient(model_folder=model_folder, model_settings=model_settings)
     return llm
 

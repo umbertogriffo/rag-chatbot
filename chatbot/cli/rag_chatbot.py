@@ -8,7 +8,7 @@ from bot.conversation.conversation_retrieval import ConversationRetrieval
 from bot.conversation.ctx_strategy import get_ctx_synthesis_strategies, get_ctx_synthesis_strategy
 from bot.memory.embedder import Embedder
 from bot.memory.vector_database.chroma import Chroma
-from bot.model.model_settings import get_model_setting, get_models
+from bot.model.model_settings import get_model_settings, get_models
 from helpers.log import get_logger
 from helpers.prettier import prettify_source
 from helpers.reader import read_input
@@ -123,7 +123,7 @@ def loop(conversation, synthesis_strategy, index, parameters) -> None:
 
 
 def main(parameters):
-    model_settings = get_model_setting(parameters.model)
+    model_settings = get_model_settings(parameters.model)
 
     root_folder = Path(__file__).resolve().parent.parent.parent
     model_folder = root_folder / "models"

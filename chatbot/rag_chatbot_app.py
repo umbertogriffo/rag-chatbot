@@ -13,7 +13,7 @@ from bot.conversation.ctx_strategy import (
 )
 from bot.memory.embedder import Embedder
 from bot.memory.vector_database.chroma import Chroma
-from bot.model.model_settings import get_model_setting, get_models
+from bot.model.model_settings import get_model_settings, get_models
 from helpers.log import get_logger
 from helpers.prettier import prettify_source
 
@@ -22,7 +22,7 @@ logger = get_logger(__name__)
 
 @st.cache_resource()
 def load_llm_client(model_folder: Path, model_name: str) -> LamaCppClient:
-    model_settings = get_model_setting(model_name)
+    model_settings = get_model_settings(model_name)
     llm = LamaCppClient(model_folder=model_folder, model_settings=model_settings)
 
     return llm

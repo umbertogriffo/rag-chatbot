@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 import pytest
 from bot.client.lama_cpp_client import LamaCppClient
-from bot.model.model_settings import ModelType, get_model_setting
+from bot.model.model_settings import ModelType, get_model_settings
 
 
 @pytest.fixture
@@ -18,7 +18,7 @@ def cpu_config():
 
 @pytest.fixture
 def model_settings():
-    model_setting = get_model_setting(ModelType.LLAMA_3_2.value)
+    model_setting = get_model_settings(ModelType.LLAMA_3_2.value)
     return model_setting
 
 
