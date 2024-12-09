@@ -1,4 +1,4 @@
-from bot.model.modelsetting import ModelSetting
+from bot.model.model_settings import ModelSetting
 
 
 class Phi31Settings(ModelSetting):

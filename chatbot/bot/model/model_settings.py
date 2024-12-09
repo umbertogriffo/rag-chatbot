@@ -1,10 +1,19 @@
+from abc import ABC
 from enum import Enum
+from typing import Any
 
 from bot.model.settings.llama import Llama31Settings, Llama32Settings
 from bot.model.settings.openchat import OpenChat35Settings, OpenChat36Settings
 from bot.model.settings.phi import Phi31Settings, Phi35Settings
 from bot.model.settings.stablelm_zephyr import StableLMZephyrSettings
 from bot.model.settings.starling import StarlingSettings
+
+
+class ModelSetting(ABC):
+    url: str
+    file_name: str
+    config: dict[str, Any]
+    config_answer: dict[str, Any] | None
 
 
 class ModelType(Enum):
