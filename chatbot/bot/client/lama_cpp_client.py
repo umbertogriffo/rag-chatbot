@@ -18,7 +18,7 @@ from bot.client.prompt import (
     generate_qa_prompt,
     generate_refined_ctx_prompt,
 )
-from bot.model.model import Model
+from bot.model.modelsetting import ModelSetting
 
 
 class LamaCppClient:
@@ -26,7 +26,7 @@ class LamaCppClient:
     Class for implementing language model client.
     """
 
-    def __init__(self, model_folder: Path, model_settings: Model):
+    def __init__(self, model_folder: Path, model_settings: ModelSetting):
         self.model_settings = model_settings
         self.model_folder = model_folder
         self.model_path = self.model_folder / self.model_settings.file_name

@@ -17,15 +17,15 @@ def cpu_config():
 
 
 @pytest.fixture
-def valid_model_settings():
-    model_setting = get_model_setting(ModelType.PHI_3.value)
+def model_settings():
+    model_setting = get_model_setting(ModelType.LLAMA_3_2.value)
     return model_setting
 
 
 @pytest.fixture
-def lamacpp_client(mock_model_folder, valid_model_settings, cpu_config):
-    with patch.object(valid_model_settings, "config", cpu_config):
-        return LamaCppClient(mock_model_folder, valid_model_settings)
+def lamacpp_client(mock_model_folder, model_settings, cpu_config):
+    with patch.object(model_settings, "config", cpu_config):
+        return LamaCppClient(mock_model_folder, model_settings)
 
 
 def test_generate_answer(lamacpp_client):

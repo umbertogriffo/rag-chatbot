@@ -1,7 +1,7 @@
-from bot.model.model import Model
+from bot.model.modelsetting import ModelSetting
 
 
-class StarlingSettings(Model):
+class StarlingSettings(ModelSetting):
     url = "https://huggingface.co/bartowski/Starling-LM-7B-beta-GGUF/resolve/main/Starling-LM-7B-beta-Q4_K_M.gguf"
     file_name = "Starling-LM-7B-beta-Q4_K_M.gguf"
     config = {

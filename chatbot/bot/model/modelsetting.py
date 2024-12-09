@@ -2,7 +2,7 @@ from abc import ABC
 from typing import Any
 
 
-class Model(ABC):
+class ModelSetting(ABC):
     url: str
     file_name: str
     config: dict[str, Any]

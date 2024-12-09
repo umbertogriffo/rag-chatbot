@@ -16,7 +16,8 @@
 > GitHub [issue](https://github.com/abetlen/llama-cpp-python/issues).
 
 > [!WARNING]
-> - `lama_cpp_pyhon` doesn't use `GPU` on `M1` if you are running an `x86` version of `Python`. More info [here](https://github.com/abetlen/llama-cpp-python/issues/756#issuecomment-1870324323).
+> - `lama_cpp_pyhon` doesn't use `GPU` on `M1` if you are running an `x86` version of `Python`. More
+    info [here](https://github.com/abetlen/llama-cpp-python/issues/756#issuecomment-1870324323).
 > - It's important to note that the large language model sometimes generates hallucinations or false information.
 
 ## Table of contents
@@ -38,7 +39,9 @@
 
 ## Introduction
 
-This project combines the power of [Lama.cpp](https://github.com/abetlen/llama-cpp-python), [Chroma](https://github.com/chroma-core/chroma) and [Streamlit](https://discuss.streamlit.io/) to build:
+This project combines the power
+of [Lama.cpp](https://github.com/abetlen/llama-cpp-python), [Chroma](https://github.com/chroma-core/chroma)
+and [Streamlit](https://discuss.streamlit.io/) to build:
 
 * a Conversation-aware Chatbot (ChatGPT like experience).
 * a RAG (Retrieval-augmented generation) ChatBot.
@@ -50,7 +53,8 @@ based on the context provided by those files.
 ![rag-chatbot-architecture-1.png](images/rag-chatbot-architecture-1.png)
 
 > [!NOTE]
-> We decided to grab and refactor the `RecursiveCharacterTextSplitter` class from `LangChain` to effectively chunk Markdown files without adding LangChain as a dependency.
+> We decided to grab and refactor the `RecursiveCharacterTextSplitter` class from `LangChain` to effectively chunk
+> Markdown files without adding LangChain as a dependency.
 
 The `Memory Builder` component of the project loads Markdown pages from the `docs` folder.
 It then divides these pages into smaller sections, calculates the embeddings (a numerical representation) of these
@@ -123,23 +127,27 @@ To easily install the dependencies we created a make file.
 
 ## Using the Open-Source Models Locally
 
-We utilize the open-source library [llama-cpp-python](https://github.com/abetlen/llama-cpp-python), a binding for [llama-cpp](https://github.com/ggerganov/llama.cpp),
+We utilize the open-source library [llama-cpp-python](https://github.com/abetlen/llama-cpp-python), a binding
+for [llama-cpp](https://github.com/ggerganov/llama.cpp),
 allowing us to utilize it within a Python environment.
 `llama-cpp` serves as a C++ backend designed to work efficiently with transformer-based models.
 Running the LLMs architecture on a local PC is impossible due to the large (~7 billion) number of parameters.
 This library enable us to run them either on a `CPU` or `GPU`.
 Additionally, we use the `Quantization and 4-bit precision` to reduce number of bits required to represent the numbers.
-The quantized models are stored in [GGML/GGUF](https://medium.com/@phillipgimmi/what-is-gguf-and-ggml-e364834d241c) format.
+The quantized models are stored in [GGML/GGUF](https://medium.com/@phillipgimmi/what-is-gguf-and-ggml-e364834d241c)
+format.
 
 ### Supported Models
 
 | 🤖 Model                                   | Supported | Model Size | Notes and link to the model                                                                                                                                          |
 |--------------------------------------------|-----------|------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `llama-3` Meta Llama 3.1 Instruct          | ✅         | 8B         | **Recommended model** [link](https://huggingface.co/bartowski/Meta-Llama-3.1-8B-Instruct-GGUF)                                                                       |
+| `llama-3.2` Meta Llama 3.2 Instruct        | ✅         | 3B         | **Recommended model** [link](https://huggingface.co/bartowski/Llama-3.2-3B-Instruct-GGUF)                                                                            |
+| `llama-3.1` Meta Llama 3.1 Instruct        | ✅         | 8B         | [link](https://huggingface.co/bartowski/Meta-Llama-3.1-8B-Instruct-GGUF)                                                                                             |
 | `openchat-3.6` - OpenChat 3.6              | ✅         | 8B         | [link](https://huggingface.co/bartowski/openchat-3.6-8b-20240522-GGUF)                                                                                               |
 | `openchat-3.5` - OpenChat 3.5              | ✅         | 7B         | [link](https://huggingface.co/TheBloke/openchat-3.5-0106-GGUF)                                                                                                       |
 | `starling` Starling Beta                   | ✅         | 7B         | Is trained from `Openchat-3.5-0106`. It's recommended if you prefer more verbosity over OpenChat - [link](https://huggingface.co/bartowski/Starling-LM-7B-beta-GGUF) | | |
-| `phi-3` Phi-3.1 Mini 4K Instruct           | ✅         | 3.8B       | Set `max-new-tokens` up to `1024`. Not recommended for RAG. [link](https://huggingface.co/bartowski/Phi-3.1-mini-4k-instruct-GGUF)                                   |
+| `phi-3.5` Phi-3.5 Mini 128K Instruct       | ✅         | 3.8B       | Set `max-new-tokens` up to `1024`. Not recommended for RAG. [link](https://huggingface.co/bartowski/Phi-3.5-mini-instruct-GGUF)                                      |
+| `phi-3.1` Phi-3.1 Mini 128K Instruct       | ✅         | 3.8B       | Set `max-new-tokens` up to `1024`. Not recommended for RAG. [link](https://huggingface.co/bartowski/Phi-3.1-mini-128k-instruct-GGUF)                                 |
 | `stablelm-zephyr` StableLM Zephyr OpenOrca | ✅         | 3B         | [link](https://huggingface.co/TheBloke/stablelm-zephyr-3b-GGUF)                                                                                                      |
 
 ## Supported Response Synthesis strategies
@@ -169,7 +177,7 @@ python chatbot/memory_builder.py --chunk-size 1000 --chunk-overlap 50
 To interact with a GUI type:
 
 ```shell
-streamlit run chatbot/chatbot_app.py -- --model llama-3 --max-new-tokens 1024
+streamlit run chatbot/chatbot_app.py -- --model llama-3.2 --max-new-tokens 1024
 ```
 
 ![conversation-aware-chatbot.gif](images/conversation-aware-chatbot.gif)
@@ -179,7 +187,7 @@ streamlit run chatbot/chatbot_app.py -- --model llama-3 --max-new-tokens 1024
 To interact with a GUI type:
 
 ```shell
-streamlit run chatbot/rag_chatbot_app.py -- --model llama-3 --k 2 --synthesis-strategy async-tree-summarization
+streamlit run chatbot/rag_chatbot_app.py -- --model llama-3.2 --k 2 --synthesis-strategy async-tree-summarization
 ```
 
 ![rag_chatbot_example.gif](images%2Frag_chatbot_example.gif)
