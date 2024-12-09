@@ -16,6 +16,7 @@
     - https://blog.nextideatech.com/how-to-use-google-search-with-langchain-openai/
     - https://medium.com/@reynxzz/rag-with-gemini-google-search-and-bq-vector-search-for-content-personalization-08fe7dab6b33
     - https://newspaper.readthedocs.io/en/latest/
+- Explore long term memory: https://help.openai.com/en/articles/8590148-memory-faq
 - Investigate Chroma batch querying: https://github.com/langchain-ai/langchain/blob/907c758d67764385828c8abad14a3e64cf44d05b/libs/community/langchain_community/vectorstores/chroma.py#L42
 - Make docker container.
 - Test Flash attention:
