@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 import pytest
 from bot.client.lama_cpp_client import LamaCppClient
-from bot.model.model_settings import ModelType, get_model_settings
+from bot.model.model_registry import ModelType, get_model_settings
 
 
 @pytest.fixture
