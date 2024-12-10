@@ -139,15 +139,15 @@ format.
 
 ### Supported Models
 
-| 🤖 Model                                   | Supported | Model Size | Notes and link to the model                                                                                                                                          |
-|--------------------------------------------|-----------|------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `llama-3.2` Meta Llama 3.2 Instruct        | ✅         | 3B         | **Recommended model** [link](https://huggingface.co/bartowski/Llama-3.2-3B-Instruct-GGUF)                                                                            |
-| `llama-3.1` Meta Llama 3.1 Instruct        | ✅         | 8B         | [link](https://huggingface.co/bartowski/Meta-Llama-3.1-8B-Instruct-GGUF)                                                                                             |
-| `openchat-3.6` - OpenChat 3.6              | ✅         | 8B         | [link](https://huggingface.co/bartowski/openchat-3.6-8b-20240522-GGUF)                                                                                               |
-| `openchat-3.5` - OpenChat 3.5              | ✅         | 7B         | [link](https://huggingface.co/TheBloke/openchat-3.5-0106-GGUF)                                                                                                       |
-| `starling` Starling Beta                   | ✅         | 7B         | Is trained from `Openchat-3.5-0106`. It's recommended if you prefer more verbosity over OpenChat - [link](https://huggingface.co/bartowski/Starling-LM-7B-beta-GGUF) | | |
-| `phi-3.5` Phi-3.5 Mini 128K Instruct       | ✅         | 3.8B       | [link](https://huggingface.co/MaziyarPanahi/Phi-3.5-mini-instruct-GGUF)                                                                                              |
-| `stablelm-zephyr` StableLM Zephyr OpenOrca | ✅         | 3B         | [link](https://huggingface.co/TheBloke/stablelm-zephyr-3b-GGUF)                                                                                                      |
+| 🤖 Model                                   | Supported | Model Size | Max Context Window | Notes and link to the model card                                                                                                                                     |
+|--------------------------------------------|-----------|------------|--------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `llama-3.2` Meta Llama 3.2 Instruct        | ✅         | 3B         | 128k               | **Recommended model** [Card](https://huggingface.co/bartowski/Llama-3.2-3B-Instruct-GGUF)                                                                            |
+| `llama-3.1` Meta Llama 3.1 Instruct        | ✅         | 8B         | 128k               | [Card](https://huggingface.co/bartowski/Meta-Llama-3.1-8B-Instruct-GGUF)                                                                                             |
+| `openchat-3.6` - OpenChat 3.6              | ✅         | 8B         | 8192               | [Card](https://huggingface.co/bartowski/openchat-3.6-8b-20240522-GGUF)                                                                                               |
+| `openchat-3.5` - OpenChat 3.5              | ✅         | 7B         | 8192               | [Card](https://huggingface.co/TheBloke/openchat-3.5-0106-GGUF)                                                                                                       |
+| `starling` Starling Beta                   | ✅         | 7B         | 8192               | Is trained from `Openchat-3.5-0106`. It's recommended if you prefer more verbosity over OpenChat - [Card](https://huggingface.co/bartowski/Starling-LM-7B-beta-GGUF) |
+| `phi-3.5` Phi-3.5 Mini  Instruct           | ✅         | 3.8B       | 128k               | [Card](https://huggingface.co/MaziyarPanahi/Phi-3.5-mini-instruct-GGUF)                                                                                              |
+| `stablelm-zephyr` StableLM Zephyr OpenOrca | ✅         | 3B         | 4096               | [Card](https://huggingface.co/TheBloke/stablelm-zephyr-3b-GGUF)                                                                                                      |
 
 ## Supported Response Synthesis strategies
 
