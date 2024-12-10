@@ -1,4 +1,4 @@
-from bot.model.model import ModelSettings
+from bot.model.base_model import ModelSettings
 
 
 class Llama31Settings(ModelSettings):

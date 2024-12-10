@@ -6,7 +6,7 @@ from pathlib import Path
 import streamlit as st
 from bot.client.lama_cpp_client import LamaCppClient
 from bot.conversation.conversation_retrieval import ConversationRetrieval
-from bot.model.model_settings import get_model_settings, get_models
+from bot.model.model_registry import get_model_settings, get_models
 from helpers.log import get_logger
 
 logger = get_logger(__name__)

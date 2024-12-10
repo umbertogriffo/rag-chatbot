@@ -146,8 +146,7 @@ format.
 | `openchat-3.6` - OpenChat 3.6              | ✅         | 8B         | [link](https://huggingface.co/bartowski/openchat-3.6-8b-20240522-GGUF)                                                                                               |
 | `openchat-3.5` - OpenChat 3.5              | ✅         | 7B         | [link](https://huggingface.co/TheBloke/openchat-3.5-0106-GGUF)                                                                                                       |
 | `starling` Starling Beta                   | ✅         | 7B         | Is trained from `Openchat-3.5-0106`. It's recommended if you prefer more verbosity over OpenChat - [link](https://huggingface.co/bartowski/Starling-LM-7B-beta-GGUF) | | |
-| `phi-3.5` Phi-3.5 Mini 128K Instruct       | ✅         | 3.8B       | Set `max-new-tokens` up to `1024`. Not recommended for RAG. [link](https://huggingface.co/bartowski/Phi-3.5-mini-instruct-GGUF)                                      |
-| `phi-3.1` Phi-3.1 Mini 128K Instruct       | ✅         | 3.8B       | Set `max-new-tokens` up to `1024`. Not recommended for RAG. [link](https://huggingface.co/bartowski/Phi-3.1-mini-128k-instruct-GGUF)                                 |
+| `phi-3.5` Phi-3.5 Mini 128K Instruct       | ✅         | 3.8B       | [link](https://huggingface.co/MaziyarPanahi/Phi-3.5-mini-instruct-GGUF)                                                                                              |
 | `stablelm-zephyr` StableLM Zephyr OpenOrca | ✅         | 3B         | [link](https://huggingface.co/TheBloke/stablelm-zephyr-3b-GGUF)                                                                                                      |
 
 ## Supported Response Synthesis strategies

@@ -13,7 +13,7 @@ from bot.conversation.ctx_strategy import (
 )
 from bot.memory.embedder import Embedder
 from bot.memory.vector_database.chroma import Chroma
-from bot.model.model_settings import get_model_settings, get_models
+from bot.model.model_registry import get_model_settings, get_models
 from helpers.log import get_logger
 from helpers.prettier import prettify_source
 

@@ -18,7 +18,7 @@ from bot.client.prompt import (
     generate_qa_prompt,
     generate_refined_ctx_prompt,
 )
-from bot.model.model import ModelSettings
+from bot.model.base_model import ModelSettings
 
 
 class LamaCppClient:
