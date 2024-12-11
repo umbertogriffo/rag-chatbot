@@ -9,6 +9,7 @@
   - https://github.com/ollama/ollama-python/tree/main
   - https://github.com/ollama/ollama-python/tree/main/examples
   - https://ollama.com/library/llama3.2-vision:11b
+  - Take also a look here: https://huggingface.co/unsloth
 - Experiment Agentic Patterns:
   - https://weaviate.io/blog/what-is-agentic-rag
   - https://github.com/neural-maze/agentic_patterns
