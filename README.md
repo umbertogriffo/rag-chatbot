@@ -201,6 +201,7 @@ streamlit run chatbot/rag_chatbot_app.py -- --model llama-3.2 --k 2 --synthesis-
     * [Calculating GPU memory for serving LLMs](https://www.substratus.ai/blog/calculating-gpu-memory-for-llm/)
     * [GPT in 60 Lines of NumPy](https://jaykmody.com/blog/gpt-from-scratch/)
     * [Introduction to Weight Quantization](https://towardsdatascience.com/introduction-to-weight-quantization-2494701b9c0c)
+    * [Uncensor any LLM with abliteration](https://huggingface.co/blog/mlabonne/abliteration)
 * Embeddings:
     * [all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2)
         * This is a `sentence-transformers` model: It maps sentences & paragraphs to a 384 dimensional dense vector
