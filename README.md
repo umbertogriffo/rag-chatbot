@@ -238,7 +238,6 @@ streamlit run chatbot/rag_chatbot_app.py -- --model llama-3.2 --k 2 --synthesis-
         * [st.cache_resource](https://docs.streamlit.io/library/api-reference/performance/st.cache_resource)
         * [Handling External Command Line Arguments](https://github.com/streamlit/streamlit/issues/337)
     * [(Investigate) FastServe - Serve Llama-cpp with FastAPI](https://github.com/aniketmaurya/fastserve)
-    * [(Investigate) Ollama](https://github.com/ollama/ollama)
 * Text Processing and Cleaning:
     * [clean-text](https://github.com/jfilter/clean-text/tree/main)
 * Open Source Repositories:
