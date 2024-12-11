@@ -8,6 +8,7 @@
   - Is it supported just by [(Ollama,](https://github.com/ollama/ollama) so we need to use the Python API to create an additional client.
   - https://github.com/ollama/ollama-python/tree/main
   - https://github.com/ollama/ollama-python/tree/main/examples
+  - https://ollama.com/library/llama3.2-vision:11b
 - Experiment Agentic Patterns:
   - https://weaviate.io/blog/what-is-agentic-rag
   - https://github.com/neural-maze/agentic_patterns
