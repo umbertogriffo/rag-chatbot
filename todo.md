@@ -3,12 +3,13 @@
   - https://huggingface.co/bartowski/Qwen2.5-Coder-7B-Instruct-abliterated-GGUF
   - https://huggingface.co/bartowski/Qwen2.5-Coder-7B-Instruct-GGUF
 - Provide the chat history in the `context_aware_answer`.
-- Experiment Multimodality with Llama 3.2 Vision 11B (text + images in / text out)
-  - The model is currently not supported by llama.cpp https://github.com/ggerganov/llama.cpp/issues/9643
+- Experiment Multimodal LLMs with `Llama 3.2 Vision 11B` (text + images in / text out)
+  - The model is currently not supported by `llama.cpp` https://github.com/ggerganov/llama.cpp/issues/9643
   - Is it supported just by [(Ollama,](https://github.com/ollama/ollama) so we need to use the Python API to create an additional client.
-  - https://github.com/ollama/ollama-python/tree/main
-  - https://github.com/ollama/ollama-python/tree/main/examples
-  - https://ollama.com/library/llama3.2-vision:11b
+    - https://github.com/ollama/ollama-python/tree/main
+    - https://github.com/ollama/ollama-python/tree/main/examples
+    - https://ollama.com/library/llama3.2-vision:11b
+  - `Llama 3.2 Vision 11B` requires least `8GB` of `VRAM`, and the `90B` model requires at least `64GB` of `VRAM`.
   - Take also a look here: https://huggingface.co/unsloth
 - Experiment Agentic Patterns:
   - https://weaviate.io/blog/what-is-agentic-rag
