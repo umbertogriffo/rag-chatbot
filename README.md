@@ -211,6 +211,8 @@ streamlit run chatbot/rag_chatbot_app.py -- --model llama-3.2 --k 2 --synthesis-
     * [Ollama Python Library](https://github.com/ollama/ollama-python/tree/main)
     * [Analysis of Ollama Architecture and Conversation Processing Flow for AI LLM Tool](https://medium.com/@rifewang/analysis-of-ollama-architecture-and-conversation-processing-flow-for-ai-llm-tool-ead4b9f40975)
     * [How to Customize Ollama’s Storage Directory](https://medium.com/@chhaybunsy/unleash-your-machine-learning-models-how-to-customize-ollamas-storage-directory-c9ea1ea2961a#:~:text=By%20default%2C%20Ollama%20saves%20its,making%20predictions%20or%20further%20training)
+* Agent Frameworks:
+  * [PydanticAI](https://ai.pydantic.dev/)
 * Embeddings:
   * [all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2)
       * This is a `sentence-transformers` model: It maps sentences & paragraphs to a 384 dimensional dense vector
