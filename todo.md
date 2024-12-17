@@ -21,7 +21,9 @@
     - https://medium.com/@reynxzz/rag-with-gemini-google-search-and-bq-vector-search-for-content-personalization-08fe7dab6b33
     - https://newspaper.readthedocs.io/en/latest/
     - https://github.com/AstraBert/PrAIvateSearch
-- Explore long term memory: https://help.openai.com/en/articles/8590148-memory-faq
+- Explore long term memory:
+  - https://help.openai.com/en/articles/8590148-memory-faq
+  - https://ai.gopubby.com/long-term-memory-for-agentic-ai-systems-4ae9b37c6c0f
 - Investigate Chroma batch querying: https://github.com/langchain-ai/langchain/blob/907c758d67764385828c8abad14a3e64cf44d05b/libs/community/langchain_community/vectorstores/chroma.py#L42
 - Make docker container.
 - Test Flash attention:
