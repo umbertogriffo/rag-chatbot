@@ -197,55 +197,61 @@ streamlit run chatbot/rag_chatbot_app.py -- --model llama-3.2 --k 2 --synthesis-
 
 ## References
 
-* LLMs:
-    * [Calculating GPU memory for serving LLMs](https://www.substratus.ai/blog/calculating-gpu-memory-for-llm/)
-    * [GPT in 60 Lines of NumPy](https://jaykmody.com/blog/gpt-from-scratch/)
-    * [Introduction to Weight Quantization](https://towardsdatascience.com/introduction-to-weight-quantization-2494701b9c0c)
-    * [Uncensor any LLM with abliteration](https://huggingface.co/blog/mlabonne/abliteration)
-* Embeddings:
-    * [all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2)
-        * This is a `sentence-transformers` model: It maps sentences & paragraphs to a 384 dimensional dense vector
-          space and can be used for tasks like clustering or semantic search.
-* Vector Databases:
-    * Indexing algorithms:
-        * There are many algorithms for building indexes to optimize vector search. Most vector databases
-          implement `Hierarchical Navigable Small World (HNSW)` and/or `Inverted File Index (IVF)`. Here are some great
-          articles explaining them, and the trade-off between `speed`, `memory` and `quality`:
-            * [Nearest Neighbor Indexes for Similarity Search](https://www.pinecone.io/learn/series/faiss/vector-indexes/)
-            * [Hierarchical Navigable Small World (HNSW)](https://towardsdatascience.com/similarity-search-part-4-hierarchical-navigable-small-world-hnsw-2aad4fe87d37)
-            * [From NVIDIA - Accelerating Vector Search: Using GPU-Powered Indexes with RAPIDS RAFT](https://developer.nvidia.com/blog/accelerating-vector-search-using-gpu-powered-indexes-with-rapids-raft/)
-            * [From NVIDIA - Accelerating Vector Search: Fine-Tuning GPU Index Algorithms](https://developer.nvidia.com/blog/accelerating-vector-search-fine-tuning-gpu-index-algorithms/)
-            * > PS: Flat indexes (i.e. no optimisation) can be used to maintain 100% recall and precision, at the
-              expense of speed.
-    * [Chroma](https://www.trychroma.com/)
-    * [Food Discovery with Qdrant](https://qdrant.tech/articles/new-recommendation-api/#)
-* Retrieval Augmented Generation (RAG):
-    * [Building A Generative AI Platform](https://huyenchip.com/2024/07/25/genai-platform.html)
-    * [Rewrite-Retrieve-Read](https://github.com/langchain-ai/langchain/blob/master/cookbook/rewrite.ipynb)
-        * > Because the original query can not be always optimal to retrieve for the LLM, especially in the real world,
-          we first prompt an LLM to rewrite the queries, then conduct retrieval-augmented reading.
-    * [Rerank](https://txt.cohere.com/rag-chatbot/#implement-reranking)
-    * [Building Response Synthesis from Scratch](https://gpt-index.readthedocs.io/en/latest/examples/low_level/response_synthesis.html#)
-    * [Conversational awareness](https://langstream.ai/2023/10/13/rag-chatbot-with-conversation/)
-    * [RAG is Dead, Again?](https://jina.ai/news/rag-is-dead-again/)
-* Chatbot Development:
-    * [Streamlit](https://discuss.streamlit.io/):
-        * [Build a basic LLM chat app](https://docs.streamlit.io/knowledge-base/tutorials/build-conversational-apps#build-a-chatgpt-like-app)
-        * [Layouts and Containers](https://docs.streamlit.io/library/api-reference/layout)
-        * [st.chat_message](https://docs.streamlit.io/library/api-reference/chat/st.chat_message)
-        * [Add statefulness to apps](https://docs.streamlit.io/library/advanced-features/session-state)
-            * [Why session state is not persisting between refresh?](https://discuss.streamlit.io/t/why-session-state-is-not-persisting-between-refresh/32020)
-        * [st.cache_resource](https://docs.streamlit.io/library/api-reference/performance/st.cache_resource)
-        * [Handling External Command Line Arguments](https://github.com/streamlit/streamlit/issues/337)
-    * [(Investigate) FastServe - Serve Llama-cpp with FastAPI](https://github.com/aniketmaurya/fastserve)
-* Text Processing and Cleaning:
-    * [clean-text](https://github.com/jfilter/clean-text/tree/main)
-* Open Source Repositories:
+* Large Language Models (LLMs):
+  * [Calculating GPU memory for serving LLMs](https://www.substratus.ai/blog/calculating-gpu-memory-for-llm/)
+  * [GPT in 60 Lines of NumPy](https://jaykmody.com/blog/gpt-from-scratch/)
+  * [Introduction to Weight Quantization](https://towardsdatascience.com/introduction-to-weight-quantization-2494701b9c0c)
+  * [Uncensor any LLM with abliteration](https://huggingface.co/blog/mlabonne/abliteration)
+* LLM Frameworks:
+  * llama.cpp:
     * [llama.cpp](https://github.com/ggerganov/llama.cpp)
     * [llama-cpp-python](https://github.com/abetlen/llama-cpp-python)
-    * [GPT4All](https://github.com/nomic-ai/gpt4all)
+  * Ollama:
+    * [Ollama](https://github.com/ollama/ollama/tree/main)
+    * [Ollama Python Library](https://github.com/ollama/ollama-python/tree/main)
+    * [Analysis of Ollama Architecture and Conversation Processing Flow for AI LLM Tool](https://medium.com/@rifewang/analysis-of-ollama-architecture-and-conversation-processing-flow-for-ai-llm-tool-ead4b9f40975)
+    * [How to Customize Ollama’s Storage Directory](https://medium.com/@chhaybunsy/unleash-your-machine-learning-models-how-to-customize-ollamas-storage-directory-c9ea1ea2961a#:~:text=By%20default%2C%20Ollama%20saves%20its,making%20predictions%20or%20further%20training)
+* Embeddings:
+  * [all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2)
+      * This is a `sentence-transformers` model: It maps sentences & paragraphs to a 384 dimensional dense vector
+        space and can be used for tasks like clustering or semantic search.
+* Vector Databases:
+  * Indexing algorithms:
+      * There are many algorithms for building indexes to optimize vector search. Most vector databases
+        implement `Hierarchical Navigable Small World (HNSW)` and/or `Inverted File Index (IVF)`. Here are some great
+        articles explaining them, and the trade-off between `speed`, `memory` and `quality`:
+          * [Nearest Neighbor Indexes for Similarity Search](https://www.pinecone.io/learn/series/faiss/vector-indexes/)
+          * [Hierarchical Navigable Small World (HNSW)](https://towardsdatascience.com/similarity-search-part-4-hierarchical-navigable-small-world-hnsw-2aad4fe87d37)
+          * [From NVIDIA - Accelerating Vector Search: Using GPU-Powered Indexes with RAPIDS RAFT](https://developer.nvidia.com/blog/accelerating-vector-search-using-gpu-powered-indexes-with-rapids-raft/)
+          * [From NVIDIA - Accelerating Vector Search: Fine-Tuning GPU Index Algorithms](https://developer.nvidia.com/blog/accelerating-vector-search-fine-tuning-gpu-index-algorithms/)
+          * > PS: Flat indexes (i.e. no optimisation) can be used to maintain 100% recall and precision, at the
+            expense of speed.
+  * [Chroma](https://www.trychroma.com/)
     * [chroma](https://github.com/chroma-core/chroma)
-    * Inspirational repos:
-        * [lit-gpt](https://github.com/Lightning-AI/lit-gpt)
-        * [api-for-open-llm](https://github.com/xusenlinzy/api-for-open-llm)
-        * [AnythingLLM](https://useanything.com/)
+  * [Food Discovery with Qdrant](https://qdrant.tech/articles/new-recommendation-api/#)
+* Retrieval Augmented Generation (RAG):
+  * [Building A Generative AI Platform](https://huyenchip.com/2024/07/25/genai-platform.html)
+  * [Rewrite-Retrieve-Read](https://github.com/langchain-ai/langchain/blob/master/cookbook/rewrite.ipynb)
+      * > Because the original query can not be always optimal to retrieve for the LLM, especially in the real world,
+        we first prompt an LLM to rewrite the queries, then conduct retrieval-augmented reading.
+  * [Rerank](https://txt.cohere.com/rag-chatbot/#implement-reranking)
+  * [Building Response Synthesis from Scratch](https://gpt-index.readthedocs.io/en/latest/examples/low_level/response_synthesis.html#)
+  * [Conversational awareness](https://langstream.ai/2023/10/13/rag-chatbot-with-conversation/)
+  * [RAG is Dead, Again?](https://jina.ai/news/rag-is-dead-again/)
+* Chatbot UI:
+  * [Streamlit](https://discuss.streamlit.io/):
+      * [Build a basic LLM chat app](https://docs.streamlit.io/knowledge-base/tutorials/build-conversational-apps#build-a-chatgpt-like-app)
+      * [Layouts and Containers](https://docs.streamlit.io/library/api-reference/layout)
+      * [st.chat_message](https://docs.streamlit.io/library/api-reference/chat/st.chat_message)
+      * [Add statefulness to apps](https://docs.streamlit.io/library/advanced-features/session-state)
+          * [Why session state is not persisting between refresh?](https://discuss.streamlit.io/t/why-session-state-is-not-persisting-between-refresh/32020)
+      * [st.cache_resource](https://docs.streamlit.io/library/api-reference/performance/st.cache_resource)
+      * [Handling External Command Line Arguments](https://github.com/streamlit/streamlit/issues/337)
+  * [Open WebUI](https://github.com/open-webui/open-webui)
+    * [Running AI Locally Using Ollama on Ubuntu Linux](https://itsfoss.com/ollama-setup-linux/)
+* Text Processing and Cleaning:
+  * [clean-text](https://github.com/jfilter/clean-text/tree/main)
+* Inspirational Open Source Repositories:
+  * [lit-gpt](https://github.com/Lightning-AI/lit-gpt)
+  * [api-for-open-llm](https://github.com/xusenlinzy/api-for-open-llm)
+  * [AnythingLLM](https://useanything.com/)
