@@ -257,3 +257,4 @@ streamlit run chatbot/rag_chatbot_app.py -- --model llama-3.2 --k 2 --synthesis-
   * [lit-gpt](https://github.com/Lightning-AI/lit-gpt)
   * [api-for-open-llm](https://github.com/xusenlinzy/api-for-open-llm)
   * [AnythingLLM](https://useanything.com/)
+  * [FastServe - Serve Llama-cpp with FastAPI](https://github.com/aniketmaurya/fastserve)
