@@ -18,7 +18,7 @@ def cpu_config():
 
 @pytest.fixture
 def model_settings():
-    model_setting = get_model_settings(Model.LLAMA_3_2.value)
+    model_setting = get_model_settings(Model.LLAMA_3_2_one.value)
     return model_setting
 
 
