@@ -3,14 +3,6 @@
   - https://huggingface.co/bartowski/Qwen2.5-Coder-7B-Instruct-abliterated-GGUF
   - https://huggingface.co/bartowski/Qwen2.5-Coder-7B-Instruct-GGUF
 - Provide the chat history in the `context_aware_answer`.
-- Experiment Multimodal LLMs with `Llama 3.2 Vision 11B` (text + images in / text out)
-  - The model is currently not supported by `llama.cpp` https://github.com/ggerganov/llama.cpp/issues/9643
-  - Is it supported just by [(Ollama,](https://github.com/ollama/ollama) so we need to use the Python API to create an additional client.
-    - https://github.com/ollama/ollama-python/tree/main
-    - https://github.com/ollama/ollama-python/tree/main/examples
-    - https://ollama.com/library/llama3.2-vision:11b
-  - `Llama 3.2 Vision 11B` requires least `8GB` of `VRAM`, and the `90B` model requires at least `64GB` of `VRAM`.
-  - Take also a look here: https://huggingface.co/unsloth
 - Experiment Agentic Patterns:
   - https://weaviate.io/blog/what-is-agentic-rag
   - https://github.com/neural-maze/agentic_patterns
@@ -21,6 +13,21 @@
     - https://medium.com/@reynxzz/rag-with-gemini-google-search-and-bq-vector-search-for-content-personalization-08fe7dab6b33
     - https://newspaper.readthedocs.io/en/latest/
     - https://github.com/AstraBert/PrAIvateSearch
+- System level safety:
+  - https://huggingface.co/meta-llama/Llama-Guard-3-1B - https://huggingface.co/tensorblock/Llama-Guard-3-1B-GGUF
+    - Llama Guard 3-1B is a fine-tuned Llama-3.2-1B pretrained model for content safety classification.
+  - https://huggingface.co/meta-llama/Llama-Guard-3-8B
+    - Llama Guard 3-8B is a fine-tuned Llama-3.1-8B pretrained model for content safety classification.
+  - https://huggingface.co/meta-llama/Llama-Guard-3-11B-Vision
+    - Llama Guard 3 Vision is a Llama-3.2-11B pretrained model, fine-tuned for content safety classification.
+- Experiment Multimodal LLMs with `Llama 3.2 Vision 11B` (text + images in / text out)
+  - The model is currently not supported by `llama.cpp` https://github.com/ggerganov/llama.cpp/issues/9643
+  - Is it supported just by [(Ollama,](https://github.com/ollama/ollama) so we need to use the Python API to create an additional client.
+    - https://github.com/ollama/ollama-python/tree/main
+    - https://github.com/ollama/ollama-python/tree/main/examples
+    - https://ollama.com/library/llama3.2-vision:11b
+  - `Llama 3.2 Vision 11B` requires least `8GB` of `VRAM`, and the `90B` model requires at least `64GB` of `VRAM`.
+  - Take also a look here: https://huggingface.co/unsloth
 - Explore long term memory:
   - https://help.openai.com/en/articles/8590148-memory-faq
   - https://ai.gopubby.com/long-term-memory-for-agentic-ai-systems-4ae9b37c6c0f
