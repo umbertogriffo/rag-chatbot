@@ -1,33 +1,32 @@
 from enum import Enum
 
-from bot.model.settings.llama import Llama31Settings, Llama32Settings
+from bot.model.settings.llama import Llama31Settings, Llama32OneSettings, Llama32ThreeSettings
 from bot.model.settings.openchat import OpenChat35Settings, OpenChat36Settings
 from bot.model.settings.phi import Phi35Settings
 from bot.model.settings.stablelm_zephyr import StableLMZephyrSettings
 from bot.model.settings.starling import StarlingSettings
 
 
-class ModelType(Enum):
-    ZEPHYR = "zephyr"
-    MISTRAL = "mistral"
-    DOLPHIN = "dolphin"
+class Model(Enum):
     STABLELM_ZEPHYR = "stablelm-zephyr"
     OPENCHAT_3_5 = "openchat-3.5"
     OPENCHAT_3_6 = "openchat-3.6"
     STARLING = "starling"
     PHI_3_5 = "phi-3.5"
     LLAMA_3_1 = "llama-3.1"
-    LLAMA_3_2 = "llama-3.2"
+    LLAMA_3_2_one = "llama-3.2:1b"
+    LLAMA_3_2_three = "llama-3.2"
 
 
 SUPPORTED_MODELS = {
-    ModelType.STABLELM_ZEPHYR.value: StableLMZephyrSettings,
-    ModelType.OPENCHAT_3_5.value: OpenChat35Settings,
-    ModelType.OPENCHAT_3_6.value: OpenChat36Settings,
-    ModelType.STARLING.value: StarlingSettings,
-    ModelType.PHI_3_5.value: Phi35Settings,
-    ModelType.LLAMA_3_1.value: Llama31Settings,
-    ModelType.LLAMA_3_2.value: Llama32Settings,
+    Model.STABLELM_ZEPHYR.value: StableLMZephyrSettings,
+    Model.OPENCHAT_3_5.value: OpenChat35Settings,
+    Model.OPENCHAT_3_6.value: OpenChat36Settings,
+    Model.STARLING.value: StarlingSettings,
+    Model.PHI_3_5.value: Phi35Settings,
+    Model.LLAMA_3_1.value: Llama31Settings,
+    Model.LLAMA_3_2_one.value: Llama32OneSettings,
+    Model.LLAMA_3_2_three.value: Llama32ThreeSettings,
 }
 
 
