@@ -233,7 +233,9 @@ streamlit run chatbot/rag_chatbot_app.py -- --model llama-3.1 --k 2 --synthesis-
               expense of speed.
     * [Chroma](https://www.trychroma.com/)
         * [chroma](https://github.com/chroma-core/chroma)
-    * [Food Discovery with Qdrant](https://qdrant.tech/articles/new-recommendation-api/#)
+    * [Qdrant](https://qdrant.tech/:
+      * [Qdrant Internals: Immutable Data Structures](https://qdrant.tech/articles/immutable-data-structures/)
+      * [Food Discovery with Qdrant](https://qdrant.tech/articles/new-recommendation-api/#)
 * Retrieval Augmented Generation (RAG):
     * [Building A Generative AI Platform](https://huyenchip.com/2024/07/25/genai-platform.html)
     * [Rewrite-Retrieve-Read](https://github.com/langchain-ai/langchain/blob/master/cookbook/rewrite.ipynb)
