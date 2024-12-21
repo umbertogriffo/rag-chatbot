@@ -199,8 +199,9 @@ streamlit run chatbot/rag_chatbot_app.py -- --model llama-3.1 --k 2 --synthesis-
 ## References
 
 * Large Language Models (LLMs):
-    * [Calculating GPU memory for serving LLMs](https://www.substratus.ai/blog/calculating-gpu-memory-for-llm/)
+    * [LLMs as a repository of vector programs](https://fchollet.substack.com/p/how-i-think-about-llm-prompt-engineering)
     * [GPT in 60 Lines of NumPy](https://jaykmody.com/blog/gpt-from-scratch/)
+    * [Calculating GPU memory for serving LLMs](https://www.substratus.ai/blog/calculating-gpu-memory-for-llm/)
     * [Introduction to Weight Quantization](https://towardsdatascience.com/introduction-to-weight-quantization-2494701b9c0c)
     * [Uncensor any LLM with abliteration](https://huggingface.co/blog/mlabonne/abliteration)
 * LLM Frameworks:
@@ -233,7 +234,7 @@ streamlit run chatbot/rag_chatbot_app.py -- --model llama-3.1 --k 2 --synthesis-
               expense of speed.
     * [Chroma](https://www.trychroma.com/)
         * [chroma](https://github.com/chroma-core/chroma)
-    * [Qdrant](https://qdrant.tech/:
+    * [Qdrant](https://qdrant.tech/):
       * [Qdrant Internals: Immutable Data Structures](https://qdrant.tech/articles/immutable-data-structures/)
       * [Food Discovery with Qdrant](https://qdrant.tech/articles/new-recommendation-api/#)
 * Retrieval Augmented Generation (RAG):
@@ -257,7 +258,7 @@ streamlit run chatbot/rag_chatbot_app.py -- --model llama-3.1 --k 2 --synthesis-
     * [Open WebUI](https://github.com/open-webui/open-webui)
         * [Running AI Locally Using Ollama on Ubuntu Linux](https://itsfoss.com/ollama-setup-linux/)
 * Text Processing and Cleaning:
-    * [clean-text](https://github.com/jfilter/clean-text/tree/main)
+  * [clean-text](https://github.com/jfilter/clean-text/tree/main)
 * Inspirational Open Source Repositories:
     * [lit-gpt](https://github.com/Lightning-AI/lit-gpt)
     * [api-for-open-llm](https://github.com/xusenlinzy/api-for-open-llm)
