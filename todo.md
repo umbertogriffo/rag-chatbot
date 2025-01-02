@@ -7,6 +7,7 @@
   - https://weaviate.io/blog/what-is-agentic-rag
   - https://github.com/neural-maze/agentic_patterns
   - https://www.youtube.com/watch?v=ApoDzZP8_ck
+  - Function Calling in LLM https://medium.com/@danushidk507/function-calling-in-llm-e537b286a4fd
   - Google Search with LLM:
     - https://huggingface.co/blog/nand-tmp/google-search-with-llm
     - https://blog.nextideatech.com/how-to-use-google-search-with-langchain-openai/
