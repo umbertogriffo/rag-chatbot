@@ -18,3 +18,8 @@ For now, we can only speculate about the exact specifics of how o3 works. Howeve
 At test time, the model searches over the space of possible Chains of Thought (CoTs), describing the steps required to solve the task in a fashion perhaps not too dissimilar
 to AlphaZero-style Monte-Carlo tree search. In the case of o3, the search is presumably guided by some evaluator model.
 To note, Demis Hassabis hinted back in a June 2023 interview that DeepMind had been researching this idea – this line of work has been coming for a long time.
+
+From: https://www.letta.com/blog/ai-agents-stack
+> Agents are a significantly harder engineering challenge compared to basic LLM chatbots because they require state management
+> (retaining the message/event history, storing long-term memories, executing multiple LLM calls in an agentic loop) and tool execution
+> (safely executing an action output by an LLM and returning the result).
