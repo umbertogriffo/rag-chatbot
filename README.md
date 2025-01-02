@@ -204,6 +204,7 @@ streamlit run chatbot/rag_chatbot_app.py -- --model llama-3.1 --k 2 --synthesis-
     * [Calculating GPU memory for serving LLMs](https://www.substratus.ai/blog/calculating-gpu-memory-for-llm/)
     * [Introduction to Weight Quantization](https://towardsdatascience.com/introduction-to-weight-quantization-2494701b9c0c)
     * [Uncensor any LLM with abliteration](https://huggingface.co/blog/mlabonne/abliteration)
+    * [Understanding Multimodal LLMs](https://www.linkedin.com/comm/pulse/understanding-multimodal-llms-sebastian-raschka-phd-t7h5c)
 * LLM Frameworks:
     * llama.cpp:
         * [llama.cpp](https://github.com/ggerganov/llama.cpp)
