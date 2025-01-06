@@ -217,6 +217,8 @@ streamlit run chatbot/rag_chatbot_app.py -- --model llama-3.1 --k 2 --synthesis-
         * [Analysis of Ollama Architecture and Conversation Processing Flow for AI LLM Tool](https://medium.com/@rifewang/analysis-of-ollama-architecture-and-conversation-processing-flow-for-ai-llm-tool-ead4b9f40975)
         * [How to Customize Ollama’s Storage Directory](https://medium.com/@chhaybunsy/unleash-your-machine-learning-models-how-to-customize-ollamas-storage-directory-c9ea1ea2961a#:~:text=By%20default%2C%20Ollama%20saves%20its,making%20predictions%20or%20further%20training)
         * Use [CodeGPT](https://plugins.jetbrains.com/plugin/21056-codegpt) to access self-hosted models from Ollama for a code assistant in PyCharm. More info [here](https://docs.codegpt.ee/providers/local/ollama).
+* LLM Datasets:
+     * [High-quality datasets](https://github.com/mlabonne/llm-datasets)
 * Agent Frameworks:
     * [PydanticAI](https://ai.pydantic.dev/)
 * Embeddings:
