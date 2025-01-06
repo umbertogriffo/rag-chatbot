@@ -267,3 +267,4 @@ streamlit run chatbot/rag_chatbot_app.py -- --model llama-3.1 --k 2 --synthesis-
     * [api-for-open-llm](https://github.com/xusenlinzy/api-for-open-llm)
     * [AnythingLLM](https://useanything.com/)
     * [FastServe - Serve Llama-cpp with FastAPI](https://github.com/aniketmaurya/fastserve)
+    * [Alpaca](https://github.com/Jeffser/Alpaca?tab=readme-ov-file)
