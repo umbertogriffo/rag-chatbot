@@ -12,6 +12,13 @@ class Llama31Settings(ModelSettings):
     config_answer = {"temperature": 0.7, "stop": []}
 
 
+class Llama31ToolSettings(Llama31Settings):
+    config = {
+        **Llama31Settings.config,
+        "chat_format": "chatml-function-calling",
+    }
+
+
 class Llama32OneSettings(ModelSettings):
     url = "https://huggingface.co/bartowski/Llama-3.2-1B-Instruct-GGUF/resolve/main/Llama-3.2-1B-Instruct-Q5_K_M.gguf"
     file_name = "Llama-3.2-1B-Instruct-Q5_K_M.gguf"

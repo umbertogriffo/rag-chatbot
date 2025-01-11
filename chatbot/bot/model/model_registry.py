@@ -1,6 +1,6 @@
 from enum import Enum
 
-from bot.model.settings.llama import Llama31Settings, Llama32OneSettings, Llama32ThreeSettings
+from bot.model.settings.llama import Llama31Settings, Llama31ToolSettings, Llama32OneSettings, Llama32ThreeSettings
 from bot.model.settings.openchat import OpenChat35Settings, OpenChat36Settings
 from bot.model.settings.phi import Phi35Settings
 from bot.model.settings.stablelm_zephyr import StableLMZephyrSettings
@@ -14,6 +14,7 @@ class Model(Enum):
     STARLING = "starling"
     PHI_3_5 = "phi-3.5"
     LLAMA_3_1 = "llama-3.1"
+    LLAMA_3_1_tool = "llama-3.1-tool"
     LLAMA_3_2_one = "llama-3.2:1b"
     LLAMA_3_2_three = "llama-3.2"
 
@@ -25,6 +26,7 @@ SUPPORTED_MODELS = {
     Model.STARLING.value: StarlingSettings,
     Model.PHI_3_5.value: Phi35Settings,
     Model.LLAMA_3_1.value: Llama31Settings,
+    Model.LLAMA_3_1_tool.value: Llama31ToolSettings,
     Model.LLAMA_3_2_one.value: Llama32OneSettings,
     Model.LLAMA_3_2_three.value: Llama32ThreeSettings,
 }

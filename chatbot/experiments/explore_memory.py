@@ -6,9 +6,9 @@ from bot.memory.vector_database.chroma import Chroma
 from helpers.prettier import prettify_source
 
 if __name__ == "__main__":
-    root_folder = Path(__file__).resolve().parent.parent
+    root_folder = Path(__file__).resolve().parent.parent.parent
     # Contains an extract of documents uploaded to the RAG bot;
-    declarative_vector_store_path = root_folder / "vector_store" / "docs_index"
+    declarative_vector_store_path = root_folder / "vector_store" / "exp_docs_index"
     # Contains an extract of things the user said in the past;
     episodic_vector_store_path = root_folder / "vector_store" / "episodic_index"
 

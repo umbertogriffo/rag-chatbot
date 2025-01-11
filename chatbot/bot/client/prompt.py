@@ -1,6 +1,14 @@
 # A string template for the system message.
 # This template is used to define the behavior and characteristics of the assistant.
-SYSTEM_TEMPLATE = """You are a helpful, respectful and honest assistant."""
+SYSTEM_TEMPLATE = """You are a helpful, respectful and honest assistant.
+"""
+
+# A string template for the system message when the assistant can call functions.
+# This template is used to define the behavior and characteristics of the assistant
+# with the capability to call functions with appropriate input when necessary.
+TOOL_SYSTEM_TEMPLATE = """You are a helpful, respectful and honest assistant.
+You can call functions with appropriate input when necessary.
+"""
 
 # A string template with placeholders for question.
 QA_PROMPT_TEMPLATE = """Answer the question below:

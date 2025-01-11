@@ -3,7 +3,7 @@ import os
 import sys
 
 
-def get_logger(name: str):
+def get_logger(name: str) -> logging.Logger:
     level = os.environ.get("LOGLEVEL", "INFO").upper()
     logger = logging.getLogger(name)
 
@@ -17,3 +17,12 @@ def get_logger(name: str):
         handler.setFormatter(formatter)
         logger.addHandler(handler)
     return logger
+
+
+def experimental(func):
+    def wrapper(*args, **kwargs):
+        logger = get_logger(func.__name__)
+        logger.warning(f"{func.__name__} is an experimental function and may change in the future.")
+        return func(*args, **kwargs)
+
+    return wrapper

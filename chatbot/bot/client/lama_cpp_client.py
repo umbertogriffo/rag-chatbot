@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Any, Iterator
 
 import requests
+from helpers.log import experimental
 from llama_cpp import CreateCompletionResponse, CreateCompletionStreamResponse, Llama
 from tqdm import tqdm
 
@@ -13,6 +14,7 @@ from bot.client.prompt import (
     REFINED_CTX_PROMPT_TEMPLATE,
     REFINED_QUESTION_CONVERSATION_AWARENESS_PROMPT_TEMPLATE,
     SYSTEM_TEMPLATE,
+    TOOL_SYSTEM_TEMPLATE,
     generate_conversation_awareness_prompt,
     generate_ctx_prompt,
     generate_qa_prompt,
@@ -134,6 +136,40 @@ class LamaCppClient:
         answer = output["choices"][0]["message"].get("content", "")
 
         return answer
+
+    @experimental
+    def retrieve_tools(
+        self, prompt: str, max_new_tokens: int = 512, tools: list[dict] = None, tool_choice: str = None
+    ) -> list[dict] | None:
+        """
+        Retrieves tools based on the given prompt using the language model.
+
+        Args:
+            prompt (str): The input prompt for retrieving tools.
+            max_new_tokens (int): The maximum number of new tokens to generate (default is 512).
+            tools (list[dict], optional): A list of tools that can be used by the language model.
+            tool_choice (str, optional): The specific tool to use. If None, the tool choice is set to "auto".
+
+        Returns:
+            list[dict] | None: A list of tool calls made by the language model, or None if no tools were called.
+        """
+        tool_choice = {"type": "function", "function": {"name": tool_choice}} if tool_choice else "auto"
+
+        output = self.llm.create_chat_completion(
+            messages=[
+                {"role": "system", "content": TOOL_SYSTEM_TEMPLATE},
+                {"role": "user", "content": f"{prompt}"},
+            ],
+            max_tokens=max_new_tokens,
+            stream=False,
+            tools=tools,
+            tool_choice=tool_choice,
+            **self.model_settings.config_answer,
+        )
+
+        tool_calls = output["choices"][0]["message"].get("tool_calls", None)
+
+        return tool_calls
 
     def stream_answer(self, prompt: str, max_new_tokens: int = 512) -> str:
         """
