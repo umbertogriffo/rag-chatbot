@@ -23,9 +23,9 @@ def model_settings():
 
 
 @pytest.fixture
-def lamacpp_client(mock_model_folder, model_settings, cpu_config):
+def lamacpp_client(mock_models_folder, model_settings, cpu_config):
     with patch.object(model_settings, "config", cpu_config):
-        return LamaCppClient(mock_model_folder, model_settings)
+        return LamaCppClient(mock_models_folder, model_settings)
 
 
 def test_generate_answer(lamacpp_client):
