@@ -216,13 +216,18 @@ streamlit run chatbot/rag_chatbot_app.py -- --model llama-3.1 --k 2 --synthesis-
         * [On the architecture of ollama](https://blog.inoki.cc/2024/04/15/Ollama/)
         * [Analysis of Ollama Architecture and Conversation Processing Flow for AI LLM Tool](https://medium.com/@rifewang/analysis-of-ollama-architecture-and-conversation-processing-flow-for-ai-llm-tool-ead4b9f40975)
         * [How to Customize Ollama’s Storage Directory](https://medium.com/@chhaybunsy/unleash-your-machine-learning-models-how-to-customize-ollamas-storage-directory-c9ea1ea2961a#:~:text=By%20default%2C%20Ollama%20saves%20its,making%20predictions%20or%20further%20training)
-        * Use [CodeGPT](https://plugins.jetbrains.com/plugin/21056-codegpt) to access self-hosted models from Ollama for a code assistant in PyCharm. More info [here](https://docs.codegpt.ee/providers/local/ollama).
+        * Use [CodeGPT](https://plugins.jetbrains.com/plugin/21056-codegpt) to access self-hosted models from Ollama for
+          a code assistant in PyCharm. More info [here](https://docs.codegpt.ee/providers/local/ollama).
 * LLM Datasets:
-     * [High-quality datasets](https://github.com/mlabonne/llm-datasets)
+    * [High-quality datasets](https://github.com/mlabonne/llm-datasets)
+* Agents:
+    * [Agents](https://huyenchip.com//2025/01/07/agents.html)
+    * [Building effective agents](https://www.anthropic.com/research/building-effective-agents)
 * Agent Frameworks:
     * [PydanticAI](https://ai.pydantic.dev/)
 * Embeddings:
-    * To find the list of best embeddings models for the retrieval task in your language go to the [Massive Text Embedding Benchmark (MTEB) Leaderboard](https://huggingface.co/spaces/mteb/leaderboard)
+    * To find the list of best embeddings models for the retrieval task in your language go to
+      the [Massive Text Embedding Benchmark (MTEB) Leaderboard](https://huggingface.co/spaces/mteb/leaderboard)
     * [all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2)
         * This is a `sentence-transformers` model: It maps sentences & paragraphs to a 384 dimensional dense vector
           space (Max Tokens 512) and can be used for tasks like classification or semantic search.
@@ -240,8 +245,8 @@ streamlit run chatbot/rag_chatbot_app.py -- --model llama-3.1 --k 2 --synthesis-
     * [Chroma](https://www.trychroma.com/)
         * [chroma](https://github.com/chroma-core/chroma)
     * [Qdrant](https://qdrant.tech/):
-      * [Qdrant Internals: Immutable Data Structures](https://qdrant.tech/articles/immutable-data-structures/)
-      * [Food Discovery with Qdrant](https://qdrant.tech/articles/new-recommendation-api/#)
+        * [Qdrant Internals: Immutable Data Structures](https://qdrant.tech/articles/immutable-data-structures/)
+        * [Food Discovery with Qdrant](https://qdrant.tech/articles/new-recommendation-api/#)
 * Retrieval Augmented Generation (RAG):
     * [Building A Generative AI Platform](https://huyenchip.com/2024/07/25/genai-platform.html)
     * [Rewrite-Retrieve-Read](https://github.com/langchain-ai/langchain/blob/master/cookbook/rewrite.ipynb)
@@ -263,7 +268,7 @@ streamlit run chatbot/rag_chatbot_app.py -- --model llama-3.1 --k 2 --synthesis-
     * [Open WebUI](https://github.com/open-webui/open-webui)
         * [Running AI Locally Using Ollama on Ubuntu Linux](https://itsfoss.com/ollama-setup-linux/)
 * Text Processing and Cleaning:
-  * [clean-text](https://github.com/jfilter/clean-text/tree/main)
+    * [clean-text](https://github.com/jfilter/clean-text/tree/main)
 * Inspirational Open Source Repositories:
     * [lit-gpt](https://github.com/Lightning-AI/lit-gpt)
     * [api-for-open-llm](https://github.com/xusenlinzy/api-for-open-llm)
