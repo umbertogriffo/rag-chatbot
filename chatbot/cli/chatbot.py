@@ -4,7 +4,7 @@ import time
 from pathlib import Path
 
 from bot.client.lama_cpp_client import LamaCppClient
-from bot.model.model_settings import get_model_settings, get_models
+from bot.model.model_registry import get_model_settings, get_models
 from helpers.log import get_logger
 from helpers.reader import read_input
 from pyfiglet import Figlet
