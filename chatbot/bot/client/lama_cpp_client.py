@@ -168,7 +168,10 @@ class LamaCppClient:
         )
 
         tool_calls = output["choices"][0]["message"].get("tool_calls", None)
-
+        # first_choice_function = output["choices"][0]['message'].get('function_call', None)
+        # if first_choice_function:
+        #     function_name = first_choice_function.get('name', None)
+        #     function_args = first_choice_function.get('arguments', None)
         return tool_calls
 
     def stream_answer(self, prompt: str, max_new_tokens: int = 512) -> str:
