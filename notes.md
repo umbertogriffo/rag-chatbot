@@ -23,3 +23,8 @@ From: https://www.letta.com/blog/ai-agents-stack
 > Agents are a significantly harder engineering challenge compared to basic LLM chatbots because they require state management
 > (retaining the message/event history, storing long-term memories, executing multiple LLM calls in an agentic loop) and tool execution
 > (safely executing an action output by an LLM and returning the result).
+
+From: [Andriy Burkov's post](https://www.linkedin.com/posts/andriyburkov_instead-of-asking-an-llm-does-this-fragment-activity-7282199264645001216-Hmlx?utm_source=share&utm_medium=member_desktop):
+> Instead of asking an LLM, "Does this fragment contain an error?" say, "This fragment contains an error. Find it."
+> Then, if it finds an error, ask, "Are you sure about it?"
+> If it says, "Sorry, I was wrong," then there's unlikely an error.
