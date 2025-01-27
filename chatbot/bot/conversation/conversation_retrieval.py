@@ -44,14 +44,12 @@ class ConversationRetrieval:
 
     def append_chat_history(self, question: str, answer: str) -> None:
         """
-        Append a new question and answer to the chat history with a new question and answer.
+        Append a new question and answer to the chat history.
 
         Args:
             question (str): The question to add to the chat history.
             answer (str): The answer to add to the chat history.
 
-        Returns:
-            list[str]: The updated chat history.
         """
         self.chat_history.append(f"question: {question}, answer: {answer}")
 
@@ -133,6 +131,18 @@ class ConversationRetrieval:
         retrieved_contents: list[Document],
         max_new_tokens: int = 512,
     ):
+        """
+        Generates an answer to the given question using a context synthesis strategy and retrieved contents.
+
+        Args:
+            ctx_synthesis_strategy (BaseSynthesisStrategy): The strategy to use for context synthesis.
+            question (str): The input question for which an answer is generated.
+            retrieved_contents (list[Document]): A list of documents retrieved for context.
+            max_new_tokens (int, optional): The maximum number of tokens to generate in the answer. Defaults to 512.
+
+        Returns:
+            tuple: A tuple containing the answer streamer and formatted prompts.
+        """
         if not retrieved_contents:
             return self.answer(question, max_new_tokens=max_new_tokens), []
 
