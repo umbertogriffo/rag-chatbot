@@ -2,7 +2,6 @@
 - Add the following models:
   - https://huggingface.co/bartowski/Qwen2.5-Coder-7B-Instruct-abliterated-GGUF
   - https://huggingface.co/bartowski/Qwen2.5-Coder-7B-Instruct-GGUF
-- Provide the chat history in the `context_aware_answer`.
 - Experiment Agentic Patterns:
   - https://weaviate.io/blog/what-is-agentic-rag
   - https://github.com/neural-maze/agentic_patterns
