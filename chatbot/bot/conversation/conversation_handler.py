@@ -97,6 +97,7 @@ def answer_with_context(
 ):
     """
     Generates an answer to the given question using a context synthesis strategy and retrieved contents.
+    If the content is not provided generates an answer based on the chat history or a direct prompt.
 
     Args:
         llm (LlmClient): The language model client for conversation-related tasks.
