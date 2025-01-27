@@ -137,43 +137,6 @@ class LamaCppClient:
 
         return answer
 
-    @experimental
-    def retrieve_tools(
-        self, prompt: str, max_new_tokens: int = 512, tools: list[dict] = None, tool_choice: str = None
-    ) -> list[dict] | None:
-        """
-        Retrieves tools based on the given prompt using the language model.
-
-        Args:
-            prompt (str): The input prompt for retrieving tools.
-            max_new_tokens (int): The maximum number of new tokens to generate (default is 512).
-            tools (list[dict], optional): A list of tools that can be used by the language model.
-            tool_choice (str, optional): The specific tool to use. If None, the tool choice is set to "auto".
-
-        Returns:
-            list[dict] | None: A list of tool calls made by the language model, or None if no tools were called.
-        """
-        tool_choice = {"type": "function", "function": {"name": tool_choice}} if tool_choice else "auto"
-
-        output = self.llm.create_chat_completion(
-            messages=[
-                {"role": "system", "content": TOOL_SYSTEM_TEMPLATE},
-                {"role": "user", "content": f"{prompt}"},
-            ],
-            max_tokens=max_new_tokens,
-            stream=False,
-            tools=tools,
-            tool_choice=tool_choice,
-            **self.model_settings.config_answer,
-        )
-
-        tool_calls = output["choices"][0]["message"].get("tool_calls", None)
-        # first_choice_function = output["choices"][0]['message'].get('function_call', None)
-        # if first_choice_function:
-        #     function_name = first_choice_function.get('name', None)
-        #     function_args = first_choice_function.get('arguments', None)
-        return tool_calls
-
     def stream_answer(self, prompt: str, max_new_tokens: int = 512) -> str:
         """
         Generates an answer by streaming tokens using the TextStreamer.
@@ -241,6 +204,43 @@ class LamaCppClient:
         )
 
         return stream
+
+    @experimental
+    def retrieve_tools(
+        self, prompt: str, max_new_tokens: int = 512, tools: list[dict] = None, tool_choice: str = None
+    ) -> list[dict] | None:
+        """
+        Retrieves tools based on the given prompt using the language model.
+
+        Args:
+            prompt (str): The input prompt for retrieving tools.
+            max_new_tokens (int): The maximum number of new tokens to generate (default is 512).
+            tools (list[dict], optional): A list of tools that can be used by the language model.
+            tool_choice (str, optional): The specific tool to use. If None, the tool choice is set to "auto".
+
+        Returns:
+            list[dict] | None: A list of tool calls made by the language model, or None if no tools were called.
+        """
+        tool_choice = {"type": "function", "function": {"name": tool_choice}} if tool_choice else "auto"
+
+        output = self.llm.create_chat_completion(
+            messages=[
+                {"role": "system", "content": TOOL_SYSTEM_TEMPLATE},
+                {"role": "user", "content": f"{prompt}"},
+            ],
+            max_tokens=max_new_tokens,
+            stream=False,
+            tools=tools,
+            tool_choice=tool_choice,
+            **self.model_settings.config_answer,
+        )
+
+        tool_calls = output["choices"][0]["message"].get("tool_calls", None)
+        # first_choice_function = output["choices"][0]['message'].get('function_call', None)
+        # if first_choice_function:
+        #     function_name = first_choice_function.get('name', None)
+        #     function_args = first_choice_function.get('arguments', None)
+        return tool_calls
 
     @staticmethod
     def parse_token(token):

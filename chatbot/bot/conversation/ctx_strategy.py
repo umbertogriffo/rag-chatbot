@@ -85,12 +85,6 @@ class CreateAndRefineStrategy(BaseSynthesisStrategy):
         cur_response = None
         fmt_prompts = []
 
-        if not retrieved_contents:
-            qa_prompt = self.llm.generate_qa_prompt(question=question)
-            logger.info("--- Generating a single response ... ---")
-            response = self.llm.start_answer_iterator_streamer(qa_prompt, max_new_tokens=max_new_tokens)
-            return response, qa_prompt
-
         num_of_contents = len(retrieved_contents)
 
         for idx, node in enumerate(retrieved_contents, start=1):
@@ -143,12 +137,6 @@ class TreeSummarizationStrategy(BaseSynthesisStrategy):
         """
         fmt_prompts = []
         node_responses = []
-
-        if not retrieved_contents:
-            qa_prompt = self.llm.generate_qa_prompt(question=question)
-            logger.info("--- Generating a single response ... ---")
-            response = self.llm.start_answer_iterator_streamer(qa_prompt, max_new_tokens=max_new_tokens)
-            return response, qa_prompt
 
         for idx, content in enumerate(retrieved_contents, start=1):
             context = content.page_content
@@ -248,14 +236,6 @@ class AsyncTreeSummarizationStrategy(BaseSynthesisStrategy):
             Any: A response generator.
         """
         fmt_prompts = []
-
-        if not retrieved_contents:
-            qa_prompt = self.llm.generate_qa_prompt(question=question)
-            logger.info("--- Generating a single response ... ---")
-            response = await asyncio.gather(
-                self.llm.async_start_answer_iterator_streamer(qa_prompt, max_new_tokens=max_new_tokens)
-            )
-            return response[0], qa_prompt
 
         for idx, content in enumerate(retrieved_contents, start=1):
             context = content.page_content

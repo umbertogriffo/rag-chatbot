@@ -4,11 +4,12 @@ import time
 from pathlib import Path
 
 from bot.client.lama_cpp_client import LamaCppClient
+from bot.conversation.chat_history import ChatHistory
 from bot.conversation.conversation_retrieval import ConversationRetrieval
 from bot.conversation.ctx_strategy import get_ctx_synthesis_strategies, get_ctx_synthesis_strategy
 from bot.memory.embedder import Embedder
 from bot.memory.vector_database.chroma import Chroma
-from bot.model.model_registry import get_model_settings, get_models
+from bot.model.model_registry import Model, get_model_settings, get_models
 from helpers.log import get_logger
 from helpers.prettier import prettify_source
 from helpers.reader import read_input
@@ -23,7 +24,7 @@ def get_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="AI Chatbot")
 
     model_list = get_models()
-    default_model = model_list[0]
+    default_model = Model.LLAMA_3_1.value
 
     synthesis_strategy_list = get_ctx_synthesis_strategies()
     default_synthesis_strategy = synthesis_strategy_list[0]
@@ -111,7 +112,7 @@ def loop(conversation, synthesis_strategy, index, parameters) -> None:
             answer += parsed_token
             print(parsed_token, end="", flush=True)
 
-        conversation.update_chat_history(refined_question, answer)
+        conversation.append_chat_history(refined_question, answer)
 
         console.print("\n[bold magenta]Formatted Answer:[/bold magenta]")
         if answer:
@@ -132,8 +133,8 @@ def main(parameters):
     llm = LamaCppClient(model_folder=model_folder, model_settings=model_settings)
 
     synthesis_strategy = get_ctx_synthesis_strategy(parameters.synthesis_strategy, llm=llm)
-
-    conversation = ConversationRetrieval(llm)
+    chat_history = ChatHistory(total_length=2)
+    conversation = ConversationRetrieval(llm, chat_history)
 
     embedding = Embedder()
     index = Chroma(persist_directory=str(vector_store_path), embedding=embedding)
