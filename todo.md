@@ -35,6 +35,7 @@
   - https://ai.gopubby.com/long-term-memory-for-agentic-ai-systems-4ae9b37c6c0f
   - https://github.com/mem0ai/mem0
     - Explore also the structure of the repo https://github.com/mem0ai/mem0/tree/main/mem0 and the vector store implementation.
+  - https://github.com/timescale/pgai - PostgreSQL extension for AI.
   - https://github.com/letta-ai/letta
 - Investigate Chroma batch querying: https://github.com/langchain-ai/langchain/blob/907c758d67764385828c8abad14a3e64cf44d05b/libs/community/langchain_community/vectorstores/chroma.py#L42
 - Make docker container.
