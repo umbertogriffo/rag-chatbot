@@ -22,3 +22,13 @@ class ChatHistory(list):
         if len(self) == self.total_length:
             self.pop(0)
         super().append(msg)
+
+    def __str__(self):
+        """
+        Get the chat history as a single string.
+
+        Returns:
+            str: The chat history concatenated into a single string, with each message separated by a newline.
+        """
+        chat_history = "\n".join([msg for msg in self])
+        return chat_history

@@ -6,7 +6,7 @@ from pathlib import Path
 import streamlit as st
 from bot.client.lama_cpp_client import LamaCppClient
 from bot.conversation.chat_history import ChatHistory
-from bot.conversation.conversation_retrieval import ConversationRetrieval
+from bot.conversation.conversation_handler import ConversationHandler
 from bot.model.model_registry import get_model_settings, get_models
 from helpers.log import get_logger
 
@@ -30,8 +30,10 @@ def init_chat_history(total_length: int = 2) -> ChatHistory:
 
 
 @st.cache_resource()
-def load_conversational_retrieval(_llm: LamaCppClient, _chat_history: ChatHistory) -> ConversationRetrieval:
-    conversation_retrieval = ConversationRetrieval(_llm, _chat_history)
+def load_conversational_retrieval(_llm: LamaCppClient) -> ConversationHandler:
+    conversation_retrieval = ConversationHandler(
+        _llm,
+    )
     return conversation_retrieval
 
 
@@ -59,14 +61,14 @@ def init_welcome_message() -> None:
         st.write("How can I help you today?")
 
 
-def reset_chat_history(conversational_retrieval: ConversationRetrieval) -> None:
+def reset_chat_history(chat_history: ChatHistory) -> None:
     """
     Initializes the chat history, allowing users to clear the conversation.
     """
     clear_button = st.sidebar.button("🗑️ Clear Conversation", key="clear")
     if clear_button or "messages" not in st.session_state:
         st.session_state.messages = []
-        conversational_retrieval.chat_history.clear()
+        chat_history.clear()
 
 
 def display_messages_from_history():
@@ -87,8 +89,8 @@ def main(parameters) -> None:
     init_page(root_folder)
     llm = load_llm(model, model_folder)
     chat_history = init_chat_history(2)
-    conversational_retrieval = load_conversational_retrieval(_llm=llm, _chat_history=chat_history)
-    reset_chat_history(conversational_retrieval)
+    conversational_retrieval = load_conversational_retrieval(_llm=llm)
+    reset_chat_history(chat_history)
     init_welcome_message()
     display_messages_from_history()
 
@@ -106,13 +108,15 @@ def main(parameters) -> None:
         with st.chat_message("assistant"):
             message_placeholder = st.empty()
             full_response = ""
-            for token in conversational_retrieval.answer(question=user_input, max_new_tokens=max_new_tokens):
+            for token in conversational_retrieval.answer(
+                question=user_input, chat_history=chat_history, max_new_tokens=max_new_tokens
+            ):
                 full_response += llm.parse_token(token)
                 message_placeholder.markdown(full_response + "▌")
             message_placeholder.markdown(full_response)
 
         # Add assistant response to chat history
-        conversational_retrieval.append_chat_history(user_input, full_response)
+        chat_history.append(f"question: {user_input}, answer: {full_response}")
         st.session_state.messages.append({"role": "assistant", "content": full_response})
 
         took = time.time() - start_time

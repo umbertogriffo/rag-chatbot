@@ -11,66 +11,43 @@ from bot.conversation.ctx_strategy import AsyncTreeSummarizationStrategy, BaseSy
 logger = get_logger(__name__)
 
 
-class ConversationRetrieval:
+class ConversationHandler:
     """
-    A class for managing conversation retrieval using a language model.
+    A class for managing a conversation using a large language model.
 
     Attributes:
         llm (LlmClient): The language model client for conversation-related tasks.
-        chat_history (List[Tuple[str, str]]): A list to store the conversation
-            history as tuples of questions and answers.
     """
 
-    def __init__(self, llm: LamaCppClient, chat_history: ChatHistory) -> None:
+    def __init__(self, llm: LamaCppClient) -> None:
         """
-        Initializes a new instance of the ConversationRetrieval class.
+        Initializes a new instance of the ConversationHandler class.
 
         Args:
             llm (LlmClient): The language model client for conversation-related tasks.
-            chat_history (ChatHistory): The chat history object to store conversation history.
         """
         self.llm = llm
-        self.chat_history = chat_history
 
-    def get_chat_history(self) -> str:
-        """
-        Retrieves the chat history as a single string.
-
-        Returns:
-            str: The chat history concatenated into a single string, with each message separated by a newline.
-        """
-        chat_history = "\n".join([msg for msg in self.chat_history])
-        return chat_history
-
-    def append_chat_history(self, question: str, answer: str) -> None:
-        """
-        Append a new question and answer to the chat history.
-
-        Args:
-            question (str): The question to add to the chat history.
-            answer (str): The answer to add to the chat history.
-
-        """
-        self.chat_history.append(f"question: {question}, answer: {answer}")
-
-    def refine_question(self, question: str, max_new_tokens: int = 128) -> str:
+    def refine_question(self, question: str, chat_history: ChatHistory, max_new_tokens: int = 128) -> str:
         """
         Refines the given question based on the chat history.
 
         Args:
             question (str): The original question.
+            chat_history (List[Tuple[str, str]]): A list to store the conversation
+            history as tuples of questions and answers.
             max_new_tokens (int, optional): The maximum number of tokens to generate in the answer.
                 Defaults to 128.
 
         Returns:
             str: The refined question.
         """
-        chat_history = self.get_chat_history()
+
         if chat_history:
             logger.info("--- Refining the question based on the chat history... ---")
 
             conversation_awareness_prompt = self.llm.generate_refined_question_conversation_awareness_prompt(
-                question, chat_history
+                question, str(chat_history)
             )
 
             logger.info(f"--- Prompt:\n {conversation_awareness_prompt} \n---")
@@ -83,12 +60,14 @@ class ConversationRetrieval:
         else:
             return question
 
-    def answer(self, question: str, max_new_tokens: int = 512) -> Any:
+    def answer(self, question: str, chat_history: ChatHistory, max_new_tokens: int = 512) -> Any:
         """
         Generates an answer to the given question based on the chat history or a direct prompt.
 
         Args:
             question (str): The input question for which an answer is generated.
+            chat_history (List[Tuple[str, str]]): A list to store the conversation
+            history as tuples of questions and answers.
             max_new_tokens (int, optional): The maximum number of tokens to generate in the answer.
                 Defaults to 512.
 
@@ -102,13 +81,12 @@ class ConversationRetrieval:
             If no chat history is available, a prompt is generated directly from the input question,
             and the answer is generated accordingly.
         """
-        chat_history = self.get_chat_history()
 
         if chat_history:
             logger.info("--- Answer the question based on the chat history... ---")
 
             conversation_awareness_prompt = self.llm.generate_refined_answer_conversation_awareness_prompt(
-                question, chat_history
+                question, str(chat_history)
             )
 
             logger.debug(f"--- Prompt:\n {conversation_awareness_prompt} \n---")
@@ -128,6 +106,7 @@ class ConversationRetrieval:
         self,
         ctx_synthesis_strategy: BaseSynthesisStrategy,
         question: str,
+        chat_history: ChatHistory,
         retrieved_contents: list[Document],
         max_new_tokens: int = 512,
     ):
@@ -137,6 +116,8 @@ class ConversationRetrieval:
         Args:
             ctx_synthesis_strategy (BaseSynthesisStrategy): The strategy to use for context synthesis.
             question (str): The input question for which an answer is generated.
+            chat_history (List[Tuple[str, str]]): A list to store the conversation
+            history as tuples of questions and answers.
             retrieved_contents (list[Document]): A list of documents retrieved for context.
             max_new_tokens (int, optional): The maximum number of tokens to generate in the answer. Defaults to 512.
 
@@ -144,7 +125,7 @@ class ConversationRetrieval:
             tuple: A tuple containing the answer streamer and formatted prompts.
         """
         if not retrieved_contents:
-            return self.answer(question, max_new_tokens=max_new_tokens), []
+            return self.answer(question, chat_history, max_new_tokens=max_new_tokens), []
 
         if isinstance(ctx_synthesis_strategy, AsyncTreeSummarizationStrategy):
             loop = get_event_loop()

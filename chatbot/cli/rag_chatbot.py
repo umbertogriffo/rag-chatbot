@@ -5,7 +5,7 @@ from pathlib import Path
 
 from bot.client.lama_cpp_client import LamaCppClient
 from bot.conversation.chat_history import ChatHistory
-from bot.conversation.conversation_retrieval import ConversationRetrieval
+from bot.conversation.conversation_handler import ConversationHandler
 from bot.conversation.ctx_strategy import get_ctx_synthesis_strategies, get_ctx_synthesis_strategy
 from bot.memory.embedder import Embedder
 from bot.memory.vector_database.chroma import Chroma
@@ -70,7 +70,7 @@ def get_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def loop(conversation, synthesis_strategy, index, parameters) -> None:
+def loop(conversation, chat_history, synthesis_strategy, index, parameters) -> None:
     custom_fig = Figlet(font="graffiti")
     console = Console(color_system="windows")
     console.print(custom_fig.renderText("ChatBot"))
@@ -87,7 +87,7 @@ def loop(conversation, synthesis_strategy, index, parameters) -> None:
         if question.lower() == "exit":
             break
 
-        logger.info(f"--- Question: {question}, Chat_history: {conversation.get_chat_history()} ---")
+        logger.info(f"--- Question: {question}, Chat_history: {chat_history} ---")
 
         start_time = time.time()
         refined_question = conversation.refine_question(question)
@@ -112,7 +112,9 @@ def loop(conversation, synthesis_strategy, index, parameters) -> None:
             answer += parsed_token
             print(parsed_token, end="", flush=True)
 
-        conversation.append_chat_history(refined_question, answer)
+        chat_history.append(
+            f"question: {refined_question}, answer: {answer}",
+        )
 
         console.print("\n[bold magenta]Formatted Answer:[/bold magenta]")
         if answer:
@@ -134,12 +136,12 @@ def main(parameters):
 
     synthesis_strategy = get_ctx_synthesis_strategy(parameters.synthesis_strategy, llm=llm)
     chat_history = ChatHistory(total_length=2)
-    conversation = ConversationRetrieval(llm, chat_history)
+    conversation = ConversationHandler(llm)
 
     embedding = Embedder()
     index = Chroma(persist_directory=str(vector_store_path), embedding=embedding)
 
-    loop(conversation, synthesis_strategy, index, parameters)
+    loop(conversation, chat_history, synthesis_strategy, index, parameters)
 
 
 if __name__ == "__main__":
