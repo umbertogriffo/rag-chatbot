@@ -6,7 +6,7 @@ from pathlib import Path
 import streamlit as st
 from bot.client.lama_cpp_client import LamaCppClient
 from bot.conversation.chat_history import ChatHistory
-from bot.conversation.conversation_handler import ConversationHandler
+from bot.conversation.conversation_handler import answer_with_context, refine_question
 from bot.conversation.ctx_strategy import (
     BaseSynthesisStrategy,
     get_ctx_synthesis_strategies,
@@ -33,12 +33,6 @@ def load_llm_client(model_folder: Path, model_name: str) -> LamaCppClient:
 def init_chat_history(total_length: int = 2) -> ChatHistory:
     chat_history = ChatHistory(total_length=total_length)
     return chat_history
-
-
-@st.cache_resource()
-def load_conversational_retrieval(_llm: LamaCppClient) -> ConversationHandler:
-    conversation_retrieval = ConversationHandler(_llm)
-    return conversation_retrieval
 
 
 @st.cache_resource()
@@ -130,7 +124,6 @@ def main(parameters) -> None:
     init_page(root_folder)
     llm = load_llm_client(model_folder, model_name)
     chat_history = init_chat_history(2)
-    conversational_retrieval = load_conversational_retrieval(_llm=llm)
     ctx_synthesis_strategy = load_ctx_synthesis_strategy(synthesis_strategy_name, _llm=llm)
     index = load_index(vector_store_path)
     reset_chat_history(chat_history)
@@ -153,7 +146,7 @@ def main(parameters) -> None:
             with st.spinner(
                 text="Refining the question and Retrieving the docs – hang tight! " "This should take seconds."
             ):
-                refined_user_input = conversational_retrieval.refine_question(user_input, chat_history=chat_history)
+                refined_user_input = refine_question(llm, user_input, chat_history=chat_history)
                 retrieved_contents, sources = index.similarity_search_with_threshold(
                     query=refined_user_input, k=parameters.k
                 )
@@ -178,8 +171,8 @@ def main(parameters) -> None:
             message_placeholder = st.empty()
             full_response = ""
             with st.spinner(text="Refining the context and Generating the answer for each text chunk – hang tight! "):
-                streamer, fmt_prompts = conversational_retrieval.context_aware_answer(
-                    ctx_synthesis_strategy, user_input, chat_history, retrieved_contents
+                streamer, fmt_prompts = answer_with_context(
+                    llm, ctx_synthesis_strategy, user_input, chat_history, retrieved_contents
                 )
                 for token in streamer:
                     full_response += llm.parse_token(token)

@@ -6,7 +6,7 @@ from pathlib import Path
 import streamlit as st
 from bot.client.lama_cpp_client import LamaCppClient
 from bot.conversation.chat_history import ChatHistory
-from bot.conversation.conversation_handler import ConversationHandler
+from bot.conversation.conversation_handler import answer
 from bot.model.model_registry import get_model_settings, get_models
 from helpers.log import get_logger
 
@@ -27,14 +27,6 @@ def load_llm(model_name: str, model_folder: Path) -> LamaCppClient:
 def init_chat_history(total_length: int = 2) -> ChatHistory:
     chat_history = ChatHistory(total_length=total_length)
     return chat_history
-
-
-@st.cache_resource()
-def load_conversational_retrieval(_llm: LamaCppClient) -> ConversationHandler:
-    conversation_retrieval = ConversationHandler(
-        _llm,
-    )
-    return conversation_retrieval
 
 
 def init_page(root_folder: Path) -> None:
@@ -89,7 +81,6 @@ def main(parameters) -> None:
     init_page(root_folder)
     llm = load_llm(model, model_folder)
     chat_history = init_chat_history(2)
-    conversational_retrieval = load_conversational_retrieval(_llm=llm)
     reset_chat_history(chat_history)
     init_welcome_message()
     display_messages_from_history()
@@ -108,9 +99,7 @@ def main(parameters) -> None:
         with st.chat_message("assistant"):
             message_placeholder = st.empty()
             full_response = ""
-            for token in conversational_retrieval.answer(
-                question=user_input, chat_history=chat_history, max_new_tokens=max_new_tokens
-            ):
+            for token in answer(llm=llm, question=user_input, chat_history=chat_history, max_new_tokens=max_new_tokens):
                 full_response += llm.parse_token(token)
                 message_placeholder.markdown(full_response + "▌")
             message_placeholder.markdown(full_response)

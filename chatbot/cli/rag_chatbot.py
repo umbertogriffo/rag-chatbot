@@ -5,7 +5,7 @@ from pathlib import Path
 
 from bot.client.lama_cpp_client import LamaCppClient
 from bot.conversation.chat_history import ChatHistory
-from bot.conversation.conversation_handler import ConversationHandler
+from bot.conversation.conversation_handler import answer_with_context, refine_question
 from bot.conversation.ctx_strategy import get_ctx_synthesis_strategies, get_ctx_synthesis_strategy
 from bot.memory.embedder import Embedder
 from bot.memory.vector_database.chroma import Chroma
@@ -70,7 +70,7 @@ def get_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def loop(conversation, chat_history, synthesis_strategy, index, parameters) -> None:
+def loop(llm, chat_history, synthesis_strategy, index, parameters) -> None:
     custom_fig = Figlet(font="graffiti")
     console = Console(color_system="windows")
     console.print(custom_fig.renderText("ChatBot"))
@@ -90,7 +90,7 @@ def loop(conversation, chat_history, synthesis_strategy, index, parameters) -> N
         logger.info(f"--- Question: {question}, Chat_history: {chat_history} ---")
 
         start_time = time.time()
-        refined_question = conversation.refine_question(question)
+        refined_question = refine_question(llm, question, chat_history)
 
         retrieved_contents, sources = index.similarity_search_with_threshold(query=refined_question, k=parameters.k)
 
@@ -100,15 +100,17 @@ def loop(conversation, chat_history, synthesis_strategy, index, parameters) -> N
 
         console.print("\n[bold magenta]Answer:[/bold magenta]")
 
-        streamer, fmt_prompts = conversation.context_aware_answer(
+        streamer, fmt_prompts = answer_with_context(
+            llm=llm,
             ctx_synthesis_strategy=synthesis_strategy,
             question=refined_question,
+            chat_history=chat_history,
             retrieved_contents=retrieved_contents,
             max_new_tokens=parameters.max_new_tokens,
         )
         answer = ""
         for token in streamer:
-            parsed_token = conversation.llm.parse_token(token)
+            parsed_token = llm.parse_token(token)
             answer += parsed_token
             print(parsed_token, end="", flush=True)
 
@@ -136,12 +138,11 @@ def main(parameters):
 
     synthesis_strategy = get_ctx_synthesis_strategy(parameters.synthesis_strategy, llm=llm)
     chat_history = ChatHistory(total_length=2)
-    conversation = ConversationHandler(llm)
 
     embedding = Embedder()
     index = Chroma(persist_directory=str(vector_store_path), embedding=embedding)
 
-    loop(conversation, chat_history, synthesis_strategy, index, parameters)
+    loop(llm, chat_history, synthesis_strategy, index, parameters)
 
 
 if __name__ == "__main__":

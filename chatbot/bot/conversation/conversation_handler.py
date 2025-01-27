@@ -11,129 +11,115 @@ from bot.conversation.ctx_strategy import AsyncTreeSummarizationStrategy, BaseSy
 logger = get_logger(__name__)
 
 
-class ConversationHandler:
+def refine_question(llm: LamaCppClient, question: str, chat_history: ChatHistory, max_new_tokens: int = 128) -> str:
     """
-    A class for managing a conversation using a large language model.
+    Refines the given question based on the chat history.
 
-    Attributes:
+    Args:
         llm (LlmClient): The language model client for conversation-related tasks.
+        question (str): The original question.
+        chat_history (List[Tuple[str, str]]): A list to store the conversation
+        history as tuples of questions and answers.
+        max_new_tokens (int, optional): The maximum number of tokens to generate in the answer.
+            Defaults to 128.
+
+    Returns:
+        str: The refined question.
     """
 
-    def __init__(self, llm: LamaCppClient) -> None:
-        """
-        Initializes a new instance of the ConversationHandler class.
+    if chat_history:
+        logger.info("--- Refining the question based on the chat history... ---")
 
-        Args:
-            llm (LlmClient): The language model client for conversation-related tasks.
-        """
-        self.llm = llm
+        conversation_awareness_prompt = llm.generate_refined_question_conversation_awareness_prompt(
+            question, str(chat_history)
+        )
 
-    def refine_question(self, question: str, chat_history: ChatHistory, max_new_tokens: int = 128) -> str:
-        """
-        Refines the given question based on the chat history.
+        logger.info(f"--- Prompt:\n {conversation_awareness_prompt} \n---")
 
-        Args:
-            question (str): The original question.
-            chat_history (List[Tuple[str, str]]): A list to store the conversation
-            history as tuples of questions and answers.
-            max_new_tokens (int, optional): The maximum number of tokens to generate in the answer.
-                Defaults to 128.
+        refined_question = llm.generate_answer(conversation_awareness_prompt, max_new_tokens=max_new_tokens)
 
-        Returns:
-            str: The refined question.
-        """
+        logger.info(f"--- Refined Question: {refined_question} ---")
 
-        if chat_history:
-            logger.info("--- Refining the question based on the chat history... ---")
+        return refined_question
+    else:
+        return question
 
-            conversation_awareness_prompt = self.llm.generate_refined_question_conversation_awareness_prompt(
-                question, str(chat_history)
-            )
 
-            logger.info(f"--- Prompt:\n {conversation_awareness_prompt} \n---")
+def answer(llm: LamaCppClient, question: str, chat_history: ChatHistory, max_new_tokens: int = 512) -> Any:
+    """
+    Generates an answer to the given question based on the chat history or a direct prompt.
 
-            refined_question = self.llm.generate_answer(conversation_awareness_prompt, max_new_tokens=max_new_tokens)
+    Args:
+        llm (LlmClient): The language model client for conversation-related tasks.
+        question (str): The input question for which an answer is generated.
+        chat_history (List[Tuple[str, str]]): A list to store the conversation
+        history as tuples of questions and answers.
+        max_new_tokens (int, optional): The maximum number of tokens to generate in the answer.
+            Defaults to 512.
 
-            logger.info(f"--- Refined Question: {refined_question} ---")
+    Returns:
+        A streaming iterator (Any) for progressively generating the answer.
 
-            return refined_question
-        else:
-            return question
+    Notes:
+        The method checks if there is existing chat history. If chat history is available,
+        it constructs a conversation-awareness prompt using the question and chat history.
+        The answer is then generated using the LLM with the conversation-awareness prompt.
+        If no chat history is available, a prompt is generated directly from the input question,
+        and the answer is generated accordingly.
+    """
 
-    def answer(self, question: str, chat_history: ChatHistory, max_new_tokens: int = 512) -> Any:
-        """
-        Generates an answer to the given question based on the chat history or a direct prompt.
+    if chat_history:
+        logger.info("--- Answer the question based on the chat history... ---")
 
-        Args:
-            question (str): The input question for which an answer is generated.
-            chat_history (List[Tuple[str, str]]): A list to store the conversation
-            history as tuples of questions and answers.
-            max_new_tokens (int, optional): The maximum number of tokens to generate in the answer.
-                Defaults to 512.
+        conversation_awareness_prompt = llm.generate_refined_answer_conversation_awareness_prompt(
+            question, str(chat_history)
+        )
 
-        Returns:
-            A streaming iterator (Any) for progressively generating the answer.
+        logger.debug(f"--- Prompt:\n {conversation_awareness_prompt} \n---")
 
-        Notes:
-            The method checks if there is existing chat history. If chat history is available,
-            it constructs a conversation-awareness prompt using the question and chat history.
-            The answer is then generated using the LLM with the conversation-awareness prompt.
-            If no chat history is available, a prompt is generated directly from the input question,
-            and the answer is generated accordingly.
-        """
+        streamer = llm.start_answer_iterator_streamer(conversation_awareness_prompt, max_new_tokens=max_new_tokens)
 
-        if chat_history:
-            logger.info("--- Answer the question based on the chat history... ---")
+        return streamer
+    else:
+        prompt = llm.generate_qa_prompt(question=question)
+        logger.debug(f"--- Prompt:\n {prompt} \n---")
+        streamer = llm.start_answer_iterator_streamer(prompt, max_new_tokens=max_new_tokens)
+        return streamer
 
-            conversation_awareness_prompt = self.llm.generate_refined_answer_conversation_awareness_prompt(
-                question, str(chat_history)
-            )
 
-            logger.debug(f"--- Prompt:\n {conversation_awareness_prompt} \n---")
+def answer_with_context(
+    llm: LamaCppClient,
+    ctx_synthesis_strategy: BaseSynthesisStrategy,
+    question: str,
+    chat_history: ChatHistory,
+    retrieved_contents: list[Document],
+    max_new_tokens: int = 512,
+):
+    """
+    Generates an answer to the given question using a context synthesis strategy and retrieved contents.
 
-            streamer = self.llm.start_answer_iterator_streamer(
-                conversation_awareness_prompt, max_new_tokens=max_new_tokens
-            )
+    Args:
+        llm (LlmClient): The language model client for conversation-related tasks.
+        ctx_synthesis_strategy (BaseSynthesisStrategy): The strategy to use for context synthesis.
+        question (str): The input question for which an answer is generated.
+        chat_history (List[Tuple[str, str]]): A list to store the conversation
+        history as tuples of questions and answers.
+        retrieved_contents (list[Document]): A list of documents retrieved for context.
+        max_new_tokens (int, optional): The maximum number of tokens to generate in the answer. Defaults to 512.
 
-            return streamer
-        else:
-            prompt = self.llm.generate_qa_prompt(question=question)
-            logger.debug(f"--- Prompt:\n {prompt} \n---")
-            streamer = self.llm.start_answer_iterator_streamer(prompt, max_new_tokens=max_new_tokens)
-            return streamer
+    Returns:
+        tuple: A tuple containing the answer streamer and formatted prompts.
+    """
+    if not retrieved_contents:
+        return answer(llm, question, chat_history, max_new_tokens=max_new_tokens), []
 
-    def context_aware_answer(
-        self,
-        ctx_synthesis_strategy: BaseSynthesisStrategy,
-        question: str,
-        chat_history: ChatHistory,
-        retrieved_contents: list[Document],
-        max_new_tokens: int = 512,
-    ):
-        """
-        Generates an answer to the given question using a context synthesis strategy and retrieved contents.
-
-        Args:
-            ctx_synthesis_strategy (BaseSynthesisStrategy): The strategy to use for context synthesis.
-            question (str): The input question for which an answer is generated.
-            chat_history (List[Tuple[str, str]]): A list to store the conversation
-            history as tuples of questions and answers.
-            retrieved_contents (list[Document]): A list of documents retrieved for context.
-            max_new_tokens (int, optional): The maximum number of tokens to generate in the answer. Defaults to 512.
-
-        Returns:
-            tuple: A tuple containing the answer streamer and formatted prompts.
-        """
-        if not retrieved_contents:
-            return self.answer(question, chat_history, max_new_tokens=max_new_tokens), []
-
-        if isinstance(ctx_synthesis_strategy, AsyncTreeSummarizationStrategy):
-            loop = get_event_loop()
-            streamer, fmt_prompts = loop.run_until_complete(
-                ctx_synthesis_strategy.generate_response(retrieved_contents, question, max_new_tokens=max_new_tokens)
-            )
-        else:
-            streamer, fmt_prompts = ctx_synthesis_strategy.generate_response(
-                retrieved_contents, question, max_new_tokens=max_new_tokens
-            )
-        return streamer, fmt_prompts
+    if isinstance(ctx_synthesis_strategy, AsyncTreeSummarizationStrategy):
+        loop = get_event_loop()
+        streamer, fmt_prompts = loop.run_until_complete(
+            ctx_synthesis_strategy.generate_response(retrieved_contents, question, max_new_tokens=max_new_tokens)
+        )
+    else:
+        streamer, fmt_prompts = ctx_synthesis_strategy.generate_response(
+            retrieved_contents, question, max_new_tokens=max_new_tokens
+        )
+    return streamer, fmt_prompts
