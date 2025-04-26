@@ -1,4 +1,5 @@
 # Todo
+- https://github.com/abetlen/llama-cpp-python/issues/1995
 - Support [(Ollama,](https://github.com/ollama/ollama) using the Python API to create an additional client.
     - https://github.com/ollama/ollama-python/tree/main
     - https://github.com/ollama/ollama-python/tree/main/examples
