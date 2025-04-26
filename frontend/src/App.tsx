@@ -3,8 +3,8 @@ import {Container, CssBaseline, ThemeProvider, createTheme, Box} from '@mui/mate
 import ChatWindow from "./components/ChatWindow.tsx";
 import SearchBar from "./components/SearchBar.tsx";
 import React from "react";
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+// import reactLogo from './assets/react.svg'
+import robotLogo from './assets/robot-logo.png'
 
 const theme = createTheme({
     palette: {
@@ -104,19 +104,16 @@ function App() {
     return (
         <>
             <div>
-                <a href="https://vite.dev" target="_blank">
-                    <img src={viteLogo} className="logo" alt="Vite logo"/>
-                </a>
                 <a href="https://react.dev" target="_blank">
-                    <img src={reactLogo} className="logo react" alt="React logo"/>
+                    <img src={robotLogo} className="logo" alt="Chatbot logo"/>
                 </a>
             </div>
             <h2>What can I help with?</h2>
             <ThemeProvider theme={theme}>
-            <CssBaseline/>
-            <Container
-                maxWidth={false}
-                sx={{
+                <CssBaseline/>
+                <Container
+                    maxWidth={false}
+                    sx={{
                     mt: 4,
                     maxWidth: '100vw',
                     width: '55vw',
