@@ -229,6 +229,7 @@ streamlit run chatbot/rag_chatbot_app.py -- --model llama-3.1 --k 2 --synthesis-
     * [PydanticAI](https://ai.pydantic.dev/)
     * [Atomic Agents](https://github.com/BrainBlend-AI/atomic-agents)
       * [Want to Build AI Agents? Tired of LangChain, CrewAI, AutoGen & Other AI Agent Frameworks?](https://ai.gopubby.com/want-to-build-ai-agents-c83ab4535411)
+    * [agno](https://github.com/agno-agi/agno) - a lightweight, high-performance library for building Agents.
 * Embeddings:
     * To find the list of best embeddings models for the retrieval task in your language go to
       the [Massive Text Embedding Benchmark (MTEB) Leaderboard](https://huggingface.co/spaces/mteb/leaderboard)
