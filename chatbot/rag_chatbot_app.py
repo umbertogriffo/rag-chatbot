@@ -20,6 +20,8 @@ from helpers.prettier import prettify_source
 
 logger = get_logger(__name__)
 
+st.set_page_config(page_title="RAG Chatbot", page_icon="💬", initial_sidebar_state="collapsed")
+
 
 @st.cache_resource()
 def load_llm_client(model_folder: Path, model_name: str) -> LamaCppClient:
@@ -29,7 +31,7 @@ def load_llm_client(model_folder: Path, model_name: str) -> LamaCppClient:
     return llm
 
 
-@st.cache_resource(experimental_allow_widgets=True)
+@st.cache_resource()
 def init_chat_history(total_length: int = 2) -> ChatHistory:
     chat_history = ChatHistory(total_length=total_length)
     return chat_history
@@ -62,7 +64,6 @@ def init_page(root_folder: Path) -> None:
     """
     Initializes the page configuration for the application.
     """
-    st.set_page_config(page_title="RAG Chatbot", page_icon="💬", initial_sidebar_state="collapsed")
     left_column, central_column, right_column = st.columns([2, 1, 2])
 
     with left_column:

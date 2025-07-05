@@ -11,15 +11,15 @@ torch = [
     { version = "~=2.1.2", source = "pytorch", platform = "!=darwin" },
     { version = "~=2.1.2", source = "PyPI", platform = "darwin" }
 ]
-sentence-transformers = { version = "~=2.2.2" }
+sentence-transformers = { version = "~=5.0.0" }
 sentencepiece = "~=0.1.99"
-tqdm = "~=4.65.0"
-requests = "~=2.31.0"
+tqdm = "~=4.66.0"
+requests = "~=2.32.0"
 numpy = "~=1.24.2"
-streamlit = "~=1.29.0"
-unstructured = "~=0.7.7"
+streamlit = "~=1.37.0"
+unstructured = { version = "~=0.14.3", extras = ["md"] }
 chromadb = "~=0.4.18"
-transformers = "~=4.33.0"
+transformers = "~=4.50.0"
 rich = "~=13.4.2"
 pyfiglet = "~=0.7"
 clean-text = "~=0.6.0"
