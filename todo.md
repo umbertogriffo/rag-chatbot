@@ -4,9 +4,6 @@
     - https://github.com/ollama/ollama-python/tree/main
     - https://github.com/ollama/ollama-python/tree/main/examples
     - https://ollama.com/library/llama3.2-vision:11b
-- Add the following models:
-  - https://huggingface.co/bartowski/Qwen2.5-Coder-7B-Instruct-abliterated-GGUF
-  - https://huggingface.co/bartowski/Qwen2.5-Coder-7B-Instruct-GGUF
 - Experiment Agentic Patterns:
   - https://weaviate.io/blog/what-is-agentic-rag
   - https://github.com/neural-maze/agentic_patterns
