@@ -4,6 +4,13 @@
     - https://github.com/ollama/ollama-python/tree/main
     - https://github.com/ollama/ollama-python/tree/main/examples
     - https://ollama.com/library/llama3.2-vision:11b
+- Chunking:
+  - [Introducing Contextual Retrieval](https://www.anthropic.com/news/contextual-retrieval)
+  - [Chunking for RAG: Stop Breaking Your Documents Into Meaningless Pieces](https://www.youtube.com/watch?v=trG5pjChAkM)
+  - [Late Chunking: Balancing Precision and Cost in Long Context Retrieval](https://weaviate.io/blog/late-chunking)
+- Reranking:
+ - https://github.com/PrithivirajDamodaran/FlashRank
+ - https://github.com/AnswerDotAI/rerankers
 - Experiment Agentic Patterns:
   - https://weaviate.io/blog/what-is-agentic-rag
   - https://github.com/neural-maze/agentic_patterns

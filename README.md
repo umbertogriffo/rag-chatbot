@@ -223,6 +223,7 @@ streamlit run chatbot/rag_chatbot_app.py -- --model llama-3.1 --k 2 --synthesis-
           a code assistant in PyCharm. More info [here](https://docs.codegpt.ee/providers/local/ollama).
     * Deepval - A framework for evaluating LLMs:
       * https://github.com/confident-ai/deepeval
+    * [Structured Outputs](https://github.com/dottxt-ai/outlines)
 * LLM Datasets:
     * [High-quality datasets](https://github.com/mlabonne/llm-datasets)
 * Agents:
