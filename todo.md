@@ -8,6 +8,7 @@
   - [Introducing Contextual Retrieval](https://www.anthropic.com/news/contextual-retrieval)
   - [Chunking for RAG: Stop Breaking Your Documents Into Meaningless Pieces](https://www.youtube.com/watch?v=trG5pjChAkM)
   - [Late Chunking: Balancing Precision and Cost in Long Context Retrieval](https://weaviate.io/blog/late-chunking)
+  - [Late Chunking of Short Chunks in Long-Context Embedding Models](https://github.com/jina-ai/late-chunking)
 - Reranking:
  - https://github.com/PrithivirajDamodaran/FlashRank
  - https://github.com/AnswerDotAI/rerankers
