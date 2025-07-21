@@ -12,6 +12,7 @@
 - Reranking:
  - https://github.com/PrithivirajDamodaran/FlashRank
  - https://github.com/AnswerDotAI/rerankers
+ - https://huggingface.co/jinaai/jina-reranker-m0-GGUF
 - Experiment Agentic Patterns:
   - https://weaviate.io/blog/what-is-agentic-rag
   - https://github.com/neural-maze/agentic_patterns
