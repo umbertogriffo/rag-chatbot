@@ -196,7 +196,6 @@ def stream_response_with_reasoning(
 
         if inside_think:
             reasoning_response += parsed_token
-            message_placeholder.markdown(reasoning_response + "▌")
         else:
             full_response += llm.parse_token(token)
 
