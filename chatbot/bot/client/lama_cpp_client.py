@@ -13,7 +13,6 @@ from bot.client.prompt import (
     REFINED_ANSWER_CONVERSATION_AWARENESS_PROMPT_TEMPLATE,
     REFINED_CTX_PROMPT_TEMPLATE,
     REFINED_QUESTION_CONVERSATION_AWARENESS_PROMPT_TEMPLATE,
-    SYSTEM_TEMPLATE,
     TOOL_SYSTEM_TEMPLATE,
     generate_conversation_awareness_prompt,
     generate_ctx_prompt,
@@ -102,7 +101,7 @@ class LamaCppClient:
 
         output = self.llm.create_chat_completion(
             messages=[
-                {"role": "system", "content": SYSTEM_TEMPLATE},
+                {"role": "system", "content": self.model_settings.system_template},
                 {"role": "user", "content": f"{prompt}"},
             ],
             max_tokens=max_new_tokens,
@@ -115,7 +114,7 @@ class LamaCppClient:
 
     async def async_generate_answer(self, prompt: str, max_new_tokens: int = 512) -> str:
         """
-        Generates an answer based on the given prompt using the language model.
+        Generates an answer based on the given prompt using the language model asynchronously.
 
         Args:
             prompt (str): The input prompt for generating the answer.
@@ -124,22 +123,11 @@ class LamaCppClient:
         Returns:
             str: The generated answer.
         """
-        output = self.llm.create_chat_completion(
-            messages=[
-                {"role": "system", "content": SYSTEM_TEMPLATE},
-                {"role": "user", "content": f"{prompt}"},
-            ],
-            max_tokens=max_new_tokens,
-            **self.model_settings.config_answer,
-        )
-
-        answer = output["choices"][0]["message"].get("content", "")
-
-        return answer
+        return self.generate_answer(prompt, max_new_tokens)
 
     def stream_answer(self, prompt: str, max_new_tokens: int = 512) -> str:
         """
-        Generates an answer by streaming tokens using the TextStreamer.
+        Generates an answer by streaming tokens.
 
         Args:
             prompt (str): The input prompt for generating the answer.
@@ -171,7 +159,7 @@ class LamaCppClient:
         """
         stream = self.llm.create_chat_completion(
             messages=[
-                {"role": "system", "content": SYSTEM_TEMPLATE},
+                {"role": "system", "content": self.model_settings.system_template},
                 {"role": "user", "content": f"{prompt}"},
             ],
             max_tokens=max_new_tokens,
@@ -185,7 +173,7 @@ class LamaCppClient:
         self, prompt: str, max_new_tokens: int = 512
     ) -> CreateCompletionResponse | Iterator[CreateCompletionStreamResponse]:
         """
-        This abstract method should be implemented to asynchronously start an answer iterator streamer,
+        Abstract method to asynchronously start an answer iterator streamer,
         providing a flexible way to generate answers in a streaming fashion based on the given prompt.
 
         Args:
@@ -193,17 +181,7 @@ class LamaCppClient:
             max_new_tokens (int): The maximum number of new tokens to generate (default is 1000).
 
         """
-        stream = self.llm.create_chat_completion(
-            messages=[
-                {"role": "system", "content": SYSTEM_TEMPLATE},
-                {"role": "user", "content": f"{prompt}"},
-            ],
-            max_tokens=max_new_tokens,
-            stream=True,
-            **self.model_settings.config_answer,
-        )
-
-        return stream
+        return self.start_answer_iterator_streamer(prompt, max_new_tokens)
 
     @experimental
     def retrieve_tools(
@@ -259,7 +237,6 @@ class LamaCppClient:
         """
         return generate_qa_prompt(
             template=QA_PROMPT_TEMPLATE,
-            system=SYSTEM_TEMPLATE,
             question=question,
         )
 
@@ -277,7 +254,6 @@ class LamaCppClient:
         """
         return generate_ctx_prompt(
             template=CTX_PROMPT_TEMPLATE,
-            system=SYSTEM_TEMPLATE,
             question=question,
             context=context,
         )
@@ -297,7 +273,6 @@ class LamaCppClient:
         """
         return generate_refined_ctx_prompt(
             template=REFINED_CTX_PROMPT_TEMPLATE,
-            system=SYSTEM_TEMPLATE,
             question=question,
             context=context,
             existing_answer=existing_answer,
@@ -307,7 +282,6 @@ class LamaCppClient:
     def generate_refined_question_conversation_awareness_prompt(question: str, chat_history: str) -> str:
         return generate_conversation_awareness_prompt(
             template=REFINED_QUESTION_CONVERSATION_AWARENESS_PROMPT_TEMPLATE,
-            system=SYSTEM_TEMPLATE,
             question=question,
             chat_history=chat_history,
         )
@@ -316,7 +290,6 @@ class LamaCppClient:
     def generate_refined_answer_conversation_awareness_prompt(question: str, chat_history: str) -> str:
         return generate_conversation_awareness_prompt(
             template=REFINED_ANSWER_CONVERSATION_AWARENESS_PROMPT_TEMPLATE,
-            system=SYSTEM_TEMPLATE,
             question=question,
             chat_history=chat_history,
         )
