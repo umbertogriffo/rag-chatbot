@@ -100,7 +100,7 @@ def loop(llm, chat_history, synthesis_strategy, index, parameters) -> None:
 
         console.print("\n[bold magenta]Answer:[/bold magenta]")
 
-        streamer, fmt_prompts = answer_with_context(
+        streamer, _ = answer_with_context(
             llm=llm,
             ctx_synthesis_strategy=synthesis_strategy,
             question=refined_question,

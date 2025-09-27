@@ -6,7 +6,7 @@ from pathlib import Path
 import streamlit as st
 from bot.client.lama_cpp_client import LamaCppClient
 from bot.conversation.chat_history import ChatHistory
-from bot.conversation.conversation_handler import stream_response, stream_response_with_reasoning
+from bot.conversation.conversation_handler import answer, extract_content_after_reasoning
 from bot.model.model_registry import get_model_settings, get_models
 from helpers.log import get_logger
 
@@ -98,18 +98,19 @@ def main(parameters) -> None:
         # Display assistant response in chat message container
         start_time = time.time()
         with st.chat_message("assistant"):
-            if llm.model_settings.reasoning:
-                with st.spinner(text="Thinking – please hang tight! "):
-                    full_response, _ = stream_response_with_reasoning(
-                        llm=llm, user_input=user_input, chat_history=chat_history, max_new_tokens=max_new_tokens
-                    )
-            else:
-                full_response = stream_response(
-                    llm=llm, user_input=user_input, chat_history=chat_history, max_new_tokens=max_new_tokens
-                )
+            message_placeholder = st.empty()
+            full_response = ""
+            for token in answer(llm=llm, question=user_input, chat_history=chat_history, max_new_tokens=max_new_tokens):
+                full_response += llm.parse_token(token)
+                message_placeholder.markdown(full_response + "▌")
+            message_placeholder.markdown(full_response)
 
+        if llm.model_settings.reasoning:
+            final_answer = extract_content_after_reasoning(full_response, llm.model_settings.reasoning_stop_tag)
+        else:
+            final_answer = full_response
         # Add assistant response to chat history
-        chat_history.append(f"question: {user_input}, answer: {full_response}")
+        chat_history.append(f"question: {user_input}, answer: {final_answer}")
         st.session_state.messages.append({"role": "assistant", "content": full_response})
 
         took = time.time() - start_time

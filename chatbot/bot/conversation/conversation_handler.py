@@ -1,3 +1,4 @@
+import re
 from asyncio import get_event_loop
 from typing import Any
 
@@ -38,6 +39,9 @@ def refine_question(llm: LamaCppClient, question: str, chat_history: ChatHistory
         logger.info(f"--- Prompt:\n {conversation_awareness_prompt} \n---")
 
         refined_question = llm.generate_answer(conversation_awareness_prompt, max_new_tokens=max_new_tokens)
+
+        if llm.model_settings.reasoning:
+            refined_question = extract_content_after_reasoning(refined_question, llm.model_settings.reasoning_stop_tag)
 
         logger.info(f"--- Refined Question: {refined_question} ---")
 
@@ -204,3 +208,37 @@ def stream_response_with_reasoning(
     message_placeholder.markdown(reasoning_response + full_response)
 
     return full_response, reasoning_response
+
+
+def extract_content_after_reasoning(text: str, reasoning_stop_tag: str) -> str:
+    """
+    Extracts and strips the text that follows the `reasoning_stop_tag` tag.
+
+    Args:
+        text: The input string containing the tag.
+        reasoning_stop_tag: The tag after which the text should be extracted.
+
+    Returns:
+        The text after the `reasoning_stop_tag` tag, stripped of whitespace, or an empty string
+        if the tag is not found.
+    """
+    try:
+        # The fall-back tag is "answer:" since I noticed that Deep-seek uses it when the reasoning stop tag
+        # is not found.
+        if reasoning_stop_tag.lower() not in text.lower():
+            logger.warning(
+                f"Reasoning stop tag '{reasoning_stop_tag}' not found in the text. Try fall-back tag 'answer:'."
+            )
+            reasoning_stop_tag = "answer:"
+
+        _, content = re.split(reasoning_stop_tag, text, maxsplit=1, flags=re.IGNORECASE)
+
+        if content == "":
+            logger.warning(f"Reasoning stop tag '{reasoning_stop_tag}' found but no content after it.")
+        else:
+            logger.info(f"Extracted content after reasoning stop tag '{reasoning_stop_tag}': {content}")
+
+        return content.strip()
+    except ValueError:
+        logger.error(f"Reasoning stop tag '{reasoning_stop_tag}' not found in the text.")
+        return "I didn't provide the answer; perhaps I can try again."

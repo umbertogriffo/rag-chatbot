@@ -6,7 +6,7 @@ from pathlib import Path
 import streamlit as st
 from bot.client.lama_cpp_client import LamaCppClient
 from bot.conversation.chat_history import ChatHistory
-from bot.conversation.conversation_handler import answer_with_context, refine_question
+from bot.conversation.conversation_handler import answer_with_context, extract_content_after_reasoning, refine_question
 from bot.conversation.ctx_strategy import (
     BaseSynthesisStrategy,
     get_ctx_synthesis_strategies,
@@ -121,6 +121,7 @@ def main(parameters) -> None:
 
     model_name = parameters.model
     synthesis_strategy_name = parameters.synthesis_strategy
+    max_new_tokens = parameters.max_new_tokens
 
     init_page(root_folder)
     llm = load_llm_client(model_folder, model_name)
@@ -145,9 +146,11 @@ def main(parameters) -> None:
             message_placeholder = st.empty()
             full_response = ""
             with st.spinner(
-                text="Refining the question and Retrieving the docs – hang tight! " "This should take seconds."
+                text="Refining the question and Retrieving the docs – hang tight! This should take seconds."
             ):
-                refined_user_input = refine_question(llm, user_input, chat_history=chat_history)
+                refined_user_input = refine_question(
+                    llm, user_input, chat_history=chat_history, max_new_tokens=max_new_tokens
+                )
                 retrieved_contents, sources = index.similarity_search_with_threshold(
                     query=refined_user_input, k=parameters.k
                 )
@@ -172,8 +175,8 @@ def main(parameters) -> None:
             message_placeholder = st.empty()
             full_response = ""
             with st.spinner(text="Refining the context and Generating the answer for each text chunk – hang tight! "):
-                streamer, fmt_prompts = answer_with_context(
-                    llm, ctx_synthesis_strategy, user_input, chat_history, retrieved_contents
+                streamer, _ = answer_with_context(
+                    llm, ctx_synthesis_strategy, user_input, chat_history, retrieved_contents, max_new_tokens
                 )
                 for token in streamer:
                     full_response += llm.parse_token(token)
@@ -181,7 +184,12 @@ def main(parameters) -> None:
 
                 message_placeholder.markdown(full_response)
 
-                chat_history.append(f"question: {user_input}, answer: {full_response}")
+                if llm.model_settings.reasoning:
+                    answer = extract_content_after_reasoning(full_response, llm.model_settings.reasoning_stop_tag)
+                else:
+                    answer = full_response
+
+                chat_history.append(f"question: {user_input}, answer: {answer}")
         # Add assistant response to chat history
         st.session_state.messages.append({"role": "assistant", "content": full_response})
         took = time.time() - start_time
@@ -225,6 +233,14 @@ def get_args() -> argparse.Namespace:
         help="Number of chunks to return from the similarity search. Defaults to 2.",
         required=False,
         default=2,
+    )
+
+    parser.add_argument(
+        "--max-new-tokens",
+        type=int,
+        help="The maximum number of tokens to generate in the answer. Defaults to 512.",
+        required=False,
+        default=512,
     )
 
     return parser.parse_args()
