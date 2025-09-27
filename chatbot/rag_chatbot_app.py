@@ -182,16 +182,19 @@ def main(parameters) -> None:
                     full_response += llm.parse_token(token)
                     message_placeholder.markdown(full_response + "▌")
 
-                message_placeholder.markdown(full_response)
-
                 if llm.model_settings.reasoning:
                     answer = extract_content_after_reasoning(full_response, llm.model_settings.reasoning_stop_tag)
+                    if answer == "":
+                        answer = "I wasn't able to provide the answer; Do you want me to try again?"
                 else:
                     answer = full_response
 
                 chat_history.append(f"question: {user_input}, answer: {answer}")
+
+                message_placeholder.markdown(answer)
+
         # Add assistant response to chat history
-        st.session_state.messages.append({"role": "assistant", "content": full_response})
+        st.session_state.messages.append({"role": "assistant", "content": answer})
         took = time.time() - start_time
         logger.info(f"\n--- Took {took:.2f} seconds ---")
 

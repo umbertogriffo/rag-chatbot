@@ -107,11 +107,15 @@ def main(parameters) -> None:
 
         if llm.model_settings.reasoning:
             final_answer = extract_content_after_reasoning(full_response, llm.model_settings.reasoning_stop_tag)
+            if final_answer == "":
+                final_answer = "I didn't provide the answer; perhaps I can try again."
         else:
             final_answer = full_response
+
+        message_placeholder.markdown(final_answer)
         # Add assistant response to chat history
         chat_history.append(f"question: {user_input}, answer: {final_answer}")
-        st.session_state.messages.append({"role": "assistant", "content": full_response})
+        st.session_state.messages.append({"role": "assistant", "content": final_answer})
 
         took = time.time() - start_time
         logger.info(f"\n--- Took {took:.2f} seconds ---")
