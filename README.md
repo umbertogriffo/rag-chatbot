@@ -125,33 +125,6 @@ To easily install the dependencies we created a make file.
     * Runs all tests.
     * Using [pytest](https://pypi.org/project/pytest/)
 
-## Using the Open-Source Models Locally
-
-We utilize the open-source library [llama-cpp-python](https://github.com/abetlen/llama-cpp-python), a binding
-for [llama-cpp](https://github.com/ggerganov/llama.cpp),
-allowing us to utilize it within a Python environment.
-`llama-cpp` serves as a C++ backend designed to work efficiently with transformer-based models.
-Running the LLMs architecture on a local PC is impossible due to the large (~7 billion) number of parameters.
-This library enable us to run them either on a `CPU` or `GPU`.
-Additionally, we use the `Quantization and 4-bit precision` to reduce number of bits required to represent the numbers.
-The quantized models are stored in [GGML/GGUF](https://medium.com/@phillipgimmi/what-is-gguf-and-ggml-e364834d241c)
-format.
-
-### Supported Models
-
-| 🤖 Model                                                       | Supported | Model Size | Max Context Window | Notes and link to the model card                                                                                                                                     |
-|----------------------------------------------------------------|-----------|------------|--------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `llama-3.2` Meta Llama 3.2 Instruct                            | ✅         | 1B         | 128k               | Optimized to run locally on a mobile or edge device - [Card](https://huggingface.co/bartowski/Llama-3.2-1B-Instruct-GGUF)                                            |
-| `llama-3.2` Meta Llama 3.2 Instruct                            | ✅         | 3B         | 128k               | Optimized to run locally on a mobile or edge device - [Card](https://huggingface.co/bartowski/Llama-3.2-3B-Instruct-GGUF)                                            |
-| `llama-3.1` Meta Llama 3.1 Instruct                            | ✅         | 8B         | 128k               | **Recommended model** [Card](https://huggingface.co/bartowski/Meta-Llama-3.1-8B-Instruct-GGUF)                                                                       |
-| `qwen-2.5:3b` - Qwen2.5 Instruct                               | ✅         | 3B         | 128k               | [Card](https://huggingface.co/Qwen/Qwen2.5-3B-Instruct-GGUF)                                                                                                         |
-| `qwen-2.5:3b-math-reasoning` - Qwen2.5 Instruct Math Reasoning | ✅         | 3B         | 128k               | [Card](https://huggingface.co/ugriffo/Qwen2.5-3B-Instruct-Math-Reasoning-GGUF)                                                                                       |
-| `deep-seek-r1:7b` - DeepSeek R1 Distill Qwen 7B                | ✅         | 7B         | 128k               | **Experimental** [Card](https://huggingface.co/bartowski/DeepSeek-R1-Distill-Qwen-7B-GGUF)                                                                           |
-| `openchat-3.6` - OpenChat 3.6                                  | ✅         | 8B         | 8192               | [Card](https://huggingface.co/bartowski/openchat-3.6-8b-20240522-GGUF)                                                                                               |
-| `openchat-3.5` - OpenChat 3.5                                  | ✅         | 7B         | 8192               | [Card](https://huggingface.co/TheBloke/openchat-3.5-0106-GGUF)                                                                                                       |
-| `starling` Starling Beta                                       | ✅         | 7B         | 8192               | Is trained from `Openchat-3.5-0106`. It's recommended if you prefer more verbosity over OpenChat - [Card](https://huggingface.co/bartowski/Starling-LM-7B-beta-GGUF) |
-| `phi-3.5` Phi-3.5 Mini  Instruct                               | ✅         | 3.8B       | 128k               | [Card](https://huggingface.co/MaziyarPanahi/Phi-3.5-mini-instruct-GGUF)                                                                                              |
-| `stablelm-zephyr` StableLM Zephyr OpenOrca                     | ✅         | 3B         | 4096               | [Card](https://huggingface.co/TheBloke/stablelm-zephyr-3b-GGUF)                                                                                                      |
 
 ## Supported Response Synthesis strategies
 
@@ -177,20 +150,32 @@ python chatbot/memory_builder.py --chunk-size 1000 --chunk-overlap 50
 
 ## Run the Chatbot
 
-To interact with a GUI type:
+To interact with a GUI type, you first need to set the `OPENROUTER_API_KEY` environment variable:
 
 ```shell
-streamlit run chatbot/chatbot_app.py -- --model llama-3.1 --max-new-tokens 1024
+export OPENROUTER_API_KEY="your-api-key"
+```
+
+Then, run the following command:
+
+```shell
+streamlit run chatbot/chatbot_app.py -- --max-new-tokens 1024
 ```
 
 ![conversation-aware-chatbot.gif](images/conversation-aware-chatbot.gif)
 
 ## Run the RAG Chatbot
 
-To interact with a GUI type:
+To interact with a GUI type, you first need to set the `OPENROUTER_API_KEY` environment variable:
 
 ```shell
-streamlit run chatbot/rag_chatbot_app.py -- --model llama-3.1 --k 2 --synthesis-strategy async-tree-summarization
+export OPENROUTER_API_KEY="your-api-key"
+```
+
+Then, run the following command:
+
+```shell
+streamlit run chatbot/rag_chatbot_app.py -- --k 2 --synthesis-strategy async-tree-summarization
 ```
 
 ![rag_chatbot_example.gif](images%2Frag_chatbot_example.gif)

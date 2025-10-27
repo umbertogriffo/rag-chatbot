@@ -4,10 +4,9 @@ import time
 from pathlib import Path
 
 import streamlit as st
-from bot.client.lama_cpp_client import LamaCppClient
+from bot.client.open_router_client import OpenRouterClient
 from bot.conversation.chat_history import ChatHistory
 from bot.conversation.conversation_handler import answer, extract_content_after_reasoning
-from bot.model.model_registry import get_model_settings, get_models
 from helpers.log import get_logger
 
 logger = get_logger(__name__)
@@ -17,13 +16,11 @@ st.set_page_config(page_title="Chatbot", page_icon="💬", initial_sidebar_state
 
 
 @st.cache_resource()
-def load_llm(model_name: str, model_folder: Path) -> LamaCppClient:
+def load_llm() -> OpenRouterClient:
     """
-    Create a LLM session object that points to the model.
+    Create a LLM session object.
     """
-    model_settings = get_model_settings(model_name)
-    llm = LamaCppClient(model_folder=model_folder, model_settings=model_settings)
-    return llm
+    return OpenRouterClient()
 
 
 @st.cache_resource()
@@ -73,14 +70,10 @@ def display_messages_from_history():
 
 def main(parameters) -> None:
     root_folder = Path(__file__).resolve().parent.parent
-    model_folder = root_folder / "models"
-    Path(model_folder).parent.mkdir(parents=True, exist_ok=True)
-
-    model = parameters.model
     max_new_tokens = parameters.max_new_tokens
 
     init_page(root_folder)
-    llm = load_llm(model, model_folder)
+    llm = load_llm()
     chat_history = init_chat_history(2)
     reset_chat_history(chat_history)
     init_welcome_message()
@@ -103,16 +96,9 @@ def main(parameters) -> None:
             for token in answer(llm=llm, question=user_input, chat_history=chat_history, max_new_tokens=max_new_tokens):
                 full_response += llm.parse_token(token)
                 message_placeholder.markdown(full_response + "▌")
-            message_placeholder.markdown(full_response)
 
-        if llm.model_settings.reasoning:
-            final_answer = extract_content_after_reasoning(full_response, llm.model_settings.reasoning_stop_tag)
-            if final_answer == "":
-                final_answer = "I didn't provide the answer; perhaps I can try again."
-        else:
             final_answer = full_response
-
-        message_placeholder.markdown(final_answer)
+            message_placeholder.markdown(final_answer)
         # Add assistant response to chat history
         chat_history.append(f"question: {user_input}, answer: {final_answer}")
         st.session_state.messages.append({"role": "assistant", "content": final_answer})
@@ -123,20 +109,6 @@ def main(parameters) -> None:
 
 def get_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Chatbot")
-
-    model_list = get_models()
-    default_model = model_list[0]
-
-    parser.add_argument(
-        "--model",
-        type=str,
-        choices=model_list,
-        help=f"Model to be used. Defaults to {default_model}.",
-        required=False,
-        const=default_model,
-        nargs="?",
-        default=default_model,
-    )
 
     parser.add_argument(
         "--max-new-tokens",
