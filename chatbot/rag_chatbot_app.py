@@ -4,7 +4,7 @@ import time
 from pathlib import Path
 
 import streamlit as st
-from bot.client.lama_cpp_client import LamaCppClient
+from bot.client.open_router_client import OpenRouterClient
 from bot.conversation.chat_history import ChatHistory
 from bot.conversation.conversation_handler import answer_with_context, extract_content_after_reasoning, refine_question
 from bot.conversation.ctx_strategy import (
@@ -14,7 +14,6 @@ from bot.conversation.ctx_strategy import (
 )
 from bot.memory.embedder import Embedder
 from bot.memory.vector_database.chroma import Chroma
-from bot.model.model_registry import get_model_settings, get_models
 from helpers.log import get_logger
 from helpers.prettier import prettify_source
 
@@ -24,11 +23,11 @@ st.set_page_config(page_title="RAG Chatbot", page_icon="💬", initial_sidebar_s
 
 
 @st.cache_resource()
-def load_llm_client(model_folder: Path, model_name: str) -> LamaCppClient:
-    model_settings = get_model_settings(model_name)
-    llm = LamaCppClient(model_folder=model_folder, model_settings=model_settings)
-
-    return llm
+def load_llm_client() -> OpenRouterClient:
+    """
+    Loads the OpenRouter client.
+    """
+    return OpenRouterClient()
 
 
 @st.cache_resource()
@@ -38,7 +37,7 @@ def init_chat_history(total_length: int = 2) -> ChatHistory:
 
 
 @st.cache_resource()
-def load_ctx_synthesis_strategy(ctx_synthesis_strategy_name: str, _llm: LamaCppClient) -> BaseSynthesisStrategy:
+def load_ctx_synthesis_strategy(ctx_synthesis_strategy_name: str, _llm: OpenRouterClient) -> BaseSynthesisStrategy:
     ctx_synthesis_strategy = get_ctx_synthesis_strategy(ctx_synthesis_strategy_name, llm=_llm)
     return ctx_synthesis_strategy
 
@@ -115,16 +114,13 @@ def main(parameters) -> None:
         parameters: Parameters for the application.
     """
     root_folder = Path(__file__).resolve().parent.parent
-    model_folder = root_folder / "models"
     vector_store_path = root_folder / "vector_store" / "docs_index"
-    Path(model_folder).parent.mkdir(parents=True, exist_ok=True)
 
-    model_name = parameters.model
     synthesis_strategy_name = parameters.synthesis_strategy
     max_new_tokens = parameters.max_new_tokens
 
     init_page(root_folder)
-    llm = load_llm_client(model_folder, model_name)
+    llm = load_llm_client()
     chat_history = init_chat_history(2)
     ctx_synthesis_strategy = load_ctx_synthesis_strategy(synthesis_strategy_name, _llm=llm)
     index = load_index(vector_store_path)
@@ -182,15 +178,8 @@ def main(parameters) -> None:
                     full_response += llm.parse_token(token)
                     message_placeholder.markdown(full_response + "▌")
 
-                if llm.model_settings.reasoning:
-                    answer = extract_content_after_reasoning(full_response, llm.model_settings.reasoning_stop_tag)
-                    if answer == "":
-                        answer = "I wasn't able to provide the answer; Do you want me to try again?"
-                else:
-                    answer = full_response
-
+                answer = full_response
                 chat_history.append(f"question: {user_input}, answer: {answer}")
-
                 message_placeholder.markdown(answer)
 
         # Add assistant response to chat history
@@ -202,22 +191,8 @@ def main(parameters) -> None:
 def get_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="RAG Chatbot")
 
-    model_list = get_models()
-    default_model = model_list[0]
-
     synthesis_strategy_list = get_ctx_synthesis_strategies()
     default_synthesis_strategy = synthesis_strategy_list[0]
-
-    parser.add_argument(
-        "--model",
-        type=str,
-        choices=model_list,
-        help=f"Model to be used. Defaults to {default_model}.",
-        required=False,
-        const=default_model,
-        nargs="?",
-        default=default_model,
-    )
 
     parser.add_argument(
         "--synthesis-strategy",
