@@ -74,8 +74,7 @@ def get_latest_document(docs_path: Path) -> Path | None:
 def save_uploaded_document(docs_path: Path, uploaded_file: st.runtime.uploaded_file_manager.UploadedFile) -> Path:
     docs_path.mkdir(parents=True, exist_ok=True)
     for existing_doc in docs_path.glob("**/*.md"):
-        if existing_doc.is_file():
-            existing_doc.unlink()
+        existing_doc.unlink()
     target_path = docs_path / uploaded_file.name
     target_path.write_bytes(uploaded_file.getvalue())
     return target_path
@@ -101,7 +100,7 @@ def build_index_from_docs(docs_path: Path, vector_store_path: Path) -> Chroma:
 
 
 def get_file_signature(uploaded_file: st.runtime.uploaded_file_manager.UploadedFile) -> str:
-    return hashlib.md5(uploaded_file.getvalue()).hexdigest()
+    return hashlib.sha256(uploaded_file.getvalue()).hexdigest()
 
 
 def init_page(root_folder: Path) -> None:

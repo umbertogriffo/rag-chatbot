@@ -50,6 +50,7 @@ class Chroma:
         """
         Deletes all documents from the current collection.
         """
+        # Chroma interprets an empty where clause as "delete all documents".
         self.collection.delete(where={})
 
     def __query_collection(
