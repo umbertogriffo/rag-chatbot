@@ -64,12 +64,33 @@ def load_index(vector_store_path: Path) -> Chroma:
     return index
 
 
-def get_latest_document(docs_path: Path) -> Path | None:
+def get_most_recently_modified_document(docs_path: Path) -> Path | None:
+    """
+    Returns the most recently modified Markdown document in the given directory.
+
+    Args:
+        docs_path (Path): The directory containing Markdown documents.
+
+    Returns:
+        Path | None: The newest Markdown document, or None if none exist.
+    """
     documents = (doc for doc in docs_path.glob("**/*.md") if doc.is_file())
     return max(documents, key=lambda doc: doc.stat().st_mtime, default=None)
 
 
-def save_uploaded_document(docs_path: Path, uploaded_file: st.runtime.uploaded_file_manager.UploadedFile) -> Path:
+def save_and_replace_uploaded_document(
+    docs_path: Path, uploaded_file: st.runtime.uploaded_file_manager.UploadedFile
+) -> Path:
+    """
+    Saves an uploaded Markdown document and removes previously uploaded documents.
+
+    Args:
+        docs_path (Path): The directory containing Markdown documents.
+        uploaded_file (UploadedFile): The uploaded Markdown file.
+
+    Returns:
+        Path: The saved Markdown file path.
+    """
     docs_path.mkdir(parents=True, exist_ok=True)
     existing_docs = list(docs_path.glob("**/*.md"))
     if existing_docs:
@@ -82,6 +103,16 @@ def save_uploaded_document(docs_path: Path, uploaded_file: st.runtime.uploaded_f
 
 
 def build_index_from_docs(docs_path: Path, vector_store_path: Path) -> Chroma:
+    """
+    Rebuilds the Chroma index from Markdown documents in the provided directory.
+
+    Args:
+        docs_path (Path): The directory containing Markdown documents.
+        vector_store_path (Path): The directory for the vector store.
+
+    Returns:
+        Chroma: The rebuilt vector store index.
+    """
     loader = DirectoryLoader(
         path=docs_path,
         glob="**/*.md",
@@ -101,6 +132,15 @@ def build_index_from_docs(docs_path: Path, vector_store_path: Path) -> Chroma:
 
 
 def get_file_signature(uploaded_file: st.runtime.uploaded_file_manager.UploadedFile) -> str:
+    """
+    Computes a SHA-256 hash of the uploaded file to detect content changes.
+
+    Args:
+        uploaded_file (UploadedFile): The uploaded Markdown file.
+
+    Returns:
+        str: A SHA-256 hex digest of the file contents.
+    """
     return hashlib.sha256(uploaded_file.getvalue()).hexdigest()
 
 
@@ -183,7 +223,7 @@ def main(parameters) -> None:
         signature = get_file_signature(uploaded_file)
         if signature != st.session_state.get("active_document_signature"):
             with st.spinner(text="Processing the uploaded document..."):
-                saved_path = save_uploaded_document(docs_path, uploaded_file)
+                saved_path = save_and_replace_uploaded_document(docs_path, uploaded_file)
                 st.session_state.active_index = build_index_from_docs(docs_path, vector_store_path)
             st.session_state.active_document = saved_path.name
             st.session_state.active_document_signature = signature
@@ -192,7 +232,7 @@ def main(parameters) -> None:
 
     active_document = st.session_state.get("active_document")
     if not active_document:
-        latest_document = get_latest_document(docs_path)
+        latest_document = get_most_recently_modified_document(docs_path)
         if latest_document:
             active_document = latest_document.name
             st.session_state.active_document = active_document

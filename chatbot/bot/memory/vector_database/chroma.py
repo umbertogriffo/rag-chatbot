@@ -54,6 +54,8 @@ class Chroma:
         """
         # Chroma interprets an empty where clause as "delete all documents".
         self.collection.delete(where={})
+        if self.collection.count() != 0:
+            logger.warning("Collection reset requested, but documents remain in the collection.")
 
     def __query_collection(
         self,
