@@ -33,15 +33,24 @@ class Chroma:
 
         self.embedding = embedding
 
+        self.collection_name = collection_name
+        self.collection_metadata = collection_metadata
+
         self.collection = self.client.get_or_create_collection(
-            name=collection_name,
+            name=self.collection_name,
             embedding_function=None,
-            metadata=collection_metadata,
+            metadata=self.collection_metadata,
         )
 
     @property
     def embeddings(self) -> Embedder | None:
         return self.embedding
+
+    def reset_collection(self) -> None:
+        """
+        Deletes all documents from the current collection.
+        """
+        self.collection.delete(where={})
 
     def __query_collection(
         self,

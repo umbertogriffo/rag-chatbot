@@ -1,4 +1,5 @@
 import argparse
+import hashlib
 import sys
 import time
 from pathlib import Path
@@ -15,6 +16,9 @@ from bot.conversation.ctx_strategy import (
 from bot.memory.embedder import Embedder
 from bot.memory.vector_database.chroma import Chroma
 from bot.model.model_registry import get_model_settings, get_models
+from document_loader.format import Format
+from document_loader.loader import DirectoryLoader
+from document_loader.text_splitter import create_recursive_text_splitter
 from helpers.log import get_logger
 from helpers.prettier import prettify_source
 
@@ -58,6 +62,46 @@ def load_index(vector_store_path: Path) -> Chroma:
     index = Chroma(persist_directory=str(vector_store_path), embedding=embedding)
 
     return index
+
+
+def get_latest_document(docs_path: Path) -> Path | None:
+    documents = [doc for doc in docs_path.glob("**/*.md") if doc.is_file()]
+    if not documents:
+        return None
+    return max(documents, key=lambda doc: doc.stat().st_mtime)
+
+
+def save_uploaded_document(docs_path: Path, uploaded_file: st.runtime.uploaded_file_manager.UploadedFile) -> Path:
+    docs_path.mkdir(parents=True, exist_ok=True)
+    for existing_doc in docs_path.glob("**/*.md"):
+        if existing_doc.is_file():
+            existing_doc.unlink()
+    target_path = docs_path / uploaded_file.name
+    target_path.write_bytes(uploaded_file.getvalue())
+    return target_path
+
+
+def build_index_from_docs(docs_path: Path, vector_store_path: Path) -> Chroma:
+    loader = DirectoryLoader(
+        path=docs_path,
+        glob="**/*.md",
+        show_progress=False,
+    )
+    sources = loader.load()
+    splitter = create_recursive_text_splitter(
+        format=Format.MARKDOWN.value, chunk_size=512, chunk_overlap=25
+    )
+    chunks = splitter.split_documents(sources)
+    embedding = Embedder()
+    index = Chroma(persist_directory=str(vector_store_path), embedding=embedding)
+    index.reset_collection()
+    if chunks:
+        index.from_chunks(chunks)
+    return index
+
+
+def get_file_signature(uploaded_file: st.runtime.uploaded_file_manager.UploadedFile) -> str:
+    return hashlib.md5(uploaded_file.getvalue()).hexdigest()
 
 
 def init_page(root_folder: Path) -> None:
@@ -116,6 +160,7 @@ def main(parameters) -> None:
     """
     root_folder = Path(__file__).resolve().parent.parent
     model_folder = root_folder / "models"
+    docs_path = root_folder / "docs"
     vector_store_path = root_folder / "vector_store" / "docs_index"
     Path(model_folder).parent.mkdir(parents=True, exist_ok=True)
 
@@ -127,8 +172,33 @@ def main(parameters) -> None:
     llm = load_llm_client(model_folder, model_name)
     chat_history = init_chat_history(2)
     ctx_synthesis_strategy = load_ctx_synthesis_strategy(synthesis_strategy_name, _llm=llm)
-    index = load_index(vector_store_path)
     reset_chat_history(chat_history)
+
+    uploaded_file = st.sidebar.file_uploader("Upload a document", type=["md"])
+    if uploaded_file:
+        signature = get_file_signature(uploaded_file)
+        if signature != st.session_state.get("active_document_signature"):
+            with st.spinner(text="Processing the uploaded document..."):
+                saved_path = save_uploaded_document(docs_path, uploaded_file)
+                st.session_state.active_index = build_index_from_docs(docs_path, vector_store_path)
+            st.session_state.active_document = saved_path.name
+            st.session_state.active_document_signature = signature
+            st.session_state.messages = []
+            chat_history.clear()
+
+    active_document = st.session_state.get("active_document")
+    if not active_document:
+        latest_document = get_latest_document(docs_path)
+        if latest_document:
+            active_document = latest_document.name
+            st.session_state.active_document = active_document
+
+    if active_document:
+        st.sidebar.markdown(f"**Active document:** {active_document}")
+    else:
+        st.sidebar.info("No document uploaded yet.")
+
+    index = st.session_state.get("active_index") or load_index(vector_store_path)
     init_welcome_message()
     display_messages_from_history()
 

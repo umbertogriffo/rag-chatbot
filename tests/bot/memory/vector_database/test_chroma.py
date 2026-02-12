@@ -65,3 +65,16 @@ def test_similarity_search_with_relevance_scores(chroma_instance):
     assert isinstance(results[0][0], Document)
     assert isinstance(results[0][1], float)
     assert 0.0 <= results[0][1] <= 1.0
+
+
+def test_reset_collection_clears_documents(chroma_instance):
+    chroma_instance.add_texts(["First document"], [{"source": "first_source"}])
+    assert chroma_instance.collection.count() == 1
+
+    chroma_instance.reset_collection()
+    assert chroma_instance.collection.count() == 0
+
+    chroma_instance.add_texts(["Second document"], [{"source": "second_source"}])
+    results = chroma_instance.similarity_search("second", k=1)
+    assert len(results) == 1
+    assert results[0].metadata.get("source") == "second_source"

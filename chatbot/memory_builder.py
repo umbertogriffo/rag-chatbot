@@ -64,7 +64,9 @@ def build_memory_index(docs_path: Path, vector_store_path: str, chunk_size: int,
     logger.info("Creating memory index...")
     embedding = Embedder()
     vector_database = Chroma(persist_directory=str(vector_store_path), embedding=embedding)
-    vector_database.from_chunks(chunks)
+    vector_database.reset_collection()
+    if chunks:
+        vector_database.from_chunks(chunks)
     logger.info("Memory Index has been created successfully!")
 
 

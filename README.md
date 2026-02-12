@@ -193,6 +193,8 @@ To interact with a GUI type:
 streamlit run chatbot/rag_chatbot_app.py -- --model llama-3.1 --k 2 --synthesis-strategy async-tree-summarization
 ```
 
+Use the sidebar to upload a Markdown document. Uploading a new document replaces the previous context.
+
 ![rag_chatbot_example.gif](images%2Frag_chatbot_example.gif)
 
 ## How to debug the Streamlit app on Pycharm
