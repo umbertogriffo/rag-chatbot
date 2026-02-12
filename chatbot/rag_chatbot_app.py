@@ -65,15 +65,16 @@ def load_index(vector_store_path: Path) -> Chroma:
 
 
 def get_latest_document(docs_path: Path) -> Path | None:
-    documents = [doc for doc in docs_path.glob("**/*.md") if doc.is_file()]
-    if not documents:
-        return None
-    return max(documents, key=lambda doc: doc.stat().st_mtime)
+    documents = (doc for doc in docs_path.glob("**/*.md") if doc.is_file())
+    return max(documents, key=lambda doc: doc.stat().st_mtime, default=None)
 
 
 def save_uploaded_document(docs_path: Path, uploaded_file: st.runtime.uploaded_file_manager.UploadedFile) -> Path:
     docs_path.mkdir(parents=True, exist_ok=True)
-    for existing_doc in docs_path.glob("**/*.md"):
+    existing_docs = list(docs_path.glob("**/*.md"))
+    if existing_docs:
+        logger.info("Replacing uploaded document; clearing %d existing document(s).", len(existing_docs))
+    for existing_doc in existing_docs:
         existing_doc.unlink()
     target_path = docs_path / uploaded_file.name
     target_path.write_bytes(uploaded_file.getvalue())
@@ -173,7 +174,11 @@ def main(parameters) -> None:
     ctx_synthesis_strategy = load_ctx_synthesis_strategy(synthesis_strategy_name, _llm=llm)
     reset_chat_history(chat_history)
 
-    uploaded_file = st.sidebar.file_uploader("Upload a document", type=["md"])
+    uploaded_file = st.sidebar.file_uploader(
+        "Upload a document",
+        type=["md"],
+        help="Upload a Markdown document to replace the current context.",
+    )
     if uploaded_file:
         signature = get_file_signature(uploaded_file)
         if signature != st.session_state.get("active_document_signature"):

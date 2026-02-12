@@ -49,6 +49,8 @@ class Chroma:
     def reset_collection(self) -> None:
         """
         Deletes all documents from the current collection.
+
+        This operation is permanent and should be used when rebuilding the index.
         """
         # Chroma interprets an empty where clause as "delete all documents".
         self.collection.delete(where={})
