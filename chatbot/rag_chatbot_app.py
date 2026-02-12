@@ -78,15 +78,13 @@ def get_most_recently_modified_document(docs_path: Path) -> Path | None:
     return max(documents, key=lambda doc: doc.stat().st_mtime, default=None)
 
 
-def save_and_replace_uploaded_document(
-    docs_path: Path, uploaded_file: st.runtime.uploaded_file_manager.UploadedFile
-) -> Path:
+def save_and_replace_uploaded_document(docs_path: Path, uploaded_file) -> Path:
     """
     Saves an uploaded Markdown document and removes previously uploaded documents.
 
     Args:
         docs_path (Path): The directory containing Markdown documents.
-        uploaded_file (UploadedFile): The uploaded Markdown file.
+        uploaded_file: The uploaded Markdown file object.
 
     Returns:
         Path: The saved Markdown file path.
@@ -105,6 +103,7 @@ def save_and_replace_uploaded_document(
 def build_index_from_docs(docs_path: Path, vector_store_path: Path) -> Chroma:
     """
     Rebuilds the Chroma index from Markdown documents in the provided directory.
+    This scans the directory after replacement to ensure only the active document is indexed.
 
     Args:
         docs_path (Path): The directory containing Markdown documents.
@@ -131,12 +130,12 @@ def build_index_from_docs(docs_path: Path, vector_store_path: Path) -> Chroma:
     return index
 
 
-def get_file_signature(uploaded_file: st.runtime.uploaded_file_manager.UploadedFile) -> str:
+def get_file_signature(uploaded_file) -> str:
     """
     Computes a SHA-256 hash of the uploaded file to detect content changes.
 
     Args:
-        uploaded_file (UploadedFile): The uploaded Markdown file.
+        uploaded_file: The uploaded Markdown file object.
 
     Returns:
         str: A SHA-256 hex digest of the file contents.
