@@ -15,12 +15,12 @@ from bot.conversation.ctx_strategy import (
 from bot.memory.embedder import Embedder
 from bot.memory.vector_database.chroma import Chroma
 from bot.model.model_registry import get_model_settings, get_models
-from document_loader.text_splitter import create_recursive_text_splitter
+from cleantext import clean
 from document_loader.format import Format
+from document_loader.text_splitter import create_recursive_text_splitter
 from entities.document import Document
 from helpers.log import get_logger
 from helpers.prettier import prettify_source
-from cleantext import clean
 
 logger = get_logger(__name__)
 
@@ -67,63 +67,58 @@ def load_index(vector_store_path: Path) -> Chroma:
 def process_uploaded_file(uploaded_file, chunk_size: int = 512, chunk_overlap: int = 25) -> list[Document]:
     """
     Process an uploaded markdown file and split it into chunks.
-    
+
     Args:
         uploaded_file: Streamlit uploaded file object
         chunk_size: Maximum size of each chunk
         chunk_overlap: Amount of overlap between chunks
-        
+
     Returns:
         List of Document chunks
     """
     # Read the file content
     content = uploaded_file.read().decode("utf-8")
-    
+
     # Create a Document object
-    doc = Document(
-        page_content=content,
-        metadata={"source": uploaded_file.name}
-    )
-    
+    doc = Document(page_content=content, metadata={"source": uploaded_file.name})
+
     # Split into chunks
     splitter = create_recursive_text_splitter(
-        format=Format.MARKDOWN.value,
-        chunk_size=chunk_size,
-        chunk_overlap=chunk_overlap
+        format=Format.MARKDOWN.value, chunk_size=chunk_size, chunk_overlap=chunk_overlap
     )
     chunks = splitter.split_documents([doc])
-    
+
     return chunks
 
 
 def add_documents_to_index(index: Chroma, chunks: list[Document]) -> int:
     """
     Add document chunks to the vector database index.
-    
+
     Args:
         index: Chroma vector database instance
         chunks: List of Document chunks to add
-        
+
     Returns:
         Number of chunks added
     """
     if not chunks:
         return 0
-        
+
     texts = [clean(doc.page_content, no_emoji=True) for doc in chunks]
     metadatas = [doc.metadata for doc in chunks]
     index.from_texts(texts=texts, metadatas=metadatas)
-    
+
     return len(chunks)
 
 
 def get_indexed_documents(index: Chroma) -> list[str]:
     """
     Get list of unique document sources in the index.
-    
+
     Args:
         index: Chroma vector database instance
-        
+
     Returns:
         List of unique source document names
     """
@@ -144,7 +139,7 @@ def get_indexed_documents(index: Chroma) -> list[str]:
 def handle_document_upload(index: Chroma, chunk_size: int = 512, chunk_overlap: int = 25):
     """
     Handle document upload UI in the sidebar.
-    
+
     Args:
         index: Chroma vector database instance
         chunk_size: Maximum size of each chunk
@@ -152,7 +147,7 @@ def handle_document_upload(index: Chroma, chunk_size: int = 512, chunk_overlap: 
     """
     st.sidebar.markdown("---")
     st.sidebar.subheader("📄 Document Management")
-    
+
     # Show currently indexed documents
     with st.sidebar.expander("📚 Indexed Documents"):
         indexed_docs = get_indexed_documents(index)
@@ -161,15 +156,15 @@ def handle_document_upload(index: Chroma, chunk_size: int = 512, chunk_overlap: 
                 st.text(f"• {doc}")
         else:
             st.text("No documents indexed yet")
-    
+
     # File uploader
     uploaded_files = st.sidebar.file_uploader(
         "Upload Markdown files",
         type=["md", "markdown"],
         accept_multiple_files=True,
-        help="Upload one or more Markdown files to add to the knowledge base"
+        help="Upload one or more Markdown files to add to the knowledge base",
     )
-    
+
     if uploaded_files:
         if st.sidebar.button("📥 Add to Knowledge Base", key="add_docs"):
             with st.sidebar.spinner("Processing documents..."):
@@ -183,7 +178,7 @@ def handle_document_upload(index: Chroma, chunk_size: int = 512, chunk_overlap: 
                     except Exception as e:
                         st.sidebar.error(f"Error processing {uploaded_file.name}: {str(e)}")
                         logger.error(f"Error processing {uploaded_file.name}: {str(e)}", exc_info=True)
-                
+
                 if total_chunks > 0:
                     st.sidebar.success(f"✅ Added {total_chunks} chunks from {len(uploaded_files)} file(s)")
                     # Force a rerun to refresh the indexed documents list
@@ -259,10 +254,10 @@ def main(parameters) -> None:
     ctx_synthesis_strategy = load_ctx_synthesis_strategy(synthesis_strategy_name, _llm=llm)
     index = load_index(vector_store_path)
     reset_chat_history(chat_history)
-    
+
     # Handle document uploads
     handle_document_upload(index, chunk_size=parameters.chunk_size, chunk_overlap=parameters.chunk_overlap)
-    
+
     init_welcome_message()
     display_messages_from_history()
 

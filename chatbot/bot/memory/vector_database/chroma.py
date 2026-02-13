@@ -1,5 +1,4 @@
 import logging
-import uuid
 from typing import Any, Callable, Iterable
 
 import chromadb
@@ -103,7 +102,7 @@ class Chroma:
         """
         embeddings = None
         texts = list(texts)
-        
+
         # Generate deterministic IDs if not provided to enable deduplication
         if ids is None:
             ids = generate_deterministic_ids(texts, metadatas)
@@ -241,7 +240,7 @@ class Chroma:
         if threshold is not None:
             docs_and_scores = [doc for doc in docs_and_scores if doc[1] > threshold]
             if len(docs_and_scores) == 0:
-                logger.warning("No relevant docs were retrieved using the relevance score" f" threshold {threshold}")
+                logger.warning(f"No relevant docs were retrieved using the relevance score threshold {threshold}")
 
             docs_and_scores = sorted(docs_and_scores, key=lambda x: x[1], reverse=True)
 
@@ -351,5 +350,5 @@ class Chroma:
         docs_and_scores = self.similarity_search_with_score(query, k)
         docs_and_similarities = [(doc, relevance_score_fn(score)) for doc, score in docs_and_scores]
         if any(similarity < 0.0 or similarity > 1.0 for _, similarity in docs_and_similarities):
-            logger.warning("Relevance scores must be between" f" 0 and 1, got {docs_and_similarities}")
+            logger.warning(f"Relevance scores must be between 0 and 1, got {docs_and_similarities}")
         return docs_and_similarities
