@@ -6,6 +6,7 @@ import chromadb
 import chromadb.config
 from bot.memory.embedder import Embedder
 from bot.memory.vector_database.distance_metric import DistanceMetric, get_relevance_score_fn
+from bot.memory.vector_database.id_generator import generate_deterministic_ids
 from chromadb.utils.batch_utils import create_batches
 from cleantext import clean
 from entities.document import Document
@@ -93,15 +94,19 @@ class Chroma:
         Args:
             texts (Iterable[str]): Texts to add to the vectorstore.
             metadatas (list[dict] | None): Optional list of metadatas.
-            ids (list[dict] | None): Optional list of IDs.
+            ids (list[str] | None): Optional list of IDs. If not provided,
+                deterministic IDs will be generated from normalized text content
+                to enable deduplication.
 
         Returns:
             List[str]: List of IDs of the added texts.
         """
-        if ids is None:
-            ids = [str(uuid.uuid4()) for _ in texts]
         embeddings = None
         texts = list(texts)
+        
+        # Generate deterministic IDs if not provided to enable deduplication
+        if ids is None:
+            ids = generate_deterministic_ids(texts, metadatas)
         if self.embedding is not None:
             embeddings = self.embedding.embed_documents(texts)
         if metadatas:
@@ -165,14 +170,17 @@ class Chroma:
             texts (list[str]): List of texts to add to the collection.
             metadatas (list[dict], optional): List of metadata dictionaries corresponding to the texts.
                 Defaults to None.
-            ids (list[str], optional): List of IDs for the texts. If not provided, UUIDs will be generated.
+            ids (list[str], optional): List of IDs for the texts. If not provided,
+                deterministic IDs will be generated from normalized text content
+                to enable deduplication.
                 Defaults to None.
 
         Returns:
             None
         """
+        # Generate deterministic IDs if not provided
         if ids is None:
-            ids = [str(uuid.uuid4()) for _ in texts]
+            ids = generate_deterministic_ids(texts, metadatas)
 
         for batch in create_batches(
             api=self.client,
