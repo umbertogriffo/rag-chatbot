@@ -378,7 +378,7 @@ def get_args() -> argparse.Namespace:
     parser.add_argument(
         "--chunk-size",
         type=int,
-        help="The maximum size of each chunk for document splitting. Defaults to 512.",
+        help="The maximum size of each chunk for document splitting.",
         required=False,
         default=512,
     )
@@ -386,7 +386,7 @@ def get_args() -> argparse.Namespace:
     parser.add_argument(
         "--chunk-overlap",
         type=int,
-        help="The amount of overlap between consecutive chunks. Defaults to 25.",
+        help="The amount of overlap between consecutive chunks.",
         required=False,
         default=25,
     )

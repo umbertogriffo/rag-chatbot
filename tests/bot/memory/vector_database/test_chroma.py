@@ -82,8 +82,10 @@ def test_from_texts_deduplication(chroma_instance):
     # Query all
     results = chroma_instance.similarity_search("text", k=10)
 
-    # Should have 2 documents: one "Duplicate text" and one "Unique text"
-    # Note: Due to chunk_index being different, we might get 3, but same source/content should dedupe
+    # Note: Since chunk_index is included in ID generation, identical content at
+    # different indices will have different IDs. The assertion is intentionally loose.
+    # With 3 adds total (texts[:2] = 2 chunks, texts[1:] = 2 chunks), we expect
+    # at least 2 unique documents due to different chunk indices.
     assert len(results) >= 2
 
 
