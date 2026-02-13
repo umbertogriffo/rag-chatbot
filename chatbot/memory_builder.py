@@ -38,7 +38,7 @@ def split_chunks(sources: list, chunk_size: int = 512, chunk_overlap: int = 25) 
     Args:
         sources (List): The list of sources to be split into chunks.
         chunk_size (int, optional): The maximum size of each chunk. Defaults to 512.
-        chunk_overlap (int, optional): The amount of overlap between consecutive chunks. Defaults to 0.
+        chunk_overlap (int, optional): The amount of overlap between consecutive chunks. Defaults to 25.
 
     Returns:
         List: A list of smaller chunks obtained from the input sources.
