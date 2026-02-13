@@ -15,8 +15,12 @@ from bot.conversation.ctx_strategy import (
 from bot.memory.embedder import Embedder
 from bot.memory.vector_database.chroma import Chroma
 from bot.model.model_registry import get_model_settings, get_models
+from document_loader.text_splitter import create_recursive_text_splitter
+from document_loader.format import Format
+from entities.document import Document
 from helpers.log import get_logger
 from helpers.prettier import prettify_source
+from cleantext import clean
 
 logger = get_logger(__name__)
 
@@ -58,6 +62,132 @@ def load_index(vector_store_path: Path) -> Chroma:
     index = Chroma(persist_directory=str(vector_store_path), embedding=embedding)
 
     return index
+
+
+def process_uploaded_file(uploaded_file, chunk_size: int = 512, chunk_overlap: int = 25) -> list[Document]:
+    """
+    Process an uploaded markdown file and split it into chunks.
+    
+    Args:
+        uploaded_file: Streamlit uploaded file object
+        chunk_size: Maximum size of each chunk
+        chunk_overlap: Amount of overlap between chunks
+        
+    Returns:
+        List of Document chunks
+    """
+    # Read the file content
+    content = uploaded_file.read().decode("utf-8")
+    
+    # Create a Document object
+    doc = Document(
+        page_content=content,
+        metadata={"source": uploaded_file.name}
+    )
+    
+    # Split into chunks
+    splitter = create_recursive_text_splitter(
+        format=Format.MARKDOWN.value,
+        chunk_size=chunk_size,
+        chunk_overlap=chunk_overlap
+    )
+    chunks = splitter.split_documents([doc])
+    
+    return chunks
+
+
+def add_documents_to_index(index: Chroma, chunks: list[Document]) -> int:
+    """
+    Add document chunks to the vector database index.
+    
+    Args:
+        index: Chroma vector database instance
+        chunks: List of Document chunks to add
+        
+    Returns:
+        Number of chunks added
+    """
+    if not chunks:
+        return 0
+        
+    texts = [clean(doc.page_content, no_emoji=True) for doc in chunks]
+    metadatas = [doc.metadata for doc in chunks]
+    index.from_texts(texts=texts, metadatas=metadatas)
+    
+    return len(chunks)
+
+
+def get_indexed_documents(index: Chroma) -> list[str]:
+    """
+    Get list of unique document sources in the index.
+    
+    Args:
+        index: Chroma vector database instance
+        
+    Returns:
+        List of unique source document names
+    """
+    try:
+        # Get all items from collection
+        results = index.collection.get()
+        if results and "metadatas" in results:
+            sources = set()
+            for metadata in results["metadatas"]:
+                if metadata and "source" in metadata:
+                    sources.add(metadata["source"])
+            return sorted(list(sources))
+    except Exception as e:
+        logger.warning(f"Could not retrieve indexed documents: {e}")
+    return []
+
+
+def handle_document_upload(index: Chroma, chunk_size: int = 512, chunk_overlap: int = 25):
+    """
+    Handle document upload UI in the sidebar.
+    
+    Args:
+        index: Chroma vector database instance
+        chunk_size: Maximum size of each chunk
+        chunk_overlap: Amount of overlap between chunks
+    """
+    st.sidebar.markdown("---")
+    st.sidebar.subheader("📄 Document Management")
+    
+    # Show currently indexed documents
+    with st.sidebar.expander("📚 Indexed Documents"):
+        indexed_docs = get_indexed_documents(index)
+        if indexed_docs:
+            for doc in indexed_docs:
+                st.text(f"• {doc}")
+        else:
+            st.text("No documents indexed yet")
+    
+    # File uploader
+    uploaded_files = st.sidebar.file_uploader(
+        "Upload Markdown files",
+        type=["md", "markdown"],
+        accept_multiple_files=True,
+        help="Upload one or more Markdown files to add to the knowledge base"
+    )
+    
+    if uploaded_files:
+        if st.sidebar.button("📥 Add to Knowledge Base", key="add_docs"):
+            with st.sidebar.spinner("Processing documents..."):
+                total_chunks = 0
+                for uploaded_file in uploaded_files:
+                    try:
+                        chunks = process_uploaded_file(uploaded_file, chunk_size, chunk_overlap)
+                        num_chunks = add_documents_to_index(index, chunks)
+                        total_chunks += num_chunks
+                        logger.info(f"Added {num_chunks} chunks from {uploaded_file.name}")
+                    except Exception as e:
+                        st.sidebar.error(f"Error processing {uploaded_file.name}: {str(e)}")
+                        logger.error(f"Error processing {uploaded_file.name}: {str(e)}", exc_info=True)
+                
+                if total_chunks > 0:
+                    st.sidebar.success(f"✅ Added {total_chunks} chunks from {len(uploaded_files)} file(s)")
+                    # Force a rerun to refresh the indexed documents list
+                    st.rerun()
 
 
 def init_page(root_folder: Path) -> None:
@@ -129,6 +259,10 @@ def main(parameters) -> None:
     ctx_synthesis_strategy = load_ctx_synthesis_strategy(synthesis_strategy_name, _llm=llm)
     index = load_index(vector_store_path)
     reset_chat_history(chat_history)
+    
+    # Handle document uploads
+    handle_document_upload(index, chunk_size=parameters.chunk_size, chunk_overlap=parameters.chunk_overlap)
+    
     init_welcome_message()
     display_messages_from_history()
 
@@ -244,6 +378,22 @@ def get_args() -> argparse.Namespace:
         help="The maximum number of tokens to generate in the answer. Defaults to 512.",
         required=False,
         default=512,
+    )
+
+    parser.add_argument(
+        "--chunk-size",
+        type=int,
+        help="The maximum size of each chunk for document splitting. Defaults to 512.",
+        required=False,
+        default=512,
+    )
+
+    parser.add_argument(
+        "--chunk-overlap",
+        type=int,
+        help="The amount of overlap between consecutive chunks. Defaults to 25.",
+        required=False,
+        default=25,
     )
 
     return parser.parse_args()
