@@ -1,4 +1,3 @@
-import pytest
 from bot.memory.vector_database.id_generator import (
     generate_deterministic_id,
     generate_deterministic_ids,
@@ -8,22 +7,28 @@ from bot.memory.vector_database.id_generator import (
 
 class TestNormalizeText:
     def test_lowercase_conversion(self):
+        """Test that text is converted to lowercase"""
         assert normalize_text("HELLO WORLD") == "hello world"
         assert normalize_text("HeLLo WoRLd") == "hello world"
 
     def test_whitespace_collapse(self):
+        """Test that multiple whitespaces are collapsed to a single space"""
         assert normalize_text("hello  world") == "hello world"
         assert normalize_text("hello\n\nworld") == "hello world"
         assert normalize_text("hello\t\tworld") == "hello world"
         assert normalize_text("  hello   world  ") == "hello world"
 
     def test_unicode_normalization(self):
-        # Test unicode normalization
-        text1 = "café"  # é as single character
-        text2 = "café"  # é as combining character
+        """Test that unicode characters are normalized to NFD form"""
+
+        text1 = "caf\u00e9"  # é as single character code
+        text2 = "cafe\u0301"  # é as two characters code that combine visually
+
+        assert text1 != text2
         assert normalize_text(text1) == normalize_text(text2)
 
     def test_strip_leading_trailing(self):
+        """Test that leading and trailing whitespace is stripped"""
         assert normalize_text("  hello  ") == "hello"
         assert normalize_text("\nhello\n") == "hello"
 
