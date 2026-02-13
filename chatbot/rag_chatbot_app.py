@@ -167,7 +167,7 @@ def handle_document_upload(index: Chroma, chunk_size: int = 512, chunk_overlap: 
 
     if uploaded_files:
         if st.sidebar.button("📥 Add to Knowledge Base", key="add_docs"):
-            with st.sidebar.spinner("Processing documents..."):
+            with st.spinner("Processing documents..."):
                 total_chunks = 0
                 for uploaded_file in uploaded_files:
                     try:
