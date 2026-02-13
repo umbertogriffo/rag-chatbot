@@ -1,7 +1,6 @@
 import pytest
 from bot.memory.embedder import Embedder
 from bot.memory.vector_database.chroma import Chroma
-from bot.memory.vector_database.id_generator import generate_deterministic_id
 from entities.document import Document
 
 
@@ -11,12 +10,14 @@ def chroma_instance(tmp_path):
 
 
 def test_initialization(chroma_instance):
+    """Test that the Chroma instance initializes correctly with the provided embedding and persist directory"""
     assert chroma_instance.embedding is not None
     assert chroma_instance.client is not None
     assert chroma_instance.collection is not None
 
 
 def test_add_texts(chroma_instance):
+    """Test that texts can be added to the Chroma collection and that IDs are returned"""
     texts = ["This is a test document."]
     metadatas = [{"source": "test_source"}]
     ids = chroma_instance.add_texts(texts, metadatas)
@@ -90,6 +91,7 @@ def test_from_texts_deduplication(chroma_instance):
 
 
 def test_similarity_search(chroma_instance):
+    """Test that similarity search returns relevant documents based on the query"""
     texts = ["This is a test document."]
     metadatas = [{"source": "test_source"}]
     chroma_instance.add_texts(texts, metadatas)
@@ -100,6 +102,7 @@ def test_similarity_search(chroma_instance):
 
 
 def test_similarity_search_with_threshold(chroma_instance):
+    """Test that similarity search with threshold returns documents that meet the relevance threshold"""
     texts = ["This is a test document."]
     metadatas = [{"source": "test_source"}]
     chroma_instance.add_texts(texts, metadatas)
@@ -112,6 +115,7 @@ def test_similarity_search_with_threshold(chroma_instance):
 
 
 def test_similarity_search_with_score(chroma_instance):
+    """Test that similarity search with score returns documents along with their relevance scores"""
     texts = ["This is a test document."]
     metadatas = [{"source": "test_source"}]
     chroma_instance.add_texts(texts, metadatas)
@@ -123,6 +127,7 @@ def test_similarity_search_with_score(chroma_instance):
 
 
 def test_similarity_search_with_relevance_scores(chroma_instance):
+    """Test that similarity search with relevance scores returns documents along with normalized relevance scores"""
     texts = ["This is a test document."]
     metadatas = [{"source": "test_source"}]
     chroma_instance.add_texts(texts, metadatas)
