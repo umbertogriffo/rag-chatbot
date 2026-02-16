@@ -134,9 +134,17 @@ def handle_document_upload(index: Chroma, chunk_size: int = 512, chunk_overlap: 
                         logger.error(f"Error processing {uploaded_file.name}: {str(e)}", exc_info=True)
 
                 if total_chunks > 0:
-                    st.sidebar.success(f"✅ Added {total_chunks} chunks from {len(uploaded_files)} file(s)")
+                    # Store success message in session state to display after rerun
+                    st.session_state.upload_success_msg = (
+                        f"✅ Added {total_chunks} chunks from {len(uploaded_files)} file(s)"
+                    )
                     # Force a rerun to refresh the indexed documents list
                     st.rerun()
+
+    # Display success message from previous upload if exists
+    if "upload_success_msg" in st.session_state:
+        st.sidebar.success(st.session_state.upload_success_msg)
+        del st.session_state.upload_success_msg
 
 
 def init_page(root_folder: Path) -> None:
