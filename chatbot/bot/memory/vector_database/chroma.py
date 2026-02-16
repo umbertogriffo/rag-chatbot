@@ -81,18 +81,43 @@ class Chroma:
             **kwargs,
         )
 
+    def __dedupe(self, ids: list[str], texts: list[str]) -> tuple[list[int], list[str], list[str]]:
+        """
+        Deduplicates the input texts based on their IDs.
+
+        Args:
+            ids (list[str]): List of IDs corresponding to the texts.
+            texts (list[str]): List of texts to be deduplicated.
+
+        Returns:
+            Tuple containing deduplicated lists of IDs, texts, and metadata (if provided).
+        """
+
+        # Keep only the first occurrence of duplicated IDs
+        seen = set()
+        deduped_indices = []
+        for id, value in enumerate(ids):
+            if value not in seen:
+                deduped_indices.append(id)
+                seen.add(value)
+
+        deduped_ids = list(seen)
+        deduped_texts = [texts[i] for i in deduped_indices]
+
+        return deduped_indices, deduped_ids, deduped_texts
+
     def add_texts(
         self,
         texts: Iterable[str],
-        metadatas: list[dict] | None = None,
+        metadata: list[dict] | None = None,
         ids: list[str] | None = None,
     ) -> list[str]:
         """
-        Run more texts through the embeddings and add to the vectorstore.
+        Adds a batch of texts to the Chroma collection.
 
         Args:
             texts (Iterable[str]): Texts to add to the vectorstore.
-            metadatas (list[dict] | None): Optional list of metadatas.
+            metadata (list[dict] | None): Optional list of metadata.
             ids (list[str] | None): Optional list of IDs. If not provided,
                 deterministic IDs will be generated from normalized text content
                 to enable deduplication.
@@ -100,66 +125,71 @@ class Chroma:
         Returns:
             List[str]: List of IDs of the added texts.
         """
-        embeddings = None
+
+        if self.embedding is None:
+            raise ValueError("Embedding function is not defined for this Chroma instance.")
+
         texts = list(texts)
 
-        # Generate deterministic IDs if not provided to enable deduplication
         if ids is None:
-            ids = generate_deterministic_ids(texts, metadatas)
-        if self.embedding is not None:
-            embeddings = self.embedding.embed_documents(texts)
-        if metadatas:
-            # fill metadatas with empty dicts if somebody
-            # did not specify metadata for all texts
-            length_diff = len(texts) - len(metadatas)
-            if length_diff:
-                metadatas = metadatas + [{}] * length_diff
-            empty_ids = []
-            non_empty_ids = []
-            for idx, m in enumerate(metadatas):
-                if m:
-                    non_empty_ids.append(idx)
-                else:
-                    empty_ids.append(idx)
-            if non_empty_ids:
-                metadatas = [metadatas[idx] for idx in non_empty_ids]
-                texts_with_metadatas = [texts[idx] for idx in non_empty_ids]
-                embeddings_with_metadatas = [embeddings[idx] for idx in non_empty_ids] if embeddings else None
-                ids_with_metadata = [ids[idx] for idx in non_empty_ids]
-                try:
+            ids = generate_deterministic_ids(texts)
+
+        deduped_indices, deduped_ids, deduped_texts = self.__dedupe(ids, texts)
+        embeddings = self.embedding.embed_documents(deduped_texts)
+
+        try:
+            if metadata:
+                # fill metadata with empty dicts if somebody
+                # did not specify metadata for all texts
+                length_diff = len(texts) - len(metadata)
+
+                if length_diff:
+                    metadata = metadata + [{}] * length_diff
+
+                deduped_metadata = [metadata[i] for i in deduped_indices]
+
+                non_empty_ids = [idx for idx, m in enumerate(deduped_metadata) if m]
+                empty_ids = [idx for idx, m in enumerate(deduped_metadata) if not m]
+
+                if non_empty_ids:
+                    # Upsert texts with metadata
+                    metadata = [deduped_metadata[idx] for idx in non_empty_ids]
+                    texts_with_metadata = [deduped_texts[idx] for idx in non_empty_ids]
+                    embeddings_with_metadata = [embeddings[idx] for idx in non_empty_ids] if embeddings else None
+                    ids_with_metadata = [deduped_ids[idx] for idx in non_empty_ids]
                     self.collection.upsert(
-                        metadatas=metadatas,
-                        embeddings=embeddings_with_metadatas,
-                        documents=texts_with_metadatas,
+                        metadatas=metadata,
+                        embeddings=embeddings_with_metadata,
+                        documents=texts_with_metadata,
                         ids=ids_with_metadata,
                     )
-                except ValueError as e:
-                    if "Expected metadata value to be" in str(e):
-                        msg = "Try filtering complex metadata from the document."
-                        raise ValueError(e.args[0] + "\n\n" + msg)
-                    else:
-                        raise e
-            if empty_ids:
-                texts_without_metadatas = [texts[j] for j in empty_ids]
-                embeddings_without_metadatas = [embeddings[j] for j in empty_ids] if embeddings else None
-                ids_without_metadatas = [ids[j] for j in empty_ids]
+
+                if empty_ids:
+                    # Upsert texts without metadata
+                    texts_without_metadata = [deduped_texts[j] for j in empty_ids]
+                    embeddings_without_metadata = [embeddings[j] for j in empty_ids] if embeddings else None
+                    ids_without_metadata = [deduped_ids[j] for j in empty_ids]
+                    self.collection.upsert(
+                        embeddings=embeddings_without_metadata,
+                        documents=texts_without_metadata,
+                        ids=ids_without_metadata,
+                    )
+
+            else:
                 self.collection.upsert(
-                    embeddings=embeddings_without_metadatas,
-                    documents=texts_without_metadatas,
-                    ids=ids_without_metadatas,
+                    embeddings=embeddings,
+                    documents=deduped_texts,
+                    ids=deduped_ids,
                 )
-        else:
-            self.collection.upsert(
-                embeddings=embeddings,
-                documents=texts,
-                ids=ids,
-            )
+        except Exception as e:
+            logger.error(f"Error adding texts to Chroma collection: {e}")
+            raise
         return ids
 
     def from_texts(
         self,
         texts: list[str],
-        metadatas: list[dict] | None = None,
+        metadata: list[dict] | None = None,
         ids: list[str] | None = None,
     ) -> None:
         """
@@ -167,7 +197,7 @@ class Chroma:
 
         Args:
             texts (list[str]): List of texts to add to the collection.
-            metadatas (list[dict], optional): List of metadata dictionaries corresponding to the texts.
+            metadata (list[dict], optional): List of metadata dictionaries corresponding to the texts.
                 Defaults to None.
             ids (list[str], optional): List of IDs for the texts. If not provided,
                 deterministic IDs will be generated from normalized text content
@@ -179,33 +209,58 @@ class Chroma:
         """
         # Generate deterministic IDs if not provided
         if ids is None:
-            ids = generate_deterministic_ids(texts, metadatas)
+            ids = generate_deterministic_ids(texts)
 
         for batch in create_batches(
             api=self.client,
             ids=ids,
-            metadatas=metadatas,
+            metadatas=metadata,
             documents=texts,
         ):
             self.add_texts(
                 texts=batch[3] if batch[3] else [],
-                metadatas=batch[2] if batch[2] else None,
+                metadata=batch[2] if batch[2] else None,
                 ids=batch[0],
             )
 
-    def from_chunks(self, chunks: list) -> None:
+    def from_chunks(self, chunks: list[Document]) -> int:
         """
-        Adds a batch of documents to the Chroma collection.
+        Add document chunks to the vector database index.
 
         Args:
-            chunks (list): List of Document objects to add to the collection.
+            chunks (list): List of Document chunks to add to the collection.
         """
         texts = [clean(doc.page_content, no_emoji=True) for doc in chunks]
-        metadatas = [doc.metadata for doc in chunks]
+        metadata = [doc.metadata for doc in chunks]
         self.from_texts(
             texts=texts,
-            metadatas=metadatas,
+            metadata=metadata,
         )
+
+        return len(chunks)
+
+    def get_indexed_documents(self) -> list[str]:
+        """
+        Get list of unique document sources in the index.
+
+        Args:
+            index: Chroma vector database instance
+
+        Returns:
+            List of unique source document names
+        """
+        try:
+            # Get all items from collection
+            results = self.collection.get()
+            if results and "metadatas" in results:
+                sources = set()
+                for metadatas in results["metadatas"]:
+                    if metadatas and "source" in metadatas:
+                        sources.add(metadatas["source"])
+                return sorted(sources)
+        except Exception as e:
+            logger.warning(f"Could not retrieve indexed documents: {e}")
+        return []
 
     def similarity_search_with_threshold(
         self,

@@ -15,7 +15,6 @@ from bot.conversation.ctx_strategy import (
 from bot.memory.embedder import Embedder
 from bot.memory.vector_database.chroma import Chroma
 from bot.model.model_registry import get_model_settings, get_models
-from cleantext import clean
 from document_loader.format import Format
 from document_loader.text_splitter import create_recursive_text_splitter
 from entities.document import Document
@@ -91,51 +90,6 @@ def process_uploaded_file(uploaded_file, chunk_size: int = 512, chunk_overlap: i
     return chunks
 
 
-def add_documents_to_index(index: Chroma, chunks: list[Document]) -> int:
-    """
-    Add document chunks to the vector database index.
-
-    Args:
-        index: Chroma vector database instance
-        chunks: List of Document chunks to add
-
-    Returns:
-        Number of chunks added
-    """
-    if not chunks:
-        return 0
-
-    texts = [clean(doc.page_content, no_emoji=True) for doc in chunks]
-    metadatas = [doc.metadata for doc in chunks]
-    index.from_texts(texts=texts, metadatas=metadatas)
-
-    return len(chunks)
-
-
-def get_indexed_documents(index: Chroma) -> list[str]:
-    """
-    Get list of unique document sources in the index.
-
-    Args:
-        index: Chroma vector database instance
-
-    Returns:
-        List of unique source document names
-    """
-    try:
-        # Get all items from collection
-        results = index.collection.get()
-        if results and "metadatas" in results:
-            sources = set()
-            for metadata in results["metadatas"]:
-                if metadata and "source" in metadata:
-                    sources.add(metadata["source"])
-            return sorted(list(sources))
-    except Exception as e:
-        logger.warning(f"Could not retrieve indexed documents: {e}")
-    return []
-
-
 def handle_document_upload(index: Chroma, chunk_size: int = 512, chunk_overlap: int = 25):
     """
     Handle document upload UI in the sidebar.
@@ -150,7 +104,7 @@ def handle_document_upload(index: Chroma, chunk_size: int = 512, chunk_overlap: 
 
     # Show currently indexed documents
     with st.sidebar.expander("📚 Indexed Documents"):
-        indexed_docs = get_indexed_documents(index)
+        indexed_docs = index.get_indexed_documents()
         if indexed_docs:
             for doc in indexed_docs:
                 st.text(f"• {doc}")
@@ -172,7 +126,7 @@ def handle_document_upload(index: Chroma, chunk_size: int = 512, chunk_overlap: 
                 for uploaded_file in uploaded_files:
                     try:
                         chunks = process_uploaded_file(uploaded_file, chunk_size, chunk_overlap)
-                        num_chunks = add_documents_to_index(index, chunks)
+                        num_chunks = index.from_chunks(chunks)
                         total_chunks += num_chunks
                         logger.info(f"Added {num_chunks} chunks from {uploaded_file.name}")
                     except Exception as e:

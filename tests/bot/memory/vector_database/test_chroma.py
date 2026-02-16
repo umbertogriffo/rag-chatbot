@@ -19,24 +19,18 @@ def test_initialization(chroma_instance):
 def test_add_texts(chroma_instance):
     """Test that texts can be added to the Chroma collection and that IDs are returned"""
     texts = ["This is a test document."]
-    metadatas = [{"source": "test_source"}]
-    ids = chroma_instance.add_texts(texts, metadatas)
+    metadata = [{"source": "test_source"}]
+    ids = chroma_instance.add_texts(texts, metadata)
     assert len(ids) == 1
 
 
-def test_add_texts_with_deterministic_ids(chroma_instance):
-    """Test that deterministic IDs are generated when not provided"""
-    texts = ["Test document"]
-    metadatas = [{"source": "test.md"}]
+def test_add_texts_with_missing_metadata(chroma_instance):
+    """Test that texts can be added even if metadata is missing"""
+    texts = ["Test document 1", "Test document 2"]
+    metadata = [{"source": "test.md"}]
 
-    # Add once
-    ids1 = chroma_instance.add_texts(texts, metadatas)
-    assert len(ids1) == 1
-
-    # Add again - should get same IDs due to deterministic generation
-    ids2 = chroma_instance.add_texts(texts, metadatas)
-    assert len(ids2) == 1
-    assert ids1[0] == ids2[0]
+    ids = chroma_instance.add_texts(texts, metadata)
+    assert len(ids) == 2
 
 
 def test_deduplication_with_upsert(chroma_instance):
@@ -59,35 +53,48 @@ def test_deduplication_with_upsert(chroma_instance):
 def test_different_documents_not_deduplicated(chroma_instance):
     """Test that different documents are not deduplicated"""
     texts = ["Document one", "Document two", "Document three"]
-    metadatas = [{"source": "test.md"}, {"source": "test.md"}, {"source": "test.md"}]
+    metadata = [{"source": "test.md"}, {"source": "test.md"}, {"source": "test.md"}]
 
-    chroma_instance.add_texts(texts, metadatas)
+    chroma_instance.add_texts(texts, metadata)
 
-    # Query to get all documents
     results = chroma_instance.similarity_search("Document", k=10)
 
-    # Should have all three documents
     assert len(results) == 3
 
 
-def test_from_texts_deduplication(chroma_instance):
-    """Test that from_texts also uses deterministic IDs for deduplication"""
-    texts = ["Duplicate text", "Duplicate text", "Unique text"]
-    metadatas = [{"source": "doc.md"}, {"source": "doc.md"}, {"source": "doc.md"}]
+@pytest.mark.parametrize(
+    "texts,metadata,expected_count",
+    [
+        (["Duplicate text", "Duplicate text", "Unique text"], [], 2),
+        (["Duplicate text", "Duplicate text", "Unique text"], [{"source": "doc.md"}], 2),
+        (
+            ["Duplicate text", "Duplicate text", "Unique text"],
+            [{"source": "doc.md"}, {"source": "doc.md"}, {"source": "unique.md"}],
+            2,
+        ),
+        (["Duplicate text", "Duplicate text", "Unique text"], [{"source": "doc.md"}, {"source": "doc.md"}], 2),
+        (["Duplicate text", "Duplicate text", "Unique text"], [{"source": "doc.md"}, {}, {"source": "unique.md"}], 2),
+    ],
+    ids=[
+        "no_metadata",
+        "single_metadata_for_all",
+        "full_metadata_with_duplicates",
+        "partial_metadata_missing_last",
+        "partial_metadata_with_empty_dict",
+    ],
+)
+def test_from_texts_deduplication(chroma_instance, texts, metadata, expected_count):
+    """Test that from_texts method deduplicates duplicate documents"""
+    chroma_instance.from_texts(texts, metadata)
 
-    # First add
-    chroma_instance.from_texts(texts[:2], metadatas[:2])
-    # Second add with overlap
-    chroma_instance.from_texts(texts[1:], metadatas[1:])
-
-    # Query all
     results = chroma_instance.similarity_search("text", k=10)
 
-    # Note: Since chunk_index is included in ID generation, identical content at
-    # different indices will have different IDs. The assertion is intentionally loose.
-    # With 3 adds total (texts[:2] = 2 chunks, texts[1:] = 2 chunks), we expect
-    # at least 2 unique documents due to different chunk indices.
-    assert len(results) >= 2
+    assert len(results) == expected_count
+    assert results[1].page_content == "Duplicate text"
+    assert results[1].metadata.get("source") == "doc.md" or results[1].metadata.get("source") is None
+
+    assert results[0].page_content == "Unique text"
+    assert results[0].metadata.get("source") == "unique.md" or results[0].metadata.get("source") is None
 
 
 def test_similarity_search(chroma_instance):

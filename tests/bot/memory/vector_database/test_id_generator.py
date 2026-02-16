@@ -63,34 +63,6 @@ class TestGenerateDeterministicId:
 
         assert id1 == id2 == id3 == id4
 
-    def test_with_source(self):
-        """Same content from different sources should produce different IDs"""
-        text = "This is a test."
-        id1 = generate_deterministic_id(text, source="doc1.md")
-        id2 = generate_deterministic_id(text, source="doc2.md")
-        assert id1 != id2
-
-    def test_with_chunk_index(self):
-        """Same content with different chunk indices should produce different IDs"""
-        text = "This is a test."
-        id1 = generate_deterministic_id(text, chunk_index=0)
-        id2 = generate_deterministic_id(text, chunk_index=1)
-        assert id1 != id2
-
-    def test_with_source_and_chunk_index(self):
-        """Test with both source and chunk index"""
-        text = "This is a test."
-        id1 = generate_deterministic_id(text, source="doc.md", chunk_index=0)
-        id2 = generate_deterministic_id(text, source="doc.md", chunk_index=1)
-        id3 = generate_deterministic_id(text, source="other.md", chunk_index=0)
-
-        # Same source, different chunk
-        assert id1 != id2
-        # Different source, same chunk
-        assert id1 != id3
-        # Different in both
-        assert id2 != id3
-
     def test_returns_sha256_hex(self):
         """ID should be a valid SHA-256 hex digest (64 characters)"""
         text = "Test"
@@ -100,7 +72,7 @@ class TestGenerateDeterministicId:
 
 
 class TestGenerateDeterministicIds:
-    def test_multiple_texts_without_metadata(self):
+    def test_multiple_texts(self):
         """Generate IDs for multiple texts without metadata"""
         texts = ["First document", "Second document", "Third document"]
         ids = generate_deterministic_ids(texts)
@@ -111,65 +83,15 @@ class TestGenerateDeterministicIds:
         # Should be valid SHA-256 hashes
         assert all(len(id_) == 64 for id_ in ids)
 
-    def test_multiple_texts_with_metadata(self):
-        """Generate IDs for multiple texts with metadata"""
-        texts = ["First chunk", "Second chunk"]
-        metadatas = [{"source": "doc1.md"}, {"source": "doc2.md"}]
-        ids = generate_deterministic_ids(texts, metadatas)
-
-        assert len(ids) == 2
-        assert ids[0] != ids[1]
-
-    def test_same_text_different_sources(self):
-        """Same text from different sources should have different IDs"""
-        texts = ["Same content", "Same content"]
-        metadatas = [{"source": "doc1.md"}, {"source": "doc2.md"}]
-        ids = generate_deterministic_ids(texts, metadatas)
-
-        # IDs should be different due to different sources
-        assert ids[0] != ids[1]
-
-    def test_metadata_without_source(self):
-        """Handle metadata without source field"""
-        texts = ["Text one", "Text two"]
-        metadatas = [{"other_field": "value"}, {"another_field": "value"}]
-        ids = generate_deterministic_ids(texts, metadatas)
-
-        assert len(ids) == 2
-        # Should still generate valid IDs using chunk_index
-        assert ids[0] != ids[1]
-
-    def test_empty_metadata(self):
-        """Handle empty metadata dictionaries"""
-        texts = ["Text one", "Text two"]
-        metadatas = [{}, {}]
-        ids = generate_deterministic_ids(texts, metadatas)
-
-        assert len(ids) == 2
-        # Should generate different IDs due to chunk_index
-        assert ids[0] != ids[1]
-
-    def test_partial_metadata(self):
-        """Handle case where metadata list is shorter than texts list"""
-        texts = ["Text one", "Text two", "Text three"]
-        metadatas = [{"source": "doc.md"}]
-        ids = generate_deterministic_ids(texts, metadatas)
-
-        assert len(ids) == 3
-        # All should be unique
-        assert len(set(ids)) == 3
-
 
 class TestDeduplication:
     def test_duplicate_detection(self):
         """Test that duplicate content produces the same ID for deduplication"""
         # Same content, same source
         text = "This is a duplicate document."
-        source = "test.md"
-        chunk_idx = 0
 
-        id1 = generate_deterministic_id(text, source=source, chunk_index=chunk_idx)
-        id2 = generate_deterministic_id(text, source=source, chunk_index=chunk_idx)
+        id1 = generate_deterministic_id(text)
+        id2 = generate_deterministic_id(text)
 
         # Should be identical for deduplication via upsert
         assert id1 == id2
@@ -179,8 +101,8 @@ class TestDeduplication:
         text1 = "This is version 1."
         text2 = "This is version 2."
 
-        id1 = generate_deterministic_id(text1, source="doc.md", chunk_index=0)
-        id2 = generate_deterministic_id(text2, source="doc.md", chunk_index=0)
+        id1 = generate_deterministic_id(text1)
+        id2 = generate_deterministic_id(text2)
 
         # Different content should have different IDs
         assert id1 != id2
