@@ -26,7 +26,7 @@ class Embedder:
             list[list[float]]: A list of embeddings, one for each text.
         """
 
-        texts = list(map(lambda x: x.replace("\n", " "), texts))
+        texts = [x.replace("\n", " ") for x in texts]
         if multi_process:
             pool = self.client.start_multi_process_pool()
             embeddings = self.client.encode_multi_process(texts, pool)
