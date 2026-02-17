@@ -223,7 +223,7 @@ class Chroma:
                 ids=batch[0],
             )
 
-    def from_chunks(self, chunks: list[Document]) -> int:
+    def from_chunks(self, chunks: list[Document]) -> None:
         """
         Add document chunks to the vector database index.
 
@@ -236,8 +236,6 @@ class Chroma:
             texts=texts,
             metadata=metadata,
         )
-
-        return len(chunks)
 
     def get_indexed_documents(self) -> list[str]:
         """

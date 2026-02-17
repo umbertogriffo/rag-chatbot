@@ -63,41 +63,14 @@ def load_index(vector_store_path: Path) -> Chroma:
     return index
 
 
-def process_uploaded_file(uploaded_file, chunk_size: int = 512, chunk_overlap: int = 25) -> list[Document]:
-    """
-    Process an uploaded markdown file and split it into chunks.
-
-    Args:
-        uploaded_file: Streamlit uploaded file object
-        chunk_size: Maximum size of each chunk
-        chunk_overlap: Amount of overlap between chunks
-
-    Returns:
-        List of Document chunks
-    """
-    # Read the file content
-    content = uploaded_file.read().decode("utf-8")
-
-    # Create a Document object
-    doc = Document(page_content=content, metadata={"source": uploaded_file.name})
-
-    # Split into chunks
-    splitter = create_recursive_text_splitter(
-        format=Format.MARKDOWN.value, chunk_size=chunk_size, chunk_overlap=chunk_overlap
-    )
-    chunks = splitter.split_documents([doc])
-
-    return chunks
-
-
-def handle_document_upload(index: Chroma, chunk_size: int = 512, chunk_overlap: int = 25):
+def handle_document_upload(index: Chroma, chunk_size: int = 1000, chunk_overlap: int = 50):
     """
     Handle document upload UI in the sidebar.
 
     Args:
-        index: Chroma vector database instance
-        chunk_size: Maximum size of each chunk
-        chunk_overlap: Amount of overlap between chunks
+        index: Chroma vector database instance.
+        chunk_size: Maximum size of each chunk.
+        chunk_overlap: Amount of overlap between chunks.
     """
     st.sidebar.markdown("---")
     st.sidebar.subheader("📄 Document Management")
@@ -122,21 +95,32 @@ def handle_document_upload(index: Chroma, chunk_size: int = 512, chunk_overlap: 
     if uploaded_files:
         if st.sidebar.button("📥 Add to Knowledge Base", key="add_docs"):
             with st.spinner("Processing documents..."):
-                total_chunks = 0
+                documents: list[Document] = []
                 for uploaded_file in uploaded_files:
                     try:
-                        chunks = process_uploaded_file(uploaded_file, chunk_size, chunk_overlap)
-                        num_chunks = index.from_chunks(chunks)
-                        total_chunks += num_chunks
-                        logger.info(f"Added {num_chunks} chunks from {uploaded_file.name}")
+                        content = uploaded_file.read().decode("utf-8")
+                        document = Document(page_content=content, metadata={"source": uploaded_file.name})
+                        documents.append(document)
+                        logger.info(f"Added {uploaded_file.name}")
                     except Exception as e:
                         st.sidebar.error(f"Error processing {uploaded_file.name}: {str(e)}")
                         logger.error(f"Error processing {uploaded_file.name}: {str(e)}", exc_info=True)
 
-                if total_chunks > 0:
+                # Split into chunks
+                splitter = create_recursive_text_splitter(
+                    format=Format.MARKDOWN.value, chunk_size=chunk_size, chunk_overlap=chunk_overlap
+                )
+                chunks = splitter.split_documents(documents)
+                num_chunks = len(chunks)
+                logger.info(f"Number of generated chunks: {num_chunks}")
+                logger.info("Adding document chunks to the vector database index...")
+                index.from_chunks(chunks)
+                logger.info("Memory Index has been updated successfully!")
+
+                if num_chunks > 0:
                     # Store success message in session state to display after rerun
                     st.session_state.upload_success_msg = (
-                        f"✅ Added {total_chunks} chunks from {len(uploaded_files)} file(s)"
+                        f"✅ Added {num_chunks} chunks from {len(uploaded_files)} file(s)"
                     )
                     # Force a rerun to refresh the indexed documents list
                     st.rerun()
@@ -163,7 +147,7 @@ def init_page(root_folder: Path) -> None:
     with right_column:
         st.write(" ")
 
-    st.sidebar.title("Options")
+    st.sidebar.title("Tools & Settings")
 
 
 @st.cache_resource
@@ -175,10 +159,12 @@ def init_welcome_message() -> None:
         st.write("How can I help you today?")
 
 
-def reset_chat_history(chat_history: ChatHistory) -> None:
+def handle_chat_history_reset(chat_history: ChatHistory) -> None:
     """
     Initializes the chat history, allowing users to clear the conversation.
     """
+    st.sidebar.markdown("---")
+    st.sidebar.subheader("📄 Chat History Management")
     clear_button = st.sidebar.button("🗑️ Clear Conversation", key="clear")
     if clear_button or "messages" not in st.session_state:
         st.session_state.messages = []
@@ -215,10 +201,10 @@ def main(parameters) -> None:
     chat_history = init_chat_history(2)
     ctx_synthesis_strategy = load_ctx_synthesis_strategy(synthesis_strategy_name, _llm=llm)
     index = load_index(vector_store_path)
-    reset_chat_history(chat_history)
 
-    # Handle document uploads
+    # Handle sidebar document upload and chat history reset
     handle_document_upload(index, chunk_size=parameters.chunk_size, chunk_overlap=parameters.chunk_overlap)
+    handle_chat_history_reset(chat_history)
 
     init_welcome_message()
     display_messages_from_history()
