@@ -27,7 +27,7 @@ st.set_page_config(page_title="RAG Chatbot", page_icon="💬", initial_sidebar_s
 
 
 @st.cache_resource()
-def load_llm_client(model_folder: Path, model_name: str) -> LamaCppClient:
+def init_llm_client(model_folder: Path, model_name: str) -> LamaCppClient:
     model_settings = get_model_settings(model_name)
     llm = LamaCppClient(model_folder=model_folder, model_settings=model_settings)
 
@@ -35,19 +35,7 @@ def load_llm_client(model_folder: Path, model_name: str) -> LamaCppClient:
 
 
 @st.cache_resource()
-def init_chat_history(total_length: int = 2) -> ChatHistory:
-    chat_history = ChatHistory(total_length=total_length)
-    return chat_history
-
-
-@st.cache_resource()
-def load_ctx_synthesis_strategy(ctx_synthesis_strategy_name: str, _llm: LamaCppClient) -> BaseSynthesisStrategy:
-    ctx_synthesis_strategy = get_ctx_synthesis_strategy(ctx_synthesis_strategy_name, llm=_llm)
-    return ctx_synthesis_strategy
-
-
-@st.cache_resource()
-def load_index(vector_store_path: Path) -> Chroma:
+def init_index(vector_store_path: Path) -> Chroma:
     """
     Loads a Vector Database index based on the specified vector store path.
 
@@ -61,6 +49,46 @@ def load_index(vector_store_path: Path) -> Chroma:
     index = Chroma(is_persistent=True, persist_directory=str(vector_store_path), embedding=embedding)
 
     return index
+
+
+@st.cache_resource()
+def init_ctx_synthesis_strategy(ctx_synthesis_strategy_name: str, _llm: LamaCppClient) -> BaseSynthesisStrategy:
+    ctx_synthesis_strategy = get_ctx_synthesis_strategy(ctx_synthesis_strategy_name, llm=_llm)
+    return ctx_synthesis_strategy
+
+
+@st.cache_resource()
+def init_chat_history(total_length: int = 2) -> ChatHistory:
+    chat_history = ChatHistory(total_length=total_length)
+    return chat_history
+
+
+@st.cache_resource
+def init_welcome_message() -> None:
+    """
+    Initializes a welcome message for the chat interface.
+    """
+    with st.chat_message("assistant"):
+        st.write("How can I help you today?")
+
+
+def init_page(root_folder: Path) -> None:
+    """
+    Initializes the page configuration for the application.
+    """
+    left_column, central_column, right_column = st.columns([2, 1, 2])
+
+    with left_column:
+        st.write(" ")
+
+    with central_column:
+        st.image(str(root_folder / "images/bot.png"), use_column_width="always")
+        st.markdown("""<h4 style='text-align: center; color: grey;'></h4>""", unsafe_allow_html=True)
+
+    with right_column:
+        st.write(" ")
+
+    st.sidebar.title("Tools & Settings")
 
 
 def handle_document_upload(index: Chroma, chunk_size: int = 1000, chunk_overlap: int = 50):
@@ -131,34 +159,6 @@ def handle_document_upload(index: Chroma, chunk_size: int = 1000, chunk_overlap:
         del st.session_state.upload_success_msg
 
 
-def init_page(root_folder: Path) -> None:
-    """
-    Initializes the page configuration for the application.
-    """
-    left_column, central_column, right_column = st.columns([2, 1, 2])
-
-    with left_column:
-        st.write(" ")
-
-    with central_column:
-        st.image(str(root_folder / "images/bot.png"), use_column_width="always")
-        st.markdown("""<h4 style='text-align: center; color: grey;'></h4>""", unsafe_allow_html=True)
-
-    with right_column:
-        st.write(" ")
-
-    st.sidebar.title("Tools & Settings")
-
-
-@st.cache_resource
-def init_welcome_message() -> None:
-    """
-    Initializes a welcome message for the chat interface.
-    """
-    with st.chat_message("assistant"):
-        st.write("How can I help you today?")
-
-
 def handle_chat_history_reset(chat_history: ChatHistory) -> None:
     """
     Initializes the chat history, allowing users to clear the conversation.
@@ -197,10 +197,10 @@ def main(parameters) -> None:
     max_new_tokens = parameters.max_new_tokens
 
     init_page(root_folder)
-    llm = load_llm_client(model_folder, model_name)
+    llm = init_llm_client(model_folder, model_name)
     chat_history = init_chat_history(2)
-    ctx_synthesis_strategy = load_ctx_synthesis_strategy(synthesis_strategy_name, _llm=llm)
-    index = load_index(vector_store_path)
+    ctx_synthesis_strategy = init_ctx_synthesis_strategy(synthesis_strategy_name, _llm=llm)
+    index = init_index(vector_store_path)
 
     # Handle sidebar document upload and chat history reset
     handle_document_upload(index, chunk_size=parameters.chunk_size, chunk_overlap=parameters.chunk_overlap)
