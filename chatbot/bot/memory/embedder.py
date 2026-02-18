@@ -32,7 +32,7 @@ class Embedder:
             embeddings = self.client.encode_multi_process(texts, pool)
             sentence_transformers.SentenceTransformer.stop_multi_process_pool(pool)
         else:
-            embeddings = self.client.encode(texts, show_progress_bar=True, **encode_kwargs)
+            embeddings = self.client.encode(texts, normalize_embeddings=False, show_progress_bar=True, **encode_kwargs)
 
         return embeddings.tolist()
 

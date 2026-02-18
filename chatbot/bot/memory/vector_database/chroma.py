@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Callable, Iterable
+from typing import Any, Iterable
 
 import chromadb
 import chromadb.config
@@ -22,9 +22,29 @@ class Chroma:
         collection_name: str = "default",
         collection_metadata: dict | None = None,
         is_persistent: bool = True,
+        distance_metric: DistanceMetric = DistanceMetric.COSINE,
     ) -> None:
-        client_settings = chromadb.config.Settings(is_persistent=is_persistent)
-        client_settings.persist_directory = persist_directory
+        """
+        Initializes a Chroma vector database instance.
+
+        Args:
+            client (chromadb.Client, optional): An existing Chroma client instance. If not provided, a new client will
+                be created. Defaults to None.
+            embedding (Embedder | None, optional): An instance of the Embedder class to generate embeddings for the
+                texts. If not provided, Chroma will use sentence transformer embedding function as a default.
+                Defaults to None.
+            persist_directory (str | None, optional): Directory path to persist the Chroma collection. If not provided,
+                the collection will be stored in memory. Defaults to None.
+            collection_name (str, optional): Name of the Chroma collection to use or create. Defaults to "default".
+            collection_metadata (dict | None, optional): Optional metadata to associate with the Chroma collection.
+                Defaults to None.
+            is_persistent (bool, optional): Whether to persist the Chroma collection to disk. If True, the collection
+                will be saved to the specified persist_directory. If False, the collection will be stored in memory.
+                    Defaults to True.
+            distance_metric (DistanceMetric, optional): The distance metric to use for similarity search.
+                Defaults to DistanceMetric.COSINE.
+        """
+        client_settings = chromadb.config.Settings(is_persistent=is_persistent, persist_directory=persist_directory)
 
         if client is not None:
             self.client = client
@@ -32,10 +52,24 @@ class Chroma:
             self.client = chromadb.Client(client_settings)
 
         self.embedding = embedding
+        self.distance_metric = distance_metric
 
+        # If embedding_function is None, Chroma will use Sentence Transformer all-MiniLM-L6-v2 embedding
+        # function as a default.
+        # We provide embeddings directly when adding data to a collection.
+        # In this case, the collection will not have an embedding function set, and we are responsible for providing
+        # embeddings directly when adding data and querying.
+        # https://docs.trychroma.com/docs/collections/manage-collections#embedding-functions
+
+        # Chroma’s default metric when creating a collection is L2 distance (Euclidean distance squared), configurable
+        # to cosine or inner product (ip). Hence, Lower scores = better matches.
+        # We set the Cosine by default. For Chroma whatever score represent distance;
+        # So the get the right similarity we have to apply 1 - score in similarity_search_with_relevance_scores method.
+        # https://docs.trychroma.com/cloud/search-api/ranking#understanding-scores
         self.collection = self.client.get_or_create_collection(
             name=collection_name,
             embedding_function=None,
+            configuration={"hnsw": {"space": self.distance_metric.value}},
             metadata=collection_metadata,
         )
 
@@ -371,19 +405,6 @@ class Chroma:
             )
         ]
 
-    def __select_relevance_score_fn(self) -> Callable[[float], float]:
-        """
-        The 'correct' relevance function may differ depending on the distance/similarity metric used by the VectorStore.
-        """
-
-        distance = DistanceMetric.L2
-        distance_key = "hnsw:space"
-        metadata = self.collection.metadata
-
-        if metadata and distance_key in metadata:
-            distance = metadata[distance_key]
-        return get_relevance_score_fn(distance)
-
     def similarity_search_with_relevance_scores(self, query: str, k: int = 4) -> list[tuple[Document, float]]:
         """
         Return docs and relevance scores in the range [0, 1].
@@ -398,7 +419,7 @@ class Chroma:
             List of Tuples of (doc, similarity_score)
         """
         # relevance_score_fn is a function to calculate relevance score from distance.
-        relevance_score_fn = self.__select_relevance_score_fn()
+        relevance_score_fn = get_relevance_score_fn(self.distance_metric)
 
         docs_and_scores = self.similarity_search_with_score(query, k)
         docs_and_similarities = [(doc, relevance_score_fn(score)) for doc, score in docs_and_scores]
