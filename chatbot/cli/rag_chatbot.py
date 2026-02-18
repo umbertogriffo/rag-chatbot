@@ -140,7 +140,7 @@ def main(parameters):
     chat_history = ChatHistory(total_length=2)
 
     embedding = Embedder()
-    index = Chroma(persist_directory=str(vector_store_path), embedding=embedding)
+    index = Chroma(is_persistent=True, persist_directory=str(vector_store_path), embedding=embedding)
 
     loop(llm, chat_history, synthesis_strategy, index, parameters)
 

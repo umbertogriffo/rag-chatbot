@@ -38,7 +38,7 @@ def split_chunks(sources: list, chunk_size: int = 512, chunk_overlap: int = 25) 
     Args:
         sources (List): The list of sources to be split into chunks.
         chunk_size (int, optional): The maximum size of each chunk. Defaults to 512.
-        chunk_overlap (int, optional): The amount of overlap between consecutive chunks. Defaults to 0.
+        chunk_overlap (int, optional): The amount of overlap between consecutive chunks. Defaults to 25.
 
     Returns:
         List: A list of smaller chunks obtained from the input sources.
@@ -63,7 +63,7 @@ def build_memory_index(docs_path: Path, vector_store_path: str, chunk_size: int,
 
     logger.info("Creating memory index...")
     embedding = Embedder()
-    vector_database = Chroma(persist_directory=str(vector_store_path), embedding=embedding)
+    vector_database = Chroma(is_persistent=True, persist_directory=str(vector_store_path), embedding=embedding)
     vector_database.from_chunks(chunks)
     logger.info("Memory Index has been created successfully!")
 

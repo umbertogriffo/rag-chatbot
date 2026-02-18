@@ -141,7 +141,7 @@ format.
 
 | 🤖 Model                                                       | Supported | Model Size | Max Context Window | Notes and link to the model card                                                                                                                                     |
 |----------------------------------------------------------------|-----------|------------|--------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `llama-3.2` Meta Llama 3.2 Instruct                            | ✅         | 1B         | 128k               | Optimized to run locally on a mobile or edge device - [Card](https://huggingface.co/bartowski/Llama-3.2-1B-Instruct-GGUF)                                            |
+| `llama-3.2:1b` Meta Llama 3.2 Instruct                         | ✅         | 1B         | 128k               | Optimized to run locally on a mobile or edge device - [Card](https://huggingface.co/bartowski/Llama-3.2-1B-Instruct-GGUF)                                            |
 | `llama-3.2` Meta Llama 3.2 Instruct                            | ✅         | 3B         | 128k               | Optimized to run locally on a mobile or edge device - [Card](https://huggingface.co/bartowski/Llama-3.2-3B-Instruct-GGUF)                                            |
 | `llama-3.1` Meta Llama 3.1 Instruct                            | ✅         | 8B         | 128k               | **Recommended model** [Card](https://huggingface.co/bartowski/Meta-Llama-3.1-8B-Instruct-GGUF)                                                                       |
 | `qwen-2.5:3b` - Qwen2.5 Instruct                               | ✅         | 3B         | 128k               | [Card](https://huggingface.co/Qwen/Qwen2.5-3B-Instruct-GGUF)                                                                                                         |
@@ -194,6 +194,12 @@ streamlit run chatbot/rag_chatbot_app.py -- --model llama-3.1 --k 2 --synthesis-
 ```
 
 ![rag_chatbot_example.gif](images%2Frag_chatbot_example.gif)
+
+You can also upload a Markdown file using the file uploader in the sidebar.
+The Document management section shows the indexed documents.
+Once you upload one or multiple files, they will be: uploaded → chunked → embedded → upserted to Chroma
+
+![rag_chatbot_load_doc_example.gif](images/rag_chatbot_load_doc_example.gif)
 
 ## How to debug the Streamlit app on Pycharm
 

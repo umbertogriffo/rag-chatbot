@@ -1,0 +1,9 @@
+Machine learning is a field of study that gives computers the ability to learn without being explicitly programmed.
+Deep learning is part of a broader family of machine learning methods based on artificial neural networks with representation learning.
+Neural networks are computing systems vaguely inspired by the biological neural networks that constitute animal brains.
+Mars rovers are robotic vehicles designed to travel on the surface of Mars to collect data and perform experiments.
+The James Webb Space Telescope is the largest optical telescope in space, designed to conduct infrared astronomy.
+SpaceX's Starship is designed to be a fully reusable transportation system capable of carrying humans to Mars and beyond.
+Global warming is the long-term heating of Earth's climate system observed since the pre-industrial period due to human activities.
+Renewable energy sources include solar, wind, hydro, and geothermal power that naturally replenish over time.
+Carbon capture technologies aim to collect CO2 emissions before they enter the atmosphere and store them underground.

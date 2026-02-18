@@ -26,13 +26,13 @@ class Embedder:
             list[list[float]]: A list of embeddings, one for each text.
         """
 
-        texts = list(map(lambda x: x.replace("\n", " "), texts))
+        texts = [x.replace("\n", " ") for x in texts]
         if multi_process:
             pool = self.client.start_multi_process_pool()
             embeddings = self.client.encode_multi_process(texts, pool)
             sentence_transformers.SentenceTransformer.stop_multi_process_pool(pool)
         else:
-            embeddings = self.client.encode(texts, show_progress_bar=True, **encode_kwargs)
+            embeddings = self.client.encode(texts, normalize_embeddings=False, show_progress_bar=True, **encode_kwargs)
 
         return embeddings.tolist()
 

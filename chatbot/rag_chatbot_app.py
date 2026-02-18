@@ -15,6 +15,9 @@ from bot.conversation.ctx_strategy import (
 from bot.memory.embedder import Embedder
 from bot.memory.vector_database.chroma import Chroma
 from bot.model.model_registry import get_model_settings, get_models
+from document_loader.format import Format
+from document_loader.text_splitter import create_recursive_text_splitter
+from entities.document import Document
 from helpers.log import get_logger
 from helpers.prettier import prettify_source
 
@@ -24,7 +27,7 @@ st.set_page_config(page_title="RAG Chatbot", page_icon="💬", initial_sidebar_s
 
 
 @st.cache_resource()
-def load_llm_client(model_folder: Path, model_name: str) -> LamaCppClient:
+def init_llm_client(model_folder: Path, model_name: str) -> LamaCppClient:
     model_settings = get_model_settings(model_name)
     llm = LamaCppClient(model_folder=model_folder, model_settings=model_settings)
 
@@ -32,19 +35,7 @@ def load_llm_client(model_folder: Path, model_name: str) -> LamaCppClient:
 
 
 @st.cache_resource()
-def init_chat_history(total_length: int = 2) -> ChatHistory:
-    chat_history = ChatHistory(total_length=total_length)
-    return chat_history
-
-
-@st.cache_resource()
-def load_ctx_synthesis_strategy(ctx_synthesis_strategy_name: str, _llm: LamaCppClient) -> BaseSynthesisStrategy:
-    ctx_synthesis_strategy = get_ctx_synthesis_strategy(ctx_synthesis_strategy_name, llm=_llm)
-    return ctx_synthesis_strategy
-
-
-@st.cache_resource()
-def load_index(vector_store_path: Path) -> Chroma:
+def init_index(vector_store_path: Path) -> Chroma:
     """
     Loads a Vector Database index based on the specified vector store path.
 
@@ -55,9 +46,30 @@ def load_index(vector_store_path: Path) -> Chroma:
         Chroma: An instance of the Vector Database.
     """
     embedding = Embedder()
-    index = Chroma(persist_directory=str(vector_store_path), embedding=embedding)
+    index = Chroma(is_persistent=True, persist_directory=str(vector_store_path), embedding=embedding)
 
     return index
+
+
+@st.cache_resource()
+def init_ctx_synthesis_strategy(ctx_synthesis_strategy_name: str, _llm: LamaCppClient) -> BaseSynthesisStrategy:
+    ctx_synthesis_strategy = get_ctx_synthesis_strategy(ctx_synthesis_strategy_name, llm=_llm)
+    return ctx_synthesis_strategy
+
+
+@st.cache_resource()
+def init_chat_history(total_length: int = 2) -> ChatHistory:
+    chat_history = ChatHistory(total_length=total_length)
+    return chat_history
+
+
+@st.cache_resource
+def init_welcome_message() -> None:
+    """
+    Initializes a welcome message for the chat interface.
+    """
+    with st.chat_message("assistant"):
+        st.write("How can I help you today?")
 
 
 def init_page(root_folder: Path) -> None:
@@ -76,22 +88,83 @@ def init_page(root_folder: Path) -> None:
     with right_column:
         st.write(" ")
 
-    st.sidebar.title("Options")
+    st.sidebar.title("Tools & Settings")
 
 
-@st.cache_resource
-def init_welcome_message() -> None:
+def handle_document_upload(index: Chroma, chunk_size: int = 1000, chunk_overlap: int = 50):
     """
-    Initializes a welcome message for the chat interface.
+    Handle document upload UI in the sidebar.
+
+    Args:
+        index: Chroma vector database instance.
+        chunk_size: Maximum size of each chunk.
+        chunk_overlap: Amount of overlap between chunks.
     """
-    with st.chat_message("assistant"):
-        st.write("How can I help you today?")
+    st.sidebar.markdown("---")
+    st.sidebar.subheader("📄 Document Management")
+
+    # Show currently indexed documents
+    with st.sidebar.expander("📚 Indexed Documents"):
+        indexed_docs = index.get_indexed_documents()
+        if indexed_docs:
+            for doc in indexed_docs:
+                st.text(f"• {doc}")
+        else:
+            st.text("No documents indexed yet")
+
+    # File uploader
+    uploaded_files = st.sidebar.file_uploader(
+        "Upload Markdown files",
+        type=["md", "markdown"],
+        accept_multiple_files=True,
+        help="Upload one or more Markdown files to add to the knowledge base",
+    )
+
+    if uploaded_files:
+        if st.sidebar.button("📥 Add to Knowledge Base", key="add_docs"):
+            with st.spinner("Processing documents..."):
+                documents: list[Document] = []
+                for uploaded_file in uploaded_files:
+                    try:
+                        content = uploaded_file.read().decode("utf-8")
+                        document = Document(page_content=content, metadata={"source": uploaded_file.name})
+                        documents.append(document)
+                        logger.info(f"Added {uploaded_file.name}")
+                    except Exception as e:
+                        st.sidebar.error(f"Error processing {uploaded_file.name}: {str(e)}")
+                        logger.error(f"Error processing {uploaded_file.name}: {str(e)}", exc_info=True)
+
+                # Split into chunks
+                splitter = create_recursive_text_splitter(
+                    format=Format.MARKDOWN.value, chunk_size=chunk_size, chunk_overlap=chunk_overlap
+                )
+                chunks = splitter.split_documents(documents)
+                num_chunks = len(chunks)
+                logger.info(f"Number of generated chunks: {num_chunks}")
+                logger.info("Adding document chunks to the vector database index...")
+                index.from_chunks(chunks)
+                logger.info("Memory Index has been updated successfully!")
+
+                if num_chunks > 0:
+                    # Store success message in session state to display after rerun
+                    st.session_state.upload_success_msg = (
+                        f"✅ Added {num_chunks} chunks from {len(uploaded_files)} file(s)"
+                    )
+                    # Force a rerun to refresh the indexed documents list
+                    st.rerun()
+
+    # Display success message from previous upload if exists
+    if "upload_success_msg" in st.session_state:
+        st.sidebar.success(st.session_state.upload_success_msg)
+        del st.session_state.upload_success_msg
 
 
-def reset_chat_history(chat_history: ChatHistory) -> None:
+def handle_chat_history_reset(chat_history: ChatHistory) -> None:
     """
     Initializes the chat history, allowing users to clear the conversation.
     """
+    st.sidebar.markdown("---")
+    st.sidebar.subheader("📄 Chat History Management")
     clear_button = st.sidebar.button("🗑️ Clear Conversation", key="clear")
     if clear_button or "messages" not in st.session_state:
         st.session_state.messages = []
@@ -124,11 +197,15 @@ def main(parameters) -> None:
     max_new_tokens = parameters.max_new_tokens
 
     init_page(root_folder)
-    llm = load_llm_client(model_folder, model_name)
+    llm = init_llm_client(model_folder, model_name)
     chat_history = init_chat_history(2)
-    ctx_synthesis_strategy = load_ctx_synthesis_strategy(synthesis_strategy_name, _llm=llm)
-    index = load_index(vector_store_path)
-    reset_chat_history(chat_history)
+    ctx_synthesis_strategy = init_ctx_synthesis_strategy(synthesis_strategy_name, _llm=llm)
+    index = init_index(vector_store_path)
+
+    # Handle sidebar document upload and chat history reset
+    handle_document_upload(index, chunk_size=parameters.chunk_size, chunk_overlap=parameters.chunk_overlap)
+    handle_chat_history_reset(chat_history)
+
     init_welcome_message()
     display_messages_from_history()
 
@@ -244,6 +321,22 @@ def get_args() -> argparse.Namespace:
         help="The maximum number of tokens to generate in the answer. Defaults to 512.",
         required=False,
         default=512,
+    )
+
+    parser.add_argument(
+        "--chunk-size",
+        type=int,
+        help="The maximum size of each chunk for document splitting.",
+        required=False,
+        default=1000,
+    )
+
+    parser.add_argument(
+        "--chunk-overlap",
+        type=int,
+        help="The amount of overlap between consecutive chunks.",
+        required=False,
+        default=50,
     )
 
     return parser.parse_args()
