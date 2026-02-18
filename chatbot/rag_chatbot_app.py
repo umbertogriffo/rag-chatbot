@@ -58,7 +58,7 @@ def load_index(vector_store_path: Path) -> Chroma:
         Chroma: An instance of the Vector Database.
     """
     embedding = Embedder()
-    index = Chroma(persist_directory=str(vector_store_path), embedding=embedding)
+    index = Chroma(is_persistent=True, persist_directory=str(vector_store_path), embedding=embedding)
 
     return index
 

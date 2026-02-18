@@ -21,7 +21,7 @@ class Chroma:
         persist_directory: str | None = None,
         collection_name: str = "default",
         collection_metadata: dict | None = None,
-        is_persistent: bool = True,
+        is_persistent: bool = False,
         distance_metric: DistanceMetric = DistanceMetric.COSINE,
     ) -> None:
         """
@@ -44,7 +44,10 @@ class Chroma:
             distance_metric (DistanceMetric, optional): The distance metric to use for similarity search.
                 Defaults to DistanceMetric.COSINE.
         """
-        client_settings = chromadb.config.Settings(is_persistent=is_persistent, persist_directory=persist_directory)
+        if is_persistent:
+            client_settings = chromadb.config.Settings(is_persistent=is_persistent, persist_directory=persist_directory)
+        else:
+            client_settings = chromadb.config.Settings(is_persistent=is_persistent)
 
         if client is not None:
             self.client = client
@@ -61,7 +64,7 @@ class Chroma:
         # embeddings directly when adding data and querying.
         # https://docs.trychroma.com/docs/collections/manage-collections#embedding-functions
 
-        # Chroma’s default metric when creating a collection is L2 distance (Euclidean distance squared), configurable
+        # Chroma’s default metric when creating a collection is L2 distance (squared L2 norm), configurable
         # to cosine or inner product (ip). Hence, Lower scores = better matches.
         # We set the Cosine by default. For Chroma whatever score represent distance;
         # So the get the right similarity we have to apply 1 - score in similarity_search_with_relevance_scores method.
@@ -293,6 +296,20 @@ class Chroma:
         except Exception as e:
             logger.warning(f"Could not retrieve indexed documents: {e}")
         return []
+
+    def delete_collection(self, collection_name: str = "default") -> None:
+        """
+        Deletes the entire Chroma collection, removing all indexed data.
+
+        Args:
+            collection_name (str): The name of the Chroma collection to delete. Defaults to "default".
+        """
+        try:
+            self.client.delete_collection(name=collection_name)
+            logger.info("Chroma collection deleted successfully.")
+        except Exception as e:
+            logger.error(f"Error deleting Chroma collection: {e}", exc_info=True, stack_info=True)
+            raise
 
     def similarity_search_with_threshold(
         self,

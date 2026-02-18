@@ -1,43 +1,39 @@
+import time
 from pathlib import Path
 
 import torch
 from bot.memory.embedder import Embedder
 from bot.memory.vector_database.chroma import Chroma
 
-if __name__ == "__main__":
-    root_folder = Path(__file__).resolve().parents[2]
-    # Contains an extract of documents uploaded to the RAG bot;
-    declarative_vector_store_path = root_folder / "vector_store" / "exp_docs_index"
+ROOT_FOLDER = Path(__file__).resolve().parents[2]
+EXPERIMENTS_FOLDER = Path(__file__).parent
 
-    embedding = Embedder(model_name="all-MiniLM-L6-v2")
-    index = Chroma(persist_directory=str(declarative_vector_store_path), embedding=embedding)
 
+def load_texts(file_path: Path) -> list[str]:
     # Example from https://www.sbert.net/examples/sentence_transformer/applications/semantic-search/README.html#manual-implementation
-    index.from_texts(
-        texts=[
-            "Machine learning is a field of study that gives computers the ability to learn without being explicitly programmed.",
-            "Deep learning is part of a broader family of machine learning methods based on artificial neural networks with representation learning.",
-            "Neural networks are computing systems vaguely inspired by the biological neural networks that constitute animal brains.",
-            "Mars rovers are robotic vehicles designed to travel on the surface of Mars to collect data and perform experiments.",
-            "The James Webb Space Telescope is the largest optical telescope in space, designed to conduct infrared astronomy.",
-            "SpaceX's Starship is designed to be a fully reusable transportation system capable of carrying humans to Mars and beyond.",
-            "Global warming is the long-term heating of Earth's climate system observed since the pre-industrial period due to human activities.",
-            "Renewable energy sources include solar, wind, hydro, and geothermal power that naturally replenish over time.",
-            "Carbon capture technologies aim to collect CO2 emissions before they enter the atmosphere and store them underground.",
-        ]
-    )
+    with open(file_path, "r", encoding="utf-8") as f:
+        return [line.strip() for line in f if line.strip()]
 
-    query = "How do artificial neural networks work?"
 
-    results = index.similarity_search_with_score(query)
+def run_experiment(texts: list[str], query: str, model_name: str = "all-MiniLM-L6-v2") -> None:
+    print(f"---{model_name}---")
 
-    documents = [doc for doc, _ in results]
-    similarity_scores = [score for _, score in results]
-    scores, indices = torch.topk(torch.tensor(similarity_scores), k=4)
-    for score, idx in zip(scores, indices):
-        print(f"(Score: {score:.4f})", documents[idx])
+    start_time = time.time()
 
-    print("---")
+    embedding = Embedder(model_name=model_name)
+    index = Chroma(embedding=embedding)
+    index.from_texts(texts=texts)
+
+    # results = index.similarity_search_with_score(query)
+    #
+    # documents = [doc for doc, _ in results]
+    # similarity_scores = [score for _, score in results]
+    # scores, indices = torch.topk(torch.tensor(similarity_scores), k=4)
+    # for score, idx in zip(scores, indices):
+    #     print(f"(Score: {score:.4f})", documents[idx])
+    #     pass
+    #
+    # print("---")
 
     relevant_results = index.similarity_search_with_relevance_scores(query)
 
@@ -45,4 +41,22 @@ if __name__ == "__main__":
     relevance_scores = [score for _, score in relevant_results]
     scores, indices = torch.topk(torch.tensor(relevance_scores), k=4)
     for score, idx in zip(scores, indices):
-        print(f"(Score: {score:.4f})", documents[idx])
+        print(f"(Score: {score:.4f})", relevant_documents[idx])
+
+    took = time.time() - start_time
+    print(f"--- Took {took:.2f} seconds ---")
+
+    index.delete_collection()
+
+
+if __name__ == "__main__":
+    texts_file_path = EXPERIMENTS_FOLDER / "sample_texts.txt"
+
+    texts = load_texts(texts_file_path)
+
+    query = "How do artificial neural networks work?"
+
+    # Original Models: https://www.sbert.net/docs/sentence_transformer/pretrained_models.html#original-models
+    run_experiment(texts, query, model_name="all-MiniLM-L6-v2")
+    run_experiment(texts, query, model_name="all-MiniLM-L12-v2")
+    run_experiment(texts, query, model_name="all-mpnet-base-v2")

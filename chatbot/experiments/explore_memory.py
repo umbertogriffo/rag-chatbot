@@ -13,7 +13,7 @@ if __name__ == "__main__":
     episodic_vector_store_path = root_folder / "vector_store" / "episodic_index"
 
     embedding = Embedder()
-    index = Chroma(persist_directory=str(declarative_vector_store_path), embedding=embedding)
+    index = Chroma(is_persistent=True, persist_directory=str(declarative_vector_store_path), embedding=embedding)
 
     # query = "<write_your_query_here>"
     query = "Tell me something about the Blendle Social Code"

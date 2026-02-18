@@ -6,7 +6,7 @@ from entities.document import Document
 
 @pytest.fixture
 def chroma_instance(tmp_path):
-    return Chroma(embedding=Embedder(), persist_directory=str(tmp_path))
+    return Chroma(embedding=Embedder(), persist_directory=str(tmp_path), is_persistent=True)
 
 
 def test_initialization(chroma_instance):
