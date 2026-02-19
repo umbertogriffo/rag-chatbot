@@ -81,14 +81,14 @@ To deal with context overflows, we implemented three approaches:
 
 ## Prerequisites
 
-* Python 3.10+
+* Python 3.12+
 * GPU supporting CUDA 12.1+
-* Poetry 1.7.0
+* Poetry 2.3.0
 
 ### Install Poetry
 
-Install Poetry with the official installer by following
-this [link](https://python-poetry.org/docs/#installing-with-the-official-installer).
+Install Poetry with `pipx` by following
+this [link](https://python-poetry.org/docs/#installing-with-pipx).
 
 You must use the current adopted version of Poetry
 defined [here](https://github.com/umbertogriffo/rag-chatbot/blob/main/version/poetry).
@@ -97,6 +97,12 @@ If you have poetry already installed and is not the right version, you can downg
 
 ```
 poetry self update <version>
+```
+
+or with `pipx`:
+
+```
+pipx install poetry==<version> --force
 ```
 
 ## Bootstrap Environment
