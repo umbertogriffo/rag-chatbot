@@ -104,8 +104,6 @@ async def chat(
     from datetime import datetime, timezone
 
     from chatbot.bot.conversation.chat_history import ChatHistory
-    from chatbot.bot.conversation.conversation_handler import answer, answer_with_context, refine_question
-    from chatbot.bot.conversation.ctx_strategy import get_ctx_synthesis_strategy
 
     # Get or create session
     session_id = request.session_id
@@ -133,8 +131,9 @@ async def chat(
     statement = select(ChatMessage).where(ChatMessage.session_id == session_id).order_by(ChatMessage.created_at)
     past_messages = db.exec(statement).all()
     chat_history = ChatHistory(total_length=10)
-    for msg in past_messages[:-1]:  # Exclude the message we just added
-        chat_history.append(f"{msg.role}: {msg.content}")
+    for msg in past_messages:
+        if msg.id != user_msg.id:
+            chat_history.append(f"{msg.role}: {msg.content}")
 
     # Generate response - this is a simplified non-streaming version
     # In practice, the LLM client needs to be initialized with a loaded model

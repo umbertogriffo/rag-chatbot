@@ -26,7 +26,9 @@ async def list_documents(_current_user: str = Depends(get_current_user)):
         indexed_docs = vector_db.get_indexed_documents()
         documents = [DocumentInfo(source=doc) for doc in indexed_docs]
         return DocumentListResponse(documents=documents, total=len(documents))
-    except Exception:
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).warning("Failed to list documents: %s", e)
         return DocumentListResponse(documents=[], total=0)
 
 
