@@ -1,9 +1,12 @@
 import secrets
 from pathlib import Path
-from pydantic_settings import BaseSettings
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_file=".env", case_sensitive=True)
+
     PROJECT_NAME: str = "RAG Chatbot API"
     VERSION: str = "0.1.0"
     API_V1_PREFIX: str = "/api"
@@ -31,10 +34,6 @@ class Settings(BaseSettings):
     DEFAULT_CHUNK_SIZE: int = 1000
     DEFAULT_CHUNK_OVERLAP: int = 50
     DEFAULT_SYNTHESIS_STRATEGY: str = "async-tree-summarization"
-
-    class Config:
-        env_file = ".env"
-        case_sensitive = True
 
 
 settings = Settings()
