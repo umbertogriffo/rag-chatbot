@@ -11,7 +11,7 @@ install_cuda:
 	echo "Installing..."
 	mkdir -p .venv
 	poetry config virtualenvs.in-project true
-	poetry install --extras "cuda-acceleration" --no-root --no-ansi
+	poetry install --no-root --no-ansi
 	echo "Installing llama-cpp-python with pip to get NVIDIA CUDA acceleration"
 	. .venv/bin/activate && CMAKE_ARGS="-DGGML_CUDA=on" pip3 install llama-cpp-python==$(llama_cpp_version) -v
 

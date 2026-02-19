@@ -1,9 +1,13 @@
-[tool.poetry]
+[project]
 name = "chat"
 version = "0.5.0"
 description = "RAG ChatBot"
-authors = ["Umberto Griffo <umberto.griffo@gmail.com>"]
+authors = [
+    { name = "Umberto Griffo", email = "umberto.griffo@gmail.com" }
+]
 readme = "README.md"
+
+dynamic = ["dependencies", "requires-python"]
 
 [tool.poetry.dependencies]
 python = ">=3.12,<3.13"
@@ -42,13 +46,13 @@ nest_asyncio = "~=1.5.8"
 #nvidia-nvjitlink-cu12 = {version = "12.4.127", optional = true, platform = "!=darwin" }
 #nvidia-nvtx-cu12 = {version = "12.4.127", optional = true, platform = "!=darwin" }
 
-[tool.poetry.extras]
-cuda-acceleration = [
-    "nvidia-cublas-cu12", "nvidia-cuda-cupti-cu12", "nvidia-cuda-nvrtc-cu12",
-    "nvidia-cuda-runtime-cu12", "nvidia-cudnn-cu12", "nvidia-cufft-cu12",
-    "nvidia-curand-cu12", "nvidia-cusolver-cu12", "nvidia-cusparse-cu12",
-    "nvidia-nccl-cu12", "nvidia-nvjitlink-cu12", "nvidia-nvtx-cu12"
-]
+#[tool.poetry.extras]
+#cuda-acceleration = [
+#    "nvidia-cublas-cu12", "nvidia-cuda-cupti-cu12", "nvidia-cuda-nvrtc-cu12",
+#    "nvidia-cuda-runtime-cu12", "nvidia-cudnn-cu12", "nvidia-cufft-cu12",
+#    "nvidia-curand-cu12", "nvidia-cusolver-cu12", "nvidia-cusparse-cu12",
+#    "nvidia-nccl-cu12", "nvidia-nvjitlink-cu12", "nvidia-nvtx-cu12"
+#]
 
 [tool.poetry.group.dev.dependencies]
 pytest = "~=7.2.1"
