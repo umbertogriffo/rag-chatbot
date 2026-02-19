@@ -44,8 +44,13 @@ async def upload_document(
     if not file.filename:
         raise HTTPException(status_code=400, detail="No file provided")
 
+    # Sanitize filename to prevent path traversal
+    safe_filename = Path(file.filename).name
+    if not safe_filename or safe_filename.startswith("."):
+        raise HTTPException(status_code=400, detail="Invalid filename")
+
     allowed_extensions = {".md", ".txt", ".pdf"}
-    ext = Path(file.filename).suffix.lower()
+    ext = Path(safe_filename).suffix.lower()
     if ext not in allowed_extensions:
         raise HTTPException(
             status_code=400,
@@ -55,7 +60,7 @@ async def upload_document(
     # Save uploaded file to docs directory
     docs_path = settings.DOCS_PATH
     os.makedirs(docs_path, exist_ok=True)
-    file_path = docs_path / file.filename
+    file_path = docs_path / safe_filename
 
     content = await file.read()
     with open(file_path, "wb") as f:
@@ -66,7 +71,7 @@ async def upload_document(
         from chatbot.entities.document import Document
 
         text_content = content.decode("utf-8")
-        doc = Document(page_content=text_content, metadata={"source": file.filename})
+        doc = Document(page_content=text_content, metadata={"source": safe_filename})
 
         splitter = RecursiveCharacterTextSplitter(
             chunk_size=chunk_size,
@@ -88,7 +93,7 @@ async def upload_document(
 
         return DocumentUploadResponse(
             message="Document uploaded and indexed successfully",
-            source=file.filename,
+            source=safe_filename,
             chunks_created=len(chunks),
         )
     except Exception as e:
