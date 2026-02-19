@@ -48,7 +48,7 @@ jobs:
       # Installing dependencies and llama-cpp-python without NVIDIA CUDA acceleration.
       - name: Setup environment
         run: |
-          poetry lock --check
+          poetry check --lock
           poetry install --no-root --no-ansi
           . .venv/bin/activate && pip3 install llama-cpp-python==${{ steps.llama-cpp-version.outputs.llama-cpp-version }}
 
