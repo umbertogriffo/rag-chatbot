@@ -28,6 +28,7 @@ async def list_documents(_current_user: str = Depends(get_current_user)):
         return DocumentListResponse(documents=documents, total=len(documents))
     except Exception as e:
         import logging
+
         logging.getLogger(__name__).warning("Failed to list documents: %s", e)
         return DocumentListResponse(documents=[], total=0)
 

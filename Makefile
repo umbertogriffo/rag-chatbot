@@ -1,4 +1,4 @@
-.PHONY: check install setup update test clean
+.PHONY: check install setup update test clean frontend-install frontend-build frontend-test backend-install backend-test docker-up docker-down
 
 llama_cpp_file=version/llama_cpp
 llama_cpp_version=`cat $(llama_cpp_file)`
@@ -53,3 +53,27 @@ clean:
 	echo "Cleaning the cache..."
 	rm -rf .pytest_cache
 	rm -rf .ruff_cache
+
+# Frontend commands
+frontend-install:
+	cd frontend && npm ci
+
+frontend-build: frontend-install
+	cd frontend && npm run build
+
+frontend-test: frontend-install
+	cd frontend && npm test
+
+# Backend commands
+backend-install:
+	pip install -r backend/requirements.txt
+
+backend-test:
+	PYTHONPATH=. python -m pytest tests/backend/ -v
+
+# Docker commands
+docker-up:
+	docker compose up --build -d
+
+docker-down:
+	docker compose down

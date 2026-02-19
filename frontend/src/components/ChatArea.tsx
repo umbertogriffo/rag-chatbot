@@ -6,7 +6,7 @@ import { useSendMessage } from '../hooks/useChat';
 import { Bot } from 'lucide-react';
 
 export default function ChatArea() {
-  const { messages, isStreaming, streamingContent, currentSessionId } = useChatStore();
+  const { messages, isStreaming, streamingContent } = useChatStore();
   const { sendViaHttp } = useSendMessage();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 

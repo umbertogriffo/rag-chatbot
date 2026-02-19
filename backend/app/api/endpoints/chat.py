@@ -53,6 +53,7 @@ async def get_session_messages(
     session = db.get(ChatSession, session_id)
     if not session or session.user_id != current_user:
         from fastapi import HTTPException
+
         raise HTTPException(status_code=404, detail="Session not found")
 
     statement = select(ChatMessage).where(ChatMessage.session_id == session_id).order_by(ChatMessage.created_at)
@@ -81,6 +82,7 @@ async def delete_session(
     session = db.get(ChatSession, session_id)
     if not session or session.user_id != current_user:
         from fastapi import HTTPException
+
         raise HTTPException(status_code=404, detail="Session not found")
 
     # Delete messages first
@@ -111,6 +113,7 @@ async def chat(
         chat_session = db.get(ChatSession, session_id)
         if not chat_session or chat_session.user_id != current_user:
             from fastapi import HTTPException
+
             raise HTTPException(status_code=404, detail="Session not found")
     else:
         chat_session = ChatSession(
@@ -170,14 +173,14 @@ async def chat_websocket(websocket: WebSocket, session_id: str):
     # Authenticate via query parameter or first message
     token = websocket.query_params.get("token")
     api_key = websocket.query_params.get("api_key")
-    user = "anonymous"
+    _user = "anonymous"
 
     if api_key and settings.API_KEYS and api_key in settings.API_KEYS:
-        user = "api_key_user"
+        _user = "api_key_user"
     elif token:
         subject = verify_token(token)
         if subject:
-            user = subject
+            _user = subject
 
     await websocket.accept()
 
@@ -192,10 +195,7 @@ async def chat_websocket(websocket: WebSocket, session_id: str):
 
             # Send streaming response
             # In production, this would stream tokens from LamaCppClient
-            response_text = (
-                f"[WS Connected] Received: '{message}' "
-                f"(model: {model_name}, rag: {use_rag}, k: {k})"
-            )
+            response_text = f"[WS Connected] Received: '{message}' (model: {model_name}, rag: {use_rag}, k: {k})"
 
             # Stream word by word to simulate token streaming
             words = response_text.split()

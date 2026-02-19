@@ -4,7 +4,6 @@ import { useChatStore } from '../store/chatStore';
 import {
   useSessions,
   useSessionMessages,
-  useCreateSession,
   useDeleteSession,
   useDocuments,
   useUploadDocument,
@@ -16,7 +15,6 @@ export default function Sidebar() {
   const { currentSessionId, setCurrentSessionId, setMessages, sidebarOpen, setSidebarOpen } = useChatStore();
   const { data: sessions } = useSessions();
   const { refetch: refetchMessages } = useSessionMessages(currentSessionId);
-  const createSession = useCreateSession();
   const deleteSession = useDeleteSession();
   const { data: docsData } = useDocuments();
   const uploadDoc = useUploadDocument();
