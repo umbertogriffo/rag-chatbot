@@ -1,0 +1,9 @@
+fastapi>=0.115.0,<1.0.0
+uvicorn[standard]>=0.32.0,<1.0.0
+sqlmodel>=0.0.22,<1.0.0
+alembic>=1.14.0,<2.0.0
+python-jose[cryptography]>=3.4.0,<4.0.0
+python-multipart>=0.0.22,<1.0.0
+passlib[bcrypt]>=1.7.4,<2.0.0
+aiofiles>=24.1.0,<25.0.0
+pydantic-settings>=2.6.0,<3.0.0
