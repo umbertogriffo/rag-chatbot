@@ -1,0 +1,29 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./models:/app/models
+      - ./vector_store:/app/vector_store
+      - ./docs:/app/docs
+      - db-data:/app/data
+    environment:
+      - DATABASE_URL=sqlite:///./data/rag_chatbot.db
+      - CORS_ORIGINS=["http://localhost", "http://localhost:3000", "http://localhost:5173"]
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  db-data:
