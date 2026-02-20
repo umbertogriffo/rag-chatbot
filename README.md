@@ -81,9 +81,14 @@ To deal with context overflows, we implemented three approaches:
 
 ## Prerequisites
 
+Backend:
 * Python 3.12+
 * GPU supporting CUDA 12.1+
 * Poetry 2.3.0
+
+Frontend:
+* Node.js 22.14+
+* Yarn 1.22+
 
 ### Install Poetry
 
@@ -206,6 +211,11 @@ The Document management section shows the indexed documents.
 Once you upload one or multiple files, they will be: uploaded → chunked → embedded → upserted to Chroma
 
 ![rag_chatbot_load_doc_example.gif](images/rag_chatbot_load_doc_example.gif)
+
+## Building the Docker Images
+
+docker build . --build-arg="POETRY_VERSION=2.3.0" --no-cache -t chatbot/backend:latest -f backend/Dockerfile
+docker build . --no-cache -t chatbot/frontend:latest -f frontend/Dockerfile
 
 ## How to debug the Streamlit app on Pycharm
 

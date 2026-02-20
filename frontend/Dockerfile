@@ -1,13 +1,13 @@
 # Build stage
-FROM node:20-alpine AS build
+FROM node:22.14-alpine AS build
 
 WORKDIR /app
 
-COPY frontend/package.json frontend/package-lock.json ./
-RUN npm ci
+COPY frontend/package.json frontend/yarn.lock ./
+RUN yarn install --frozen-lockfile
 
 COPY frontend/ .
-RUN npm run build
+RUN yarn build
 
 # Production stage
 FROM nginx:alpine

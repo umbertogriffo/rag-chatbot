@@ -56,13 +56,13 @@ clean:
 
 # Frontend commands
 frontend-install:
-	cd frontend && npm ci
+	cd frontend && yarn
 
 frontend-build: frontend-install
-	cd frontend && npm run build
+	cd frontend && yarn build
 
 frontend-test: frontend-install
-	cd frontend && npm test
+	cd frontend && yarn test
 
 # Backend commands
 backend-install:
