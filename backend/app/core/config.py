@@ -10,6 +10,8 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "RAG Chatbot API"
     VERSION: str = "0.1.0"
     API_V1_PREFIX: str = "/api"
+    HOST: str = "0.0.0.0"
+    PORT: int = 8080
 
     SECRET_KEY: str = secrets.token_urlsafe(32)
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 24 hours

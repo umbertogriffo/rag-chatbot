@@ -1,16 +1,17 @@
+import os
 from contextlib import asynccontextmanager
 
+import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.app.api.routes import api_router
 from backend.app.core.config import settings
-from backend.app.db.session import create_db_and_tables
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    create_db_and_tables()
+    # create_db_and_tables()
     yield
 
 
@@ -30,3 +31,15 @@ app.add_middleware(
 )
 
 app.include_router(api_router, prefix=settings.API_V1_PREFIX)
+
+# Note: A single Uvicorn worker is probably what you would want to use when using a distributed container
+# management system like Kubernetes.
+
+if __name__ == "__main__":
+    uvicorn.run(
+        app="main:app",
+        host=settings.HOST,
+        port=settings.PORT,
+        log_config=None,
+        workers=max(1, os.cpu_count() - 1),
+    )
