@@ -53,34 +53,6 @@ export default tseslint.config({
 })
 ```
 
-
-Create a new React TypeScript project:
-```shell
-npm create vite@latest chatbot-ui -- --template react-ts
-cd chatbot-ui
-npm cache clean --force
-
-# Disable progress bar
-npm config set progress false
-# Install yarn globally if not installed
-npm install -g yarn
-# Remove the existing dependencies and npm lockfile
-rm -rf node_modules package-lock.json
-# Initialize yarn and install dependencies using your existing package.json
-yarn
-# Update the scripts in package.json to use yarn instead of npm.
-# Installing dependencies
-yarn                    # replaces npm install
-yarn add [package]      # replaces npm install [package]
-yarn add -D [package]   # replaces npm install -D [package]
-# Running scripts
-yarn dev               # replaces npm run dev
-yarn build             # replaces npm run build
-
-# Upgrading dependencies
-yarn upgrade           # replaces npm update
-```
-
 ```shell
 # setup.sh
 #!/bin/bash
@@ -89,24 +61,21 @@ yarn upgrade           # replaces npm update
 pip install fastapi uvicorn
 
 # Install frontend dependencies
-cd chatbot-ui
-yarn
+cd frontend && yarn
 
 # Create .env file
-echo "VITE_API_URL=http://localhost:5433" > .env
+echo "VITE_API_URL=http://localhost:8000" > .env
 ```
 
 To run the application:
 Start the backend:
 ```
-cd chatbot
-uvicorn main:app --reload
+cd chatbot && uvicorn main:app --reload
 ```
 
 Start the frontend (in a new terminal):
 ```
-cd chatbot-ui
-yarn dev
+cd frontend && yarn dev
 ```
 
 The application will be available at http://localhost:5173, with the backend API at http://localhost:5433.
