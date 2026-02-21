@@ -53,6 +53,8 @@ export default tseslint.config({
 })
 ```
 
+## Setting up the project
+
 ```shell
 # setup.sh
 #!/bin/bash
