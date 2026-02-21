@@ -2,14 +2,12 @@ import asyncio
 from enum import Enum
 from typing import Any
 
-import nest_asyncio
 from entities.document import Document
 from helpers.log import get_logger
 
 from bot.client.lama_cpp_client import LamaCppClient
 
 logger = get_logger(__name__)
-nest_asyncio.apply()
 
 
 class SynthesisStrategyType(Enum):
@@ -181,7 +179,7 @@ class TreeSummarizationStrategy(BaseSynthesisStrategy):
         new_texts = []
         for idx in range(0, len(texts), num_children):
             text_batch = texts[idx : idx + num_children]
-            context = "\n\n".join([t for t in text_batch])
+            context = "\n\n".join(list(text_batch))
             fmt_qa_prompt = self.llm.generate_ctx_prompt(question=question, context=context)
             fmt_prompts.append(fmt_qa_prompt)
 
@@ -213,6 +211,24 @@ class AsyncTreeSummarizationStrategy(BaseSynthesisStrategy):
     def __init__(self, llm: LamaCppClient):
         super().__init__(llm)
 
+    async def generate_prompt_async(self, loop, question: str, content: Document, idx: int) -> tuple[int, str]:
+        """Generate a single prompt asynchronously in thread pool."""
+        logger.info(f"--- Generating a response for the chunk {idx} ... ---")
+        context = content.page_content
+        # Run CPU-bound prompt generation in thread pool
+        fmt_qa_prompt = await loop.run_in_executor(None, self.llm.generate_ctx_prompt, question, context)
+        return idx, fmt_qa_prompt
+
+    async def generate_batch_prompt_async(
+        self, loop, question: str, num_children: int, idx: int, text_batch: list[str]
+    ) -> tuple[int, str]:
+        """Generate a single batch prompt asynchronously in thread pool."""
+        logger.info(f"--- Creating prompts in batches of size {num_children} ... ---")
+        context = "\n\n".join(list(text_batch))
+        # Run CPU-bound prompt generation in thread pool
+        fmt_qa_prompt = await loop.run_in_executor(None, self.llm.generate_ctx_prompt, question, context)
+        return idx, fmt_qa_prompt
+
     async def generate_response(
         self,
         retrieved_contents: list[Document],
@@ -225,6 +241,10 @@ class AsyncTreeSummarizationStrategy(BaseSynthesisStrategy):
 
         Combine `num_children` contents hierarchically until we get one root content.
 
+        This method processes multiple chunks concurrently to improve performance.
+        CPU-bound operations (prompt generation, LLM inference) are offloaded to
+        thread pools to avoid blocking the event loop.
+
         Args:
             retrieved_contents (List[Document]): A list of text content for the AI to consider when generating a
                 response.
@@ -235,14 +255,21 @@ class AsyncTreeSummarizationStrategy(BaseSynthesisStrategy):
         Returns:
             Any: A response generator.
         """
-        fmt_prompts = []
 
-        for idx, content in enumerate(retrieved_contents, start=1):
-            context = content.page_content
-            logger.info(f"--- Generating a response for the chunk {idx} ... ---")
-            fmt_qa_prompt = self.llm.generate_ctx_prompt(question=question, context=context)
-            fmt_prompts.append(fmt_qa_prompt)
+        # Generate prompts concurrently in thread pool (CPU-bound operation)
+        loop = asyncio.get_event_loop()
 
+        # Generate all prompts concurrently
+        prompt_tasks = [
+            self.generate_prompt_async(loop, question, content, idx)
+            for idx, content in enumerate(retrieved_contents, start=1)
+        ]
+        prompt_results = await asyncio.gather(*prompt_tasks)
+
+        # Sort by index to maintain order
+        fmt_prompts = [prompt for _, prompt in sorted(prompt_results, key=lambda x: x[0])]
+
+        # Generate answers concurrently (already runs in thread pool via async_generate_answer)
         tasks = [self.llm.async_generate_answer(p, max_new_tokens=max_new_tokens) for p in fmt_prompts]
         node_responses = await asyncio.gather(*tasks)
 
@@ -267,6 +294,9 @@ class AsyncTreeSummarizationStrategy(BaseSynthesisStrategy):
         """
         Combine results of hierarchical summarization.
 
+        This method processes text batches concurrently, offloading CPU-bound
+        operations to thread pools to avoid blocking the event loop.
+
         Args:
             texts (List[str]): List of texts to combine.
             question (str): The question or input prompt.
@@ -277,13 +307,17 @@ class AsyncTreeSummarizationStrategy(BaseSynthesisStrategy):
         Returns:
             Any: A response generator.
         """
-        fmt_prompts = []
-        for idx in range(0, len(texts), num_children):
-            logger.info(f"--- Creating prompts in batches of size {num_children} ... ---")
+        loop = asyncio.get_event_loop()
+
+        # Generate prompts for all batches concurrently
+        batch_tasks = []
+        for batch_idx, idx in enumerate(range(0, len(texts), num_children)):
             text_batch = texts[idx : idx + num_children]
-            context = "\n\n".join([t for t in text_batch])
-            fmt_qa_prompt = self.llm.generate_ctx_prompt(question=question, context=context)
-            fmt_prompts.append(fmt_qa_prompt)
+            batch_tasks.append(self.generate_batch_prompt_async(loop, question, num_children, batch_idx, text_batch))
+
+        batch_results = await asyncio.gather(*batch_tasks)
+        # Sort by batch index to maintain order
+        fmt_prompts = [prompt for _, prompt in sorted(batch_results, key=lambda x: x[0])]
 
         if len(fmt_prompts) == 1:
             logger.info("--- Generating final response ... ---")
@@ -296,10 +330,12 @@ class AsyncTreeSummarizationStrategy(BaseSynthesisStrategy):
             tasks = [self.llm.async_generate_answer(p, max_new_tokens=max_new_tokens) for p in fmt_prompts]
             combined_responses = await asyncio.gather(*tasks)
             new_texts = [str(r) for r in combined_responses]
+            cur_prompt_list.extend(fmt_prompts)
             return await self.combine_results(
                 new_texts,
                 question,
                 cur_prompt_list,
+                max_new_tokens=max_new_tokens,
                 num_children=num_children,
             )
 

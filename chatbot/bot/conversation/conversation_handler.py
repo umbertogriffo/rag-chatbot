@@ -1,5 +1,5 @@
+import asyncio
 import re
-from asyncio import get_event_loop
 from typing import Any
 
 import streamlit as st
@@ -122,8 +122,7 @@ def answer_with_context(
         return answer(llm, question, chat_history, max_new_tokens=max_new_tokens), []
 
     if isinstance(ctx_synthesis_strategy, AsyncTreeSummarizationStrategy):
-        loop = get_event_loop()
-        streamer, fmt_prompts = loop.run_until_complete(
+        streamer, fmt_prompts = asyncio.run(
             ctx_synthesis_strategy.generate_response(retrieved_contents, question, max_new_tokens=max_new_tokens)
         )
     else:
