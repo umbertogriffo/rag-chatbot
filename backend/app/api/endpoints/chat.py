@@ -1,5 +1,7 @@
 import json
+from datetime import datetime, timezone
 
+from bot.conversation.chat_history import ChatHistory
 from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
 from sqlmodel import Session, select
 
@@ -7,6 +9,7 @@ from backend.app.core.config import settings
 from backend.app.core.security import get_current_user, verify_token
 from backend.app.db.models import ChatMessage, ChatSession
 from backend.app.db.session import get_session
+from backend.app.llm_client import llm_client
 from backend.app.schemas.chat import (
     ChatMessageResponse,
     ChatRequest,
@@ -103,9 +106,6 @@ async def chat(
     db: Session = Depends(get_session),
 ):
     """Non-streaming chat endpoint. For streaming, use the WebSocket endpoint."""
-    from datetime import datetime, timezone
-
-    from chatbot.bot.conversation.chat_history import ChatHistory
 
     # Get or create session
     session_id = request.session_id
@@ -141,10 +141,16 @@ async def chat(
     # Generate response - this is a simplified non-streaming version
     # In practice, the LLM client needs to be initialized with a loaded model
     # For now, return a placeholder that indicates the API is working
+
+    full_response = llm_client.generate_answer(
+        prompt=request.message,
+        max_new_tokens=settings.DEFAULT_MAX_NEW_TOKENS,
+    )
     response_text = (
         f"[API Connected] Received: '{request.message}' "
         f"(model: {request.model_name or settings.DEFAULT_MODEL}, "
         f"rag: {request.use_rag}, k: {request.k})"
+        f"\n\n[LLM Response] {full_response}"
     )
     sources = None
 

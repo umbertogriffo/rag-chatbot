@@ -1,4 +1,3 @@
-import os
 from contextlib import asynccontextmanager
 
 import uvicorn
@@ -40,6 +39,7 @@ if __name__ == "__main__":
         app="main:app",
         host=settings.HOST,
         port=settings.PORT,
-        log_config=None,
-        workers=max(1, os.cpu_count() - 1),
+        # log_config=None,
+        # workers=max(1, os.cpu_count() - 1),
+        workers=1,
     )
