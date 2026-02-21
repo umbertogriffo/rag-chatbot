@@ -5,13 +5,14 @@ from fastapi import FastAPI, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from helpers.log import get_logger
+from llm_client import llm_client
 from pydantic import BaseModel
 
 logger = get_logger(__name__)
 
 # Import other necessary modules
 HOST = "0.0.0.0"
-PORT = int(os.getenv("PORT", "5433"))
+PORT = int(os.getenv("PORT", "8000"))
 ORIGINS = ["*"]
 
 MARKDOWN_RESPONSE = """ # Hi!
@@ -35,6 +36,7 @@ class ErrorContent:
 ```
 """
 app = FastAPI()
+
 
 # Enable CORS
 app.add_middleware(
@@ -73,10 +75,11 @@ def health():
 @app.post("/api/chat/")
 async def chat(query: Query):
     logger.info(query)
+    answer = llm_client.generate_answer(query.text)
     try:
         # Your existing LLM logic here
-        response = MARKDOWN_RESPONSE
-        return JSONResponse({"response": response})
+        # response = MARKDOWN_RESPONSE
+        return JSONResponse({"response": answer})
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": f"Failed to generate response: {str(e)}"})
 
