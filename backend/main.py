@@ -75,10 +75,11 @@ def health():
 @app.post("/api/chat/")
 async def chat(query: Query):
     logger.info(query)
-    answer = llm_client.generate_answer(query.text)
+
     try:
         # Your existing LLM logic here
         # response = MARKDOWN_RESPONSE
+        answer = llm_client.generate_answer(query.text)
         return JSONResponse({"response": answer})
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": f"Failed to generate response: {str(e)}"})
