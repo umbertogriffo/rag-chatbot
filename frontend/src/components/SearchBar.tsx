@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
     TextField,
     IconButton,
@@ -8,19 +8,22 @@ import {
 import SearchIcon from '@mui/icons-material/Search';
 import PsychologyIcon from '@mui/icons-material/Psychology';
 import LanguageIcon from '@mui/icons-material/Language';
+import DocumentScannerIcon from "@mui/icons-material/DocumentScanner";
 
 interface SearchBarProps {
     onSearch: (query: string, options: SearchOptions) => void;
 }
 
 interface SearchOptions {
+    rag: boolean;
     reasoning: boolean;
     webSearch: boolean;
 }
 
-export const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
+export const SearchBar: React.FC<SearchBarProps> = ({onSearch}) => {
     const [query, setQuery] = useState('');
     const [options, setOptions] = useState<SearchOptions>({
+        rag: false,
         reasoning: false,
         webSearch: false,
     });
@@ -40,7 +43,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
         }));
     };
 
-return (
+    return (
         <Paper
             component="form"
             onSubmit={handleSubmit}
@@ -52,7 +55,7 @@ return (
             }}
         >
             <TextField
-                sx={{ ml: 1, flex: 1, mx: 'auto'}}
+                sx={{ml: 1, flex: 1, mx: 'auto'}}
                 placeholder="Ask anything"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
@@ -61,17 +64,17 @@ return (
                 maxRows={4}
                 InputProps={{
                     disableUnderline: true,
-                    sx: { alignItems: 'flex-start' }
-            }}
+                    sx: {alignItems: 'flex-start'}
+                }}
             />
-            <Box sx={{ display: 'flex', gap: 1, mx: 'auto' }}>
+            <Box sx={{display: 'flex', gap: 1, mx: 'auto'}}>
                 <IconButton
-                    color={options.reasoning ? "primary" : "default"}
-                    onClick={() => toggleOption('reasoning')}
+                    color={options.rag ? "primary" : "default"}
+                    onClick={() => toggleOption('rag')}
                     size="small"
                     type="button"
                 >
-                    <PsychologyIcon />
+                    <DocumentScannerIcon/>
                 </IconButton>
                 <IconButton
                     color={options.webSearch ? "primary" : "default"}
@@ -79,10 +82,18 @@ return (
                     size="small"
                     type="button"
                 >
-                    <LanguageIcon />
+                    <LanguageIcon/>
+                </IconButton>
+                <IconButton
+                    color={options.reasoning ? "primary" : "default"}
+                    onClick={() => toggleOption('reasoning')}
+                    size="small"
+                    type="button"
+                >
+                    <PsychologyIcon/>
                 </IconButton>
                 <IconButton type="submit" size="small">
-                    <SearchIcon />
+                    <SearchIcon/>
                 </IconButton>
             </Box>
         </Paper>
