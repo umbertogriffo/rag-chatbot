@@ -20,7 +20,7 @@ export function useChat() {
       (token, done) => {
         setMessages((prev) => {
           const last = prev[prev.length - 1];
-          if (!last || last.sender !== 'bot' || !last.streaming) return prev;
+          if (last?.sender !== 'bot' || !last.streaming) return prev;
           const updated = { ...last, text: last.text + token, streaming: !done };
           return [...prev.slice(0, -1), updated];
         });
@@ -46,7 +46,6 @@ export function useChat() {
         setIsStreaming(false);
       },
     );
-    ws.connect();
     wsRef.current = ws;
     return () => ws.disconnect();
   }, []);
