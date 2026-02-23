@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     VERSION: str = "0.1.0"
     API_V1_PREFIX: str = "/api"
     HOST: str = "0.0.0.0"
-    PORT: int = 8080
+    PORT: int = 8000
 
     SECRET_KEY: str = secrets.token_urlsafe(32)
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 24 hours
@@ -29,8 +29,8 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "sqlite:///./rag_chatbot.db"
 
     MODEL_FOLDER: Path = ROOT_PATH / "models"
-    VECTOR_STORE_PATH: Path = Path("vector_store")
-    DOCS_PATH: Path = Path("docs")
+    VECTOR_STORE_PATH: Path = ROOT_PATH / Path("vector_store")
+    DOCS_PATH: Path = ROOT_PATH / Path("docs")
 
     DEFAULT_MODEL: str = "llama-3.1"
     DEFAULT_K: int = 2

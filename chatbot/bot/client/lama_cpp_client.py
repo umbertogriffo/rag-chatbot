@@ -100,7 +100,7 @@ class LamaCppClient:
 
         Notes:
             This method is thread-safe, It uses a lock to prevent concurrent calls.
-            The llama.cpp model and the itself is not thread-safe.
+            The llama.cpp model itself is not thread-safe.
             - Multi-threading concurrency, error reported -> https://github.com/abetlen/llama-cpp-python/issues/471
             - Segfault when trying to use __call__ multiple times -> https://github.com/marella/ctransformers/issues/38#issuecomment-1613627309
             - Model freezing when handling simultaneous user requests (is multi-threading issue?) -> https://github.com/abetlen/llama-cpp-python/issues/1995
@@ -167,20 +167,23 @@ class LamaCppClient:
         """
         Abstract method to start an answer iterator streamer for a given prompt.
 
+        This method is thread-safe, It uses a lock to prevent concurrent calls.
+
         Args:
             prompt (str): The input prompt for generating the answer.
             max_new_tokens (int): The maximum number of new tokens to generate (default is 1000).
 
         """
-        stream = self.llm.create_chat_completion(
-            messages=[
-                {"role": "system", "content": self.model_settings.system_template},
-                {"role": "user", "content": f"{prompt}"},
-            ],
-            max_tokens=max_new_tokens,
-            stream=True,
-            **self.model_settings.config_answer,
-        )
+        with self._lock:
+            stream = self.llm.create_chat_completion(
+                messages=[
+                    {"role": "system", "content": self.model_settings.system_template},
+                    {"role": "user", "content": f"{prompt}"},
+                ],
+                max_tokens=max_new_tokens,
+                stream=True,
+                **self.model_settings.config_answer,
+            )
 
         return stream
 

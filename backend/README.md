@@ -1,4 +1,4 @@
-## Setting up the project
+# Backend Setup Instructions
 
 To run the application:
 Start the backend:

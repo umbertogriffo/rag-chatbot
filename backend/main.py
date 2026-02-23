@@ -1,89 +1,47 @@
-import os
+from contextlib import asynccontextmanager
 
 import uvicorn
-from fastapi import FastAPI, status
+from api.routes import api_router
+from core.config import settings
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
 from helpers.log import get_logger
-from llm_client import llm_client
-from pydantic import BaseModel
 
 logger = get_logger(__name__)
 
-# Import other necessary modules
-HOST = "0.0.0.0"
-PORT = int(os.getenv("PORT", "8000"))
-ORIGINS = ["*"]
 
-MARKDOWN_RESPONSE = """ # Hi!
-I'm currently in development. I'll be ready to help you soon!
-
-## Header
-
-Bold: **bold text**
-
-Italic: *italic text*
-
-Code: `code`
-
-- Go fuck yourself!
-
-```
-@dataclass
-class ErrorContent:
-    message: str
-    code: int
-```
-"""
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # create_db_and_tables()
+    yield
 
 
-# Enable CORS
+app = FastAPI(
+    title=settings.PROJECT_NAME,
+    version=settings.VERSION,
+    openapi_url=f"{settings.API_V1_PREFIX}/openapi.json",
+    lifespan=lifespan,
+)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=ORIGINS,
+    allow_origins=settings.CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+app.include_router(api_router, prefix=settings.API_V1_PREFIX)
 
-class Query(BaseModel):
-    text: str
-    reasoning: bool
-    web_search: bool
-
-
-@app.get("/")
-def read_root():
-    return {"message": "Chat-bot"}
-
-
-@app.get(
-    "/health",
-    summary="Perform a simple health check",
-    status_code=status.HTTP_200_OK,
-    response_description="Return HTTP 200",
-)
-def health():
-    """
-    Performs a simple health check.
-    """
-    return {"status": "OK"}
-
-
-@app.post("/api/chat/")
-async def chat(query: Query):
-    logger.info(query)
-
-    try:
-        # Your existing LLM logic here
-        # response = MARKDOWN_RESPONSE
-        answer = llm_client.generate_answer(query.text)
-        return JSONResponse({"response": answer})
-    except Exception as e:
-        return JSONResponse(status_code=500, content={"error": f"Failed to generate response: {str(e)}"})
-
+# Note: A single Uvicorn worker is probably what you would want to use when using a distributed container
+# management system like Kubernetes.
 
 if __name__ == "__main__":
-    uvicorn.run(app, host=HOST, port=PORT)
+    uvicorn.run(
+        app="main:app",
+        host=settings.HOST,
+        port=settings.PORT,
+        # log_config=None,
+        # workers=max(1, os.cpu_count() - 1),
+        workers=1,
+    )
