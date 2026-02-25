@@ -93,4 +93,3 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, disabled }) => {
 };
 
 export default SearchBar;
-
