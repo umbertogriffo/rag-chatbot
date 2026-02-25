@@ -1,92 +1,66 @@
 import React from 'react';
-import { Paper, Box, Typography, Avatar } from '@mui/material';
-import SmartToyIcon from '@mui/icons-material/SmartToy';
-import PersonIcon from '@mui/icons-material/Person';
-import Markdown from "react-markdown";
+import Markdown from 'react-markdown';
 
-
-interface Message {
+export interface Message {
+  id?: number;
   text: string;
   sender: 'user' | 'bot';
   timestamp: Date;
+  streaming?: boolean;
 }
 
 interface ChatWindowProps {
   messages: Message[];
 }
 
-const MessageBubble: React.FC<Message> = ({ text, sender, timestamp }: Message) => (
-  <Box
-    sx={{
-      display: 'flex',
-      alignItems: 'flex-start',
-      gap: 1,
-      mb: 2,
-      flexDirection: 'row',
-    }}
-  >
-    <Avatar sx={{ bgcolor: sender === 'user' ? 'primary.main' : 'secondary.main' }}>
-      {sender === 'user' ? <PersonIcon /> : <SmartToyIcon />}
-    </Avatar>
-    <Box
-      sx={{
-        maxWidth: '100%',
-        p: 2,
-        borderRadius: 2,
-        bgcolor: sender === 'user' ? 'primary.light' : 'grey.100', textAlign: 'left',
-      }}
+const MessageBubble: React.FC<Message> = ({ text, sender, timestamp, streaming }) => (
+  <div className="flex items-start gap-3 mb-4">
+    <div
+      className={`flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center text-sm font-bold ${
+        sender === 'user' ? 'bg-green-600 text-white' : 'bg-gray-600 text-gray-200'
+      }`}
     >
-        <Markdown>{text}</Markdown>
-      <Typography variant="caption" sx={{ display: 'block', mt: 1, opacity: 0.7 }}>
+      {sender === 'user' ? 'U' : '🤖'}
+    </div>
+    <div className="flex-1 min-w-0">
+      <div
+        className={`rounded-2xl px-4 py-2 text-sm leading-relaxed ${
+          sender === 'user'
+            ? 'bg-green-700 text-white'
+            : 'bg-gray-800 text-gray-100'
+        }`}
+      >
+        <div className="prose prose-invert prose-sm max-w-none">
+          <Markdown>{text}</Markdown>
+        </div>
+        {streaming && (
+          <span className="inline-block w-1.5 h-4 ml-0.5 bg-green-400 animate-pulse align-middle" />
+        )}
+      </div>
+      <span className="block mt-1 text-xs text-gray-500">
         {timestamp.toLocaleTimeString()}
-      </Typography>
-    </Box>
-  </Box>
+      </span>
+    </div>
+  </div>
 );
 
-
 const ChatWindow: React.FC<ChatWindowProps> = ({ messages }) => {
-
-const messagesEndRef = React.useRef<null | HTMLDivElement>(null);
+  const endRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    endRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  if (messages.length === 0) {
-    return null;
-  }
+  if (messages.length === 0) return null;
 
   return (
-    <Paper
-      sx={{
-        mt: 2,
-        p: 2,
-        height: '60vh',
-        overflow: 'auto',
-        width: '100%',
-        '&::-webkit-scrollbar': {
-          width: '8px',
-        },
-        '&::-webkit-scrollbar-track': {
-          background: '#f1f1f1',
-          borderRadius: '4px',
-        },
-        '&::-webkit-scrollbar-thumb': {
-          background: '#888',
-          borderRadius: '4px',
-          '&:hover': {
-            background: '#555',
-          },
-        },
-      }}>
-      {messages.map((message, index) => (
-        <MessageBubble key={index} {...message} />
+    <div className="flex-1 overflow-y-auto px-4 py-4 space-y-1 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent">
+      {messages.map((msg, idx) => (
+        <MessageBubble key={msg.id ?? idx} {...msg} />
       ))}
-      <div ref={messagesEndRef} />
-    </Paper>
+      <div ref={endRef} />
+    </div>
   );
 };
 
-export type { Message };
 export default ChatWindow;
