@@ -1,16 +1,19 @@
 from core.config import settings
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from helpers.log import get_logger
-from llm_client import llm_client
 from schemas.chat import ChatRequest
+
+from api.deps import LamaCppClientDep
 
 logger = get_logger(__name__)
 
 router = APIRouter()
 
 
-@router.websocket("/chat/stream")
-async def chat_stream(websocket: WebSocket):
+@router.websocket(
+    path="/chat/stream",
+)
+async def chat_stream(websocket: WebSocket, llm_client: LamaCppClientDep):
     """WebSocket endpoint for streaming chat responses token by token."""
     await websocket.accept()
     logger.info("WebSocket connection accepted")
@@ -36,3 +39,4 @@ async def chat_stream(websocket: WebSocket):
         logger.info("WebSocket client disconnected")
     except Exception as e:
         logger.exception(f"Unexpected error in WebSocket handler: {e}")
+        raise

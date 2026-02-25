@@ -26,7 +26,7 @@ export async function uploadDocument(
   formData.append('file', file);
 
   const response = await axios.post<DocumentUploadResponse>(
-    `${API_BASE}/api/documents`,
+    `${API_BASE}/documents`,
     formData,
     {
       headers: { 'Content-Type': 'multipart/form-data' },
@@ -41,10 +41,10 @@ export async function uploadDocument(
 }
 
 export async function listDocuments(): Promise<DocumentListResponse> {
-  const response = await axios.get<DocumentListResponse>(`${API_BASE}/api/documents`);
+  const response = await axios.get<DocumentListResponse>(`${API_BASE}/documents`);
   return response.data;
 }
 
 export async function deleteDocument(documentId: string): Promise<void> {
-  await axios.delete(`${API_BASE}/api/documents/${documentId}`);
+  await axios.delete(`${API_BASE}/documents/${documentId}`);
 }

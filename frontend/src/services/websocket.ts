@@ -10,7 +10,7 @@ const WS_BASE = (() => {
   return `${proto}://${window.location.host}`;
 })();
 
-const WS_URL = `${WS_BASE}/api/chat/stream`;
+const WS_URL = `${WS_BASE}/chat/stream`;
 
 export class ChatWebSocket {
   private ws: WebSocket | null = null;
