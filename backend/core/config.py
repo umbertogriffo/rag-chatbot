@@ -40,7 +40,7 @@ class Settings(BaseSettings):
     DEFAULT_SYNTHESIS_STRATEGY: str = "async-tree-summarization"
 
     WEBSOCKET_MAX_SIZE: int = 10 * 1024 * 1024  # 10 MB
-    ALLOWED_UPLOAD_EXTENSIONS: list[str] = [".md", ".txt", ".pdf", ".html"]
+    ALLOWED_UPLOAD_EXTENSIONS: list[str] = [".md"]
 
 
 settings = Settings()

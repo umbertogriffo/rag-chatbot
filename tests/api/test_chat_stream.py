@@ -70,5 +70,3 @@ def test_chat_stream_connection_and_disconnection(client: TestClient):
         # Receive at least one response
         response = websocket.receive_json()
         assert response is not None
-
-    # Connection closed without errors
