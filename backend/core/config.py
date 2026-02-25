@@ -32,7 +32,7 @@ class Settings(BaseSettings):
     VECTOR_STORE_PATH: Path = ROOT_PATH / Path("vector_store")
     DOCS_PATH: Path = ROOT_PATH / Path("docs")
 
-    DEFAULT_MODEL: str = "llama-3.1"
+    DEFAULT_MODEL: str = "llama-3.2:1b"
     DEFAULT_K: int = 2
     DEFAULT_MAX_NEW_TOKENS: int = 512
     DEFAULT_CHUNK_SIZE: int = 1000
