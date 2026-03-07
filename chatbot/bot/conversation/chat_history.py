@@ -30,5 +30,5 @@ class ChatHistory(list):
         Returns:
             str: The chat history concatenated into a single string, with each message separated by a newline.
         """
-        chat_history = "\n".join([msg for msg in self])
+        chat_history = "\n".join(list(self))
         return chat_history
