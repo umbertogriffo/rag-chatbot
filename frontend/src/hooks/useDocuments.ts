@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { deleteDocument, DocumentInfo, listDocuments, uploadDocument } from '../services/api';
+import { type DocumentInfo, listDocuments } from '../services/api';
 
 export interface UploadProgress {
   filename: string;
@@ -24,8 +24,10 @@ export function useDocuments() {
     void fetchDocuments();
   }, [fetchDocuments]);
 
+  // Keep upload/remove for backward compat, but also expose setters
   const upload = useCallback(
     async (file: File) => {
+      const { uploadDocument } = await import('../services/api');
       setError(null);
       setUploading({ filename: file.name, progress: 0 });
       try {
@@ -45,6 +47,7 @@ export function useDocuments() {
 
   const remove = useCallback(
     async (documentId: string) => {
+      const { deleteDocument } = await import('../services/api');
       setError(null);
       try {
         await deleteDocument(documentId);
@@ -56,5 +59,5 @@ export function useDocuments() {
     [],
   );
 
-  return { documents, uploading, error, upload, remove };
+  return { documents, uploading, error, upload, remove, setDocuments, setUploading, setError };
 }

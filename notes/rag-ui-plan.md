@@ -14,6 +14,8 @@ Steps
 
 https://v0.app/chat
 
+### Prompt full
+
 Implementation of a high-fidelity, premium web UI for a modern AI chatbot as follows:
 
 - **Layout**:
@@ -44,7 +46,7 @@ Implementation of a high-fidelity, premium web UI for a modern AI chatbot as fol
 **Deliverable**:
 A responsive React component (or set of components) + Vite implementing the above features and styles using Tailwind CSS.
 
-------
+### Prompt without sidebar
 
 Implementation of a high-fidelity, premium web UI for a modern AI chatbot as follows:
 
