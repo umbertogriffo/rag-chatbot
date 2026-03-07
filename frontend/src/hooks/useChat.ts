@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { flushSync } from 'react-dom';
 import { ChatWebSocket } from '../services/websocket';
 
 export interface Message {
@@ -6,7 +7,6 @@ export interface Message {
   text: string;
   sender: 'user' | 'bot';
   timestamp: Date;
-  streaming?: boolean;
 }
 
 export function useChat() {
@@ -17,20 +17,22 @@ export function useChat() {
 
   useEffect(() => {
     const ws = new ChatWebSocket(
-      (token, done) => {
-        setMessages((prev) => {
-          const last = prev[prev.length - 1];
-          if (last?.sender !== 'bot' || !last.streaming) return prev;
-          const updated = { ...last, text: last.text + token, streaming: !done };
-          return [...prev.slice(0, -1), updated];
+      (token) => {
+        flushSync(() => {
+          setIsStreaming(false);
+          setMessages((prev) => {
+            const last = prev[prev.length - 1];
+            if (last?.sender !== 'bot') return prev;
+            const updated = { ...last, text: last.text + token };
+            return [...prev.slice(0, -1), updated];
+          });
         });
-        if (done) setIsStreaming(false);
       },
       (error) => {
         setMessages((prev) => {
           const last = prev[prev.length - 1];
-          if (last?.sender === 'bot' && last.streaming) {
-            const updated = { ...last, text: `Error: ${error}`, streaming: false };
+          if (last?.sender === 'bot') {
+            const updated = { ...last, text: `Error: ${error}` };
             return [...prev.slice(0, -1), updated];
           }
           return [
@@ -64,7 +66,6 @@ export function useChat() {
       text: '',
       sender: 'bot',
       timestamp: new Date(),
-      streaming: true,
     };
 
     setMessages((prev) => [...prev, userMsg, botPlaceholder]);

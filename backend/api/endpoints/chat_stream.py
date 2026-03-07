@@ -30,11 +30,10 @@ async def chat_stream(websocket: WebSocket, llm_client: LamaCppClientDep):
                 for output in stream:
                     token = llm_client.parse_token(output)
                     if token:
-                        await websocket.send_json({"token": token, "done": False})
-                await websocket.send_json({"token": "", "done": True})
+                        await websocket.send_text(token)
             except Exception as exc:
                 logger.exception("Error during streaming: %s", exc)
-                await websocket.send_json({"error": str(exc), "done": True})
+                await websocket.send_text("Error during streaming.")
     except WebSocketDisconnect:
         logger.info("WebSocket client disconnected")
     except Exception as e:

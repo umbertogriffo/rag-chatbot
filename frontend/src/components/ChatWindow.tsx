@@ -6,14 +6,13 @@ export interface Message {
   text: string;
   sender: 'user' | 'bot';
   timestamp: Date;
-  streaming?: boolean;
 }
 
 interface ChatWindowProps {
   messages: Message[];
 }
 
-const MessageBubble: React.FC<Message> = ({ text, sender, timestamp, streaming }) => (
+const MessageBubble: React.FC<Message> = ({ text, sender, timestamp }) => (
   <div className="flex items-start gap-3 mb-4">
     <div
       className={`flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center text-sm font-bold ${
@@ -33,9 +32,6 @@ const MessageBubble: React.FC<Message> = ({ text, sender, timestamp, streaming }
         <div className="prose prose-invert prose-sm max-w-none">
           <Markdown>{text}</Markdown>
         </div>
-        {streaming && (
-          <span className="inline-block w-1.5 h-4 ml-0.5 bg-green-400 animate-pulse align-middle" />
-        )}
       </div>
       <span className="block mt-1 text-xs text-gray-500">
         {timestamp.toLocaleTimeString()}

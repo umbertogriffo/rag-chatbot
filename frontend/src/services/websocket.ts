@@ -1,4 +1,4 @@
-export type TokenHandler = (token: string, done: boolean) => void;
+export type TokenHandler = (token: string) => void;
 export type ErrorHandler = (error: string) => void;
 
 const WS_BASE = (() => {
@@ -49,21 +49,7 @@ export class ChatWebSocket {
       };
 
       this.ws.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data as string) as {
-            token?: string;
-            done?: boolean;
-            error?: string;
-          };
-          if (data.error) {
-            this.onError(data.error);
-          } else {
-            this.onToken(data.token ?? '', data.done ?? false);
-          }
-          // Keep connection alive for next message
-        } catch {
-          this.onError('Failed to parse server message');
-        }
+        this.onToken(event.data as string);
       };
 
       this.ws.onerror = () => {
