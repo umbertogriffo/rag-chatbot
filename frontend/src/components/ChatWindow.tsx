@@ -1,7 +1,7 @@
 import React from 'react';
 import Markdown from 'react-markdown';
 
-export interface Message {
+interface Message {
   id?: number;
   text: string;
   sender: 'user' | 'bot';

@@ -1,5 +1,5 @@
-export type TokenHandler = (token: string) => void;
-export type ErrorHandler = (error: string) => void;
+type TokenHandler = (token: string) => void;
+type ErrorHandler = (error: string) => void;
 
 const WS_BASE = (() => {
   const apiUrl = import.meta.env.VITE_API_URL ?? '';

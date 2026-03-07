@@ -9,12 +9,12 @@ export interface DocumentInfo {
   content_type: string;
 }
 
-export interface DocumentUploadResponse {
+interface DocumentUploadResponse {
   document_id: string;
   filename: string;
 }
 
-export interface DocumentListResponse {
+interface DocumentListResponse {
   documents: DocumentInfo[];
 }
 

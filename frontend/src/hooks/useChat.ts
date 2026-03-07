@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { ChatWebSocket } from '../services/websocket';
 
-export interface Message {
+interface Message {
   id: number;
   text: string;
   sender: 'user' | 'bot';
