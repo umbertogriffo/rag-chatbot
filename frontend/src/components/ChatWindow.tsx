@@ -6,13 +6,14 @@ export interface Message {
   text: string;
   sender: 'user' | 'bot';
   timestamp: Date;
+  isStreaming?: boolean;
 }
 
 interface ChatWindowProps {
   messages: Message[];
 }
 
-const MessageBubble: React.FC<Message> = ({ text, sender, timestamp }) => (
+const MessageBubble: React.FC<Message> = ({ text, sender, timestamp, isStreaming }) => (
   <div className="flex items-start gap-3 mb-4">
     <div
       className={`flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center text-sm font-bold ${
@@ -31,6 +32,9 @@ const MessageBubble: React.FC<Message> = ({ text, sender, timestamp }) => (
       >
         <div className="prose prose-invert prose-sm max-w-none">
           <Markdown>{text}</Markdown>
+          {isStreaming && (
+            <span className="inline-block w-2 h-4 ml-1 bg-green-400 animate-pulse rounded-sm align-middle" />
+          )}
         </div>
       </div>
       <span className="block mt-1 text-xs text-gray-500">
