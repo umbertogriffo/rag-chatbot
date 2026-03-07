@@ -48,7 +48,7 @@ yarn knip
 ```
 
 We also installed the following ESLint plugins for better code quality and performance:
-- `eslint-plugin-sonarjs` provides a collection of rules to detect bugs and suspicious patterns in your code.
+- [eslint-plugin-sonarjs](https://github.com/SonarSource/SonarJS/blob/master/packages/jsts/src/rules/README.md) provides a collection of rules to detect bugs and suspicious patterns in your code.
 - `eslint-plugin-react-perf` provides React-specific lint rules to improve performance and best practices in React applications.
 
 To run ESLint with the recommended configuration, use:

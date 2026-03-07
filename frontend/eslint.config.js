@@ -1,22 +1,21 @@
-import js from '@eslint/js'
-import globals from 'globals'
-import tseslint from 'typescript-eslint'
+import typescriptEslint from 'typescript-eslint'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 import sonarjs from 'eslint-plugin-sonarjs'
 import reactPerf from 'eslint-plugin-react-perf'
 
-export default tseslint.config(
-    {ignores: ['dist']},
+export default typescriptEslint.config(
     {
-        extends: [
-            js.configs.recommended,
-            ...tseslint.configs.recommended,
-        ],
+        ignores: ['**/dist/**', '**/node_modules/**', '**/build/**', '**/generated/**'],
         files: ['**/*.{ts,tsx}'],
+        extends: [
+            ...typescriptEslint.configs.recommended,
+        ],
         languageOptions: {
-            ecmaVersion: 2020,
-            globals: globals.browser,
+            parserOptions: {
+                project: ['./tsconfig.node.json', './tsconfig.app.json'],
+                tsconfigRootDir: import.meta.dirname,
+            },
         },
         plugins: {
             'react-hooks': reactHooks,
@@ -26,7 +25,7 @@ export default tseslint.config(
         },
         rules: {
             ...reactHooks.configs.recommended.rules,
-            'sonarjs/no-implicit-dependencies': 'error',
+            ...sonarjs.configs.recommended.rules,
             'react-refresh/only-export-components': [
                 'warn',
                 {allowConstantExport: true},
@@ -34,6 +33,6 @@ export default tseslint.config(
             'react-perf/jsx-no-new-object-as-prop': 'warn',
             'react-perf/jsx-no-new-array-as-prop': 'warn',
             'react-perf/jsx-no-new-function-as-prop': 'warn',
-        },
-    },
+        }
+    }
 )
