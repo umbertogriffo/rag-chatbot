@@ -13,7 +13,9 @@ Currently, two official plugins are available:
 
 ```shell
 # Install frontend dependencies
-cd frontend && yarn
+cd frontend
+nvm use
+yarn
 
 # Create .env file
 echo "VITE_API_URL=http://localhost:8000" > .env
