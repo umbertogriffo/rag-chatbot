@@ -35,7 +35,7 @@ cd frontend && yarn dev
 
 The application will be available at http://localhost:5173, with the backend API at http://localhost:5433.
 
-## Linting
+## Linting and dependency management
 
 Knip finds and fixes unused dependencies, exports and files. Use it for enhanced code and dependency management.
 
@@ -43,6 +43,15 @@ Install it https://knip.dev/overview/getting-started and run it in the frontend 
 
 ```shell
 yarn knip
+```
+
+We also installed the following ESLint plugins for better code quality and performance:
+- `eslint-plugin-sonarjs` provides a collection of rules to detect bugs and suspicious patterns in your code.
+- `eslint-plugin-react-perf` provides React-specific lint rules to improve performance and best practices in React applications.
+
+To run ESLint with the recommended configuration, use:
+```shell
+yarn lint
 ```
 
 ## Expanding the ESLint configuration
