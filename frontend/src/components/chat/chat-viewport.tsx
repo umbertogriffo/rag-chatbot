@@ -45,10 +45,10 @@ function EmptyState() {
         {/* Welcome Text */}
         <div className="space-y-3">
           <h1 className="text-3xl font-semibold text-foreground tracking-tight text-balance">
-            Welcome to Nova AI
+            Welcome to Autara AI
           </h1>
           <p className="text-muted-foreground text-lg leading-relaxed max-w-md mx-auto text-pretty">
-            Your intelligent assistant for conversations, document analysis, and research.
+            Your intelligent assistant for conversations, document Q&A, and research.
           </p>
         </div>
 
@@ -91,16 +91,16 @@ function EmptyState() {
 
 const capabilities = [
   {
-    title: "Document Analysis",
-    description: "Upload PDFs, code, or text files for intelligent analysis and Q&A.",
+    title: "Document Q&A",
+    description: "Upload Markdown files for Q&A.",
   },
   {
-    title: "Deep Reasoning",
-    description: "Enable step-by-step reasoning for complex problem solving.",
+    title: "(WIP) Deep Reasoning",
+    description: "(WIP) Enable step-by-step reasoning for complex problem solving.",
   },
   {
-    title: "Web Research",
-    description: "Search the web in real-time to find current information.",
+    title: "(WIP) Web Research",
+    description: "(WIP) Search the web in real-time to find current information.",
   },
 ]
 

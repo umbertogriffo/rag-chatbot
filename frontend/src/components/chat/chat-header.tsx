@@ -19,8 +19,8 @@ export function ChatHeader({ onNewChat, disabled }: ChatHeaderProps) {
             </div>
           </div>
           <div>
-            <h1 className="font-semibold text-foreground tracking-tight">Nova AI</h1>
-            <p className="text-xs text-muted-foreground">Powered by advanced AI</p>
+            <h1 className="font-semibold text-foreground tracking-tight">Autara AI</h1>
+            <p className="text-xs text-muted-foreground">Powered by llamacpp and Chroma</p>
           </div>
         </div>
 

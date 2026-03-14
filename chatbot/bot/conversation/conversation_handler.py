@@ -1,7 +1,6 @@
 import re
 from typing import Any
 
-import streamlit as st
 from entities.document import Document
 from helpers.log import get_logger
 
@@ -185,7 +184,6 @@ async def stream_response_with_reasoning(
         - The reasoning portion is identified and displayed separately using start and stop tags.
         - The response is updated token by token, with a cursor ("▌") indicating ongoing generation.
     """
-    message_placeholder = st.empty()
     full_response = ""
     reasoning_response = ""
     inside_think = False
@@ -207,9 +205,5 @@ async def stream_response_with_reasoning(
             reasoning_response += parsed_token
         else:
             full_response += llm.parse_token(token)
-
-        message_placeholder.markdown(reasoning_response + full_response + "▌")
-
-    message_placeholder.markdown(reasoning_response + full_response)
 
     return full_response, reasoning_response
