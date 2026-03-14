@@ -4,8 +4,15 @@ from pathlib import Path
 from typing import Annotated
 
 from core.config import settings
+from entities.document import Document
 from fastapi import APIRouter, File, HTTPException, UploadFile
+from helpers.log import get_logger
+from memory_builder import split_chunks
 from schemas.documents import DocumentInfo, DocumentListResponse, DocumentUploadResponse
+
+from api.deps import VectorDatabaseDep
+
+logger = get_logger(__name__)
 
 router = APIRouter()
 
@@ -13,13 +20,30 @@ router = APIRouter()
 _documents: dict[str, DocumentInfo] = {}
 
 
-def get_documents_store() -> dict[str, DocumentInfo]:
-    return _documents
+@router.post(
+    "/documents",
+    response_model=DocumentUploadResponse,
+    status_code=201,
+    responses={
+        400: {"description": "Bad Request - Invalid file type."},
+        409: {"description": "Conflict - Document with the same filename already exists."},
+    },
+)
+async def upload_document(file: Annotated[UploadFile, File(...)], index: VectorDatabaseDep):
+    """
+    Upload a document to the knowledge base.
 
+    Args:
+        file: The file to upload. Must have an allowed extension.
+        index: Vector database dependency for storing document chunks.
 
-@router.post("/documents", response_model=DocumentUploadResponse, status_code=201)
-async def upload_document(file: Annotated[UploadFile, File(...)]):
-    """Upload a document to the knowledge base."""
+    Returns:
+        DocumentUploadResponse containing the generated document_id and filename.
+
+    Raises:
+        HTTPException: 400 if file type is not supported.
+        HTTPException: 409 if a document with the same filename already exists.
+    """
     suffix = Path(file.filename or "").suffix.lower()
     if suffix not in settings.ALLOWED_UPLOAD_EXTENSIONS:
         raise HTTPException(
@@ -50,23 +74,68 @@ async def upload_document(file: Annotated[UploadFile, File(...)]):
     )
     _documents[document_id] = doc_info
 
+    document = Document(
+        page_content=content.decode("utf-8"),
+        metadata={
+            "source": str(file_path),
+            "document_id": document_id,
+            "filename": file.filename,
+            "content_type": file.content_type,
+            "size": len(content),
+        },
+    )
+    chunks = split_chunks(
+        [document], chunk_size=settings.DEFAULT_CHUNK_SIZE, chunk_overlap=settings.DEFAULT_CHUNK_OVERLAP
+    )
+    num_chunks = len(chunks)
+
+    logger.info(f"Number of generated chunks: {num_chunks}")
+    logger.info("Adding document chunks to the vector database index...")
+
+    index.from_chunks(chunks)
+
+    logger.info("Memory Index has been updated successfully!")
+
     return DocumentUploadResponse(document_id=document_id, filename=doc_info.filename)
 
 
 @router.get("/documents", response_model=DocumentListResponse)
 async def list_documents():
-    """List all uploaded documents."""
+    """
+    List all uploaded documents.
+
+    Returns:
+        DocumentListResponse containing a list of all document metadata.
+    """
     return DocumentListResponse(documents=list(_documents.values()))
 
 
-@router.delete("/documents/{document_id}", status_code=204)
-async def delete_document(document_id: str):
-    """Delete a document from the knowledge base."""
+@router.delete(
+    "/documents/{document_id}",
+    status_code=204,
+    responses={404: {"description": "Not Found - Document with the given ID does not exist."}},
+)
+async def delete_document(document_id: str, index: VectorDatabaseDep):
+    """
+    Delete a document from the knowledge base.
+
+    Removes the document's metadata, associated file from disk, and should remove
+    chunks from the vector database index (currently not fully implemented).
+
+    Args:
+        document_id: The unique identifier of the document to delete.
+        index: Vector database dependency for removing document chunks.
+
+    Raises:
+        HTTPException: 404 if the document with the given ID is not found.
+    """
     if document_id not in _documents:
         raise HTTPException(status_code=404, detail=f"Document '{document_id}' not found.")
 
     dest_dir = settings.DOCS_PATH / document_id
     if dest_dir.exists():
         shutil.rmtree(dest_dir)
+
+    # TODO: implement an efficient way to remove all chunks associated with this document from the vector database index
 
     del _documents[document_id]

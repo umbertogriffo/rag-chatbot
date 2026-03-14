@@ -1,4 +1,3 @@
-import asyncio
 import re
 from typing import Any
 
@@ -96,7 +95,7 @@ async def answer(llm: LamaCppClient, question: str, chat_history: ChatHistory, m
         return streamer
 
 
-def answer_with_context(
+async def answer_with_context(
     llm: LamaCppClient,
     ctx_synthesis_strategy: BaseSynthesisStrategy,
     question: str,
@@ -121,16 +120,18 @@ def answer_with_context(
         tuple: A tuple containing the answer streamer and formatted prompts.
     """
     if not retrieved_contents:
-        return answer(llm, question, chat_history, max_new_tokens=max_new_tokens), []
+        return await answer(llm, question, chat_history, max_new_tokens=max_new_tokens), []
 
     if isinstance(ctx_synthesis_strategy, AsyncTreeSummarizationStrategy):
-        streamer, fmt_prompts = asyncio.run(
-            ctx_synthesis_strategy.generate_response(retrieved_contents, question, max_new_tokens=max_new_tokens)
+        streamer, fmt_prompts = await ctx_synthesis_strategy.generate_response(
+            retrieved_contents, question, max_new_tokens=max_new_tokens
         )
+
     else:
         streamer, fmt_prompts = ctx_synthesis_strategy.generate_response(
             retrieved_contents, question, max_new_tokens=max_new_tokens
         )
+
     return streamer, fmt_prompts
 
 

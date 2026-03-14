@@ -31,14 +31,14 @@ def load_documents(docs_path: Path) -> list[Document]:
     return loader.load()
 
 
-def split_chunks(sources: list, chunk_size: int = 512, chunk_overlap: int = 25) -> list:
+def split_chunks(sources: list, chunk_size: int = 1000, chunk_overlap: int = 50) -> list:
     """
     Splits a list of sources into smaller chunks.
 
     Args:
         sources (List): The list of sources to be split into chunks.
-        chunk_size (int, optional): The maximum size of each chunk. Defaults to 512.
-        chunk_overlap (int, optional): The amount of overlap between consecutive chunks. Defaults to 25.
+        chunk_size (int, optional): The maximum size of each chunk. Defaults to 1000.
+        chunk_overlap (int, optional): The amount of overlap between consecutive chunks. Defaults to 50.
 
     Returns:
         List: A list of smaller chunks obtained from the input sources.
@@ -73,16 +73,16 @@ def get_args() -> argparse.Namespace:
     parser.add_argument(
         "--chunk-size",
         type=int,
-        help="The maximum size of each chunk. Defaults to 512.",
+        help="The maximum size of each chunk. Defaults to 1000.",
         required=False,
-        default=512,
+        default=1000,
     )
     parser.add_argument(
         "--chunk-overlap",
         type=int,
-        help="The amount of overlap between consecutive chunks. Defaults to 25.",
+        help="The amount of overlap between consecutive chunks. Defaults to 50.",
         required=False,
-        default=25,
+        default=50,
     )
 
     return parser.parse_args()

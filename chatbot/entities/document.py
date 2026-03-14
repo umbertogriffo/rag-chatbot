@@ -1,9 +1,7 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Literal
-
-from pydantic import Field
 
 
 @dataclass
@@ -12,7 +10,7 @@ class Document:
 
     page_content: str
     """String text."""
-    metadata: dict = Field(default_factory=dict)
+    metadata: dict = field(default_factory=dict)
     """Arbitrary metadata about the page content (e.g., source, relationships to other
         documents, etc.).
     """
