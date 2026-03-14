@@ -39,16 +39,13 @@
 
 ## Introduction
 
-This project combines the power
-of [Lama.cpp](https://github.com/abetlen/llama-cpp-python), [Chroma](https://github.com/chroma-core/chroma)
-and [Streamlit](https://discuss.streamlit.io/) to build:
+This project combines the power of [llama.cpp](https://github.com/abetlen/llama-cpp-python) and [Chroma](https://github.com/chroma-core/chroma) to build:
 
 * a Conversation-aware Chatbot (ChatGPT like experience).
 * a RAG (Retrieval-augmented generation) ChatBot.
 
 The RAG Chatbot works by taking a collection of Markdown files as input and, when asked a question, provides the
-corresponding answer
-based on the context provided by those files.
+corresponding answer based on the context provided by those files.
 
 ![rag-chatbot-architecture-1.png](images/rag-chatbot-architecture-1.png)
 
@@ -59,8 +56,7 @@ based on the context provided by those files.
 The `Memory Builder` component of the project loads Markdown pages from the `docs` folder.
 It then divides these pages into smaller sections, calculates the embeddings (a numerical representation) of these
 sections with the [all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2)
-`sentence-transformer`, and saves them in an embedding database called [Chroma](https://github.com/chroma-core/chroma)
-for later use.
+`sentence-transformer`, and saves them in an embedding database called [Chroma](https://github.com/chroma-core/chroma) for later use.
 
 When a user asks a question, the RAG ChatBot retrieves the most relevant sections from the Embedding database.
 Since the original question can't be always optimal to retrieve for the LLM, we first prompt an LLM to rewrite the
