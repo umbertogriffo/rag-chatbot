@@ -2060,18 +2060,6 @@ sql = ["duckdb (>=1.1)", "sqlparse"]
 sqlframe = ["sqlframe (>=3.22.0,!=3.39.3)"]
 
 [[package]]
-name = "nest-asyncio"
-version = "1.5.9"
-description = "Patch asyncio to allow nested event loops"
-optional = false
-python-versions = ">=3.5"
-groups = ["main"]
-files = [
-    {file = "nest_asyncio-1.5.9-py3-none-any.whl", hash = "sha256:61ec07ef052e72e3de22045b81b2cc7d71fceb04c568ba0b2e4b2f9f5231bec2"},
-    {file = "nest_asyncio-1.5.9.tar.gz", hash = "sha256:d1e1144e9c6e3e6392e0fcf5211cb1c8374b5648a98f1ebe48e5336006b41907"},
-]
-
-[[package]]
 name = "networkx"
 version = "3.6.1"
 description = "Python package for creating and manipulating graphs and networks"
@@ -3508,18 +3496,6 @@ numpy = ">=1.16.4"
 [package.extras]
 carto = ["pydeck-carto"]
 jupyter = ["ipykernel (>=5.1.2) ; python_version >= \"3.4\"", "ipython (>=5.8.0) ; python_version < \"3.4\"", "ipywidgets (>=7,<8)", "traitlets (>=4.3.2)"]
-
-[[package]]
-name = "pyfiglet"
-version = "0.8.post1"
-description = "Pure-python FIGlet implementation"
-optional = false
-python-versions = "*"
-groups = ["main"]
-files = [
-    {file = "pyfiglet-0.8.post1-py2.py3-none-any.whl", hash = "sha256:d555bcea17fbeaf70eaefa48bb119352487e629c9b56f30f383e2c62dd67a01c"},
-    {file = "pyfiglet-0.8.post1.tar.gz", hash = "sha256:c6c2321755d09267b438ec7b936825a4910fec696292139e664ca8670e103639"},
-]
 
 [[package]]
 name = "pygments"
@@ -5783,4 +5759,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<3.13"
-content-hash = "b85c4e850a2390aad597090465adda22d4707fbfbebf6e894aff609ce1a777fc"
+content-hash = "1945cffba89ed002d3a7caaf6746cb010325d213373b1270c76b1c4280f70571"
