@@ -4,7 +4,7 @@ import { useChat } from '@/hooks/useChat';
 import { useDocuments } from '@/hooks/useDocuments';
 
 function App() {
-  const { messages: rawMessages, isStreaming, sendMessage } = useChat();
+  const { messages: rawMessages, isStreaming, sendMessage, clearMessages } = useChat();
   const { documents, uploading, setDocuments, setUploading, setError } = useDocuments();
 
   const [modes, setModes] = useState<ChatModes>({
@@ -33,8 +33,8 @@ function App() {
   );
 
   const handleNewChat = useCallback(() => {
-    window.location.reload();
-  }, []);
+    clearMessages();
+  }, [clearMessages]);
 
   const handleUploadStart = useCallback(
     (filename: string) => {
@@ -64,7 +64,7 @@ function App() {
 
   return (
     <div className="flex flex-col h-screen bg-background">
-      <ChatHeader onNewChat={handleNewChat} />
+      <ChatHeader onNewChat={handleNewChat} disabled={isStreaming} />
 
       <main className="flex-1 flex flex-col min-h-0">
         <ChatViewport messages={messages} />

@@ -1,18 +1,18 @@
 import logging
-import os
 import sys
+
+from core.config import settings
 
 
 def get_logger(name: str) -> logging.Logger:
-    level = os.environ.get("LOGLEVEL", "INFO").upper()
     logger = logging.getLogger(name)
 
     # Prevent double configuration by checking handlers
     if not logger.hasHandlers():
-        logger.setLevel(level)
+        logger.setLevel(settings.LOG_LEVEL)
         # Stream handler to stdout
         handler = logging.StreamHandler(sys.stdout)
-        handler.setLevel(level)
+        handler.setLevel(settings.LOG_LEVEL)
         formatter = logging.Formatter("[%(thread)d] %(asctime)s - %(name)s - %(levelname)s - %(message)s")
         handler.setFormatter(formatter)
         logger.addHandler(handler)

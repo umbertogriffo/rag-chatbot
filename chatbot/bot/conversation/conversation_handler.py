@@ -52,7 +52,7 @@ def refine_question(llm: LamaCppClient, question: str, chat_history: ChatHistory
         return question
 
 
-def answer(llm: LamaCppClient, question: str, chat_history: ChatHistory, max_new_tokens: int = 512) -> Any:
+async def answer(llm: LamaCppClient, question: str, chat_history: ChatHistory, max_new_tokens: int = 512) -> Any:
     """
     Generates an answer to the given question based on the chat history or a direct prompt.
 
@@ -84,13 +84,15 @@ def answer(llm: LamaCppClient, question: str, chat_history: ChatHistory, max_new
 
         logger.debug(f"--- Prompt:\n {conversation_awareness_prompt} \n---")
 
-        streamer = llm.start_answer_iterator_streamer(conversation_awareness_prompt, max_new_tokens=max_new_tokens)
+        streamer = await llm.async_start_answer_iterator_streamer(
+            conversation_awareness_prompt, max_new_tokens=max_new_tokens
+        )
 
         return streamer
     else:
         prompt = llm.generate_qa_prompt(question=question)
         logger.debug(f"--- Prompt:\n {prompt} \n---")
-        streamer = llm.start_answer_iterator_streamer(prompt, max_new_tokens=max_new_tokens)
+        streamer = await llm.async_start_answer_iterator_streamer(prompt, max_new_tokens=max_new_tokens)
         return streamer
 
 
@@ -159,7 +161,7 @@ def extract_content_after_reasoning(text: str, reasoning_stop_tag: str) -> str:
 
 
 # TODO: Use it later
-def stream_response_with_reasoning(
+async def stream_response_with_reasoning(
     llm: LamaCppClient, user_input: str, chat_history: ChatHistory, max_new_tokens: int
 ) -> tuple[str, str]:
     """
@@ -186,7 +188,7 @@ def stream_response_with_reasoning(
     full_response = ""
     reasoning_response = ""
     inside_think = False
-    for token in answer(llm=llm, question=user_input, chat_history=chat_history, max_new_tokens=max_new_tokens):
+    for token in await answer(llm=llm, question=user_input, chat_history=chat_history, max_new_tokens=max_new_tokens):
         parsed_token = llm.parse_token(token)
         stripped_token = parsed_token.strip()
 

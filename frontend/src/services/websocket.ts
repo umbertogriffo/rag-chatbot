@@ -81,4 +81,9 @@ export class ChatWebSocket {
     this.ws?.close();
     this.ws = null;
   }
+
+  reconnect(): void {
+    this.disconnect();
+    this.ws = null;
+  }
 }

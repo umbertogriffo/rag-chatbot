@@ -15,6 +15,9 @@ class Settings(BaseSettings):
     HOST: str = "0.0.0.0"
     PORT: int = 8000
 
+    # Logging Configuration
+    LOG_LEVEL: str = "DEBUG"
+
     SECRET_KEY: str = secrets.token_urlsafe(32)
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 24 hours
     API_KEY_HEADER: str = "X-API-Key"
@@ -38,6 +41,7 @@ class Settings(BaseSettings):
     DEFAULT_CHUNK_SIZE: int = 1000
     DEFAULT_CHUNK_OVERLAP: int = 50
     DEFAULT_SYNTHESIS_STRATEGY: str = "async-tree-summarization"
+    DEFAULT_CHAT_HISTORY_LENGTH: int = 2
 
     WEBSOCKET_MAX_SIZE: int = 10 * 1024 * 1024  # 10 MB
     ALLOWED_UPLOAD_EXTENSIONS: list[str] = [".md"]

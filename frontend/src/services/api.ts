@@ -48,3 +48,7 @@ export async function listDocuments(): Promise<DocumentListResponse> {
 export async function deleteDocument(documentId: string): Promise<void> {
   await axios.delete(`${API_BASE}/documents/${documentId}`);
 }
+
+export async function resetChatHistory(): Promise<void> {
+  await axios.delete(`${API_BASE}/chat/history`);
+}

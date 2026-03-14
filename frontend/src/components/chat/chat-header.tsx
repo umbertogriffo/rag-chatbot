@@ -3,9 +3,10 @@ import { Bot, Plus, History, Settings } from "lucide-react"
 
 interface ChatHeaderProps {
   onNewChat: () => void
+  disabled?: boolean
 }
 
-export function ChatHeader({ onNewChat }: ChatHeaderProps) {
+export function ChatHeader({ onNewChat, disabled }: ChatHeaderProps) {
   return (
     <header className="shrink-0 h-16 border-b border-border/50 bg-background/80 backdrop-blur-sm">
       <div className="h-full max-w-7xl mx-auto px-4 flex items-center justify-between">
@@ -37,6 +38,7 @@ export function ChatHeader({ onNewChat }: ChatHeaderProps) {
             variant="ghost"
             size="sm"
             onClick={onNewChat}
+            disabled={disabled}
             className="text-muted-foreground hover:text-foreground"
           >
             <Plus className="h-4 w-4 mr-2" />

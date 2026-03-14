@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { ChatWebSocket } from '../services/websocket';
+import { resetChatHistory } from '../services/api';
 
 interface Message {
   id: number;
@@ -100,5 +101,12 @@ export function useChat() {
     wsRef.current?.sendMessage(text, rag);
   }, [isStreaming]);
 
-  return { messages, isStreaming, sendMessage };
+  const clearMessages = useCallback(() => {
+    setMessages([]);
+    idRef.current = 0;
+    wsRef.current?.reconnect();
+    resetChatHistory();
+  }, []);
+
+  return { messages, isStreaming, sendMessage, clearMessages };
 }
