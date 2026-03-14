@@ -60,6 +60,7 @@ def test_chat_stream_invalid_payload(client: TestClient):
         with client.websocket_connect("/chat/stream") as websocket:
             # Send invalid data (missing 'text' field)
             websocket.send_json({"invalid": "data"})
+            websocket.receive_text()
 
 
 def test_chat_stream_connection_and_disconnection(client: TestClient):

@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     PORT: int = 8000
 
     # Logging Configuration
-    LOG_LEVEL: str = "DEBUG"
+    LOG_LEVEL: str = "INFO"
 
     SECRET_KEY: str = secrets.token_urlsafe(32)
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 24 hours
