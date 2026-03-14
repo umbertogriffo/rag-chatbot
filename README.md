@@ -203,10 +203,6 @@ Once you upload one or multiple files, they will be: uploaded → chunked → em
 
 ![rag_chatbot_load_doc_example.gif](images/rag_chatbot_load_doc_example.gif)
 
-## How to debug the Streamlit app on Pycharm
-
-![debug_streamlit.png](images/debug_streamlit.png)
-
 ## References
 
 * Large Language Models (LLMs):
