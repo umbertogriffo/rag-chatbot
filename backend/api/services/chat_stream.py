@@ -1,6 +1,11 @@
 import time
 
-from bot.conversation.conversation_handler import answer, answer_with_context, refine_question
+from bot.conversation.conversation_handler import (
+    answer,
+    answer_with_context,
+    extract_content_after_reasoning,
+    refine_question,
+)
 from bot.conversation.ctx_strategy import get_ctx_synthesis_strategy
 from core.config import settings
 from fastapi import WebSocket
@@ -39,7 +44,15 @@ async def stream_chat_response(
             if token:
                 full_response += token
                 await websocket.send_text(token)
-        chat_history.append(f"question: {query.text}, answer: {full_response}")
+
+        if llm_client.model_settings.reasoning:
+            final_answer = extract_content_after_reasoning(full_response, llm_client.model_settings.reasoning_stop_tag)
+            if final_answer == "":
+                final_answer = "I didn't provide the answer; perhaps I can try again."
+        else:
+            final_answer = full_response
+
+        chat_history.append(f"question: {query.text}, answer: {final_answer}")
         logger.debug(f"Updated chat history: {chat_history}")
 
         took = time.time() - start_time
@@ -107,7 +120,14 @@ async def stream_rag_response(
                 full_response += token
                 await websocket.send_text(token)
 
-        chat_history.append(f"question: {query.text}, answer: {full_response}")
+        if llm_client.model_settings.reasoning:
+            final_answer = extract_content_after_reasoning(full_response, llm_client.model_settings.reasoning_stop_tag)
+            if final_answer == "":
+                final_answer = "I wasn't able to provide the answer; Do you want me to try again?"
+        else:
+            final_answer = full_response
+
+        chat_history.append(f"question: {query.text}, answer: {final_answer}")
 
         took = time.time() - start_time
         logger.info(f"\n--- Took {took:.2f} seconds ---")
