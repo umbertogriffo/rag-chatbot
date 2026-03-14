@@ -1,4 +1,3 @@
-import secrets
 from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -7,9 +6,14 @@ ROOT_PATH = Path(__file__).parents[2]
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", case_sensitive=True)
+    model_config = SettingsConfigDict(
+        env_file=ROOT_PATH / ".env",
+        env_file_encoding="utf-8",
+        env_ignore_empty=True,
+        extra="ignore",
+    )
 
-    PROJECT_NAME: str = "RAG Chatbot API"
+    PROJECT_NAME: str = "Chatbot API"
     VERSION: str = "0.1.0"
     API_V1_PREFIX: str = "/api"
     HOST: str = "0.0.0.0"
@@ -18,24 +22,17 @@ class Settings(BaseSettings):
     # Logging Configuration
     LOG_LEVEL: str = "INFO"
 
-    SECRET_KEY: str = secrets.token_urlsafe(32)
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 24 hours
-    API_KEY_HEADER: str = "X-API-Key"
-    API_KEYS: list[str] = []  # Optional API keys for simple auth
-
     CORS_ORIGINS: list[str] = [
         "http://localhost:5173",
         "http://localhost:3000",
         "http://127.0.0.1:5173",
     ]
 
-    DATABASE_URL: str = "sqlite:///./rag_chatbot.db"
-
     MODEL_FOLDER: Path = ROOT_PATH / "models"
     VECTOR_STORE_PATH: Path = ROOT_PATH / "vector_store" / "docs_index"
     DOCS_PATH: Path = ROOT_PATH / Path("docs")
 
-    DEFAULT_MODEL: str = "llama-3.2"
+    DEFAULT_MODEL: str = "llama-3.2:1b"
     DEFAULT_K: int = 2
     DEFAULT_MAX_NEW_TOKENS: int = 512
     DEFAULT_CHUNK_SIZE: int = 1000

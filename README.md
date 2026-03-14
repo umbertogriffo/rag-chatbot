@@ -27,6 +27,7 @@
     - [Install Poetry](#install-poetry)
 - [Bootstrap Environment](#bootstrap-environment)
     - [How to use the make file](#how-to-use-the-make-file)
+    - [Environment](#environment)
 - [Using the Open-Source Models Locally](#using-the-open-source-models-locally)
     - [Supported Models](#supported-models)
 - [Supported Response Synthesis strategies](#supported-response-synthesis-strategies)
@@ -127,6 +128,10 @@ To easily install the dependencies we created a make file.
     * Runs all tests.
     * Using [pytest](https://pypi.org/project/pytest/)
 
+### Environment
+
+Copy .𝐞𝐧𝐯.𝐞𝐱𝐚𝐦𝐩𝐥𝐞 → .𝐞𝐧𝐯 and fill it in.
+
 ## Using the Open-Source Models Locally
 
 We utilize the open-source library [llama-cpp-python](https://github.com/abetlen/llama-cpp-python), a binding
@@ -197,9 +202,9 @@ streamlit run chatbot/rag_chatbot_app.py -- --model llama-3.1 --k 2 --synthesis-
 
 ![rag_chatbot_example.gif](images%2Frag_chatbot_example.gif)
 
-You can also upload a Markdown file using the file uploader in the sidebar.
-The Document management section shows the indexed documents.
-Once you upload one or multiple files, they will be: uploaded → chunked → embedded → upserted to Chroma
+You can also upload a Markdown file using the file uploader.
+The Document management section shows the uploaded and indexed documents.
+Once you upload one or multiple files, they will be: uploaded → chunked → embedded → upserted to Chroma.
 
 ![rag_chatbot_load_doc_example.gif](images/rag_chatbot_load_doc_example.gif)
 
