@@ -16,7 +16,7 @@
 > GitHub [issue](https://github.com/abetlen/llama-cpp-python/issues).
 
 > [!WARNING]
-> - `lama_cpp_pyhon` doesn't use `GPU` on `M1` if you are running an `x86` version of `Python`. More
+> - `llama_cpp_pyhon` doesn't use `GPU` on `M1` if you are running an `x86` version of `Python`. More
     info [here](https://github.com/abetlen/llama-cpp-python/issues/756#issuecomment-1870324323).
 > - It's important to note that the large language model sometimes generates hallucinations or false information.
 
@@ -221,14 +221,6 @@ Once you upload one or multiple files, they will be: uploaded → chunked → em
     * llama.cpp:
         * [llama.cpp](https://github.com/ggerganov/llama.cpp)
         * [llama-cpp-python](https://github.com/abetlen/llama-cpp-python)
-    * Ollama:
-        * [Ollama](https://github.com/ollama/ollama/tree/main)
-        * [Ollama Python Library](https://github.com/ollama/ollama-python/tree/main)
-        * [On the architecture of ollama](https://blog.inoki.cc/2024/04/15/Ollama/)
-        * [Analysis of Ollama Architecture and Conversation Processing Flow for AI LLM Tool](https://medium.com/@rifewang/analysis-of-ollama-architecture-and-conversation-processing-flow-for-ai-llm-tool-ead4b9f40975)
-        * [How to Customize Ollama’s Storage Directory](https://medium.com/@chhaybunsy/unleash-your-machine-learning-models-how-to-customize-ollamas-storage-directory-c9ea1ea2961a#:~:text=By%20default%2C%20Ollama%20saves%20its,making%20predictions%20or%20further%20training)
-        * Use [CodeGPT](https://plugins.jetbrains.com/plugin/21056-codegpt) to access self-hosted models from Ollama for
-          a code assistant in PyCharm. More info [here](https://docs.codegpt.ee/providers/local/ollama).
     * Deepval - A framework for evaluating LLMs:
       * https://github.com/confident-ai/deepeval
     * [Structured Outputs](https://github.com/dottxt-ai/outlines)
@@ -274,14 +266,6 @@ Once you upload one or multiple files, they will be: uploaded → chunked → em
     * [Conversational awareness](https://langstream.ai/2023/10/13/rag-chatbot-with-conversation/)
     * [RAG is Dead, Again?](https://jina.ai/news/rag-is-dead-again/)
 * Chatbot UI:
-    * [Streamlit](https://discuss.streamlit.io/):
-        * [Build a basic LLM chat app](https://docs.streamlit.io/knowledge-base/tutorials/build-conversational-apps#build-a-chatgpt-like-app)
-        * [Layouts and Containers](https://docs.streamlit.io/library/api-reference/layout)
-        * [st.chat_message](https://docs.streamlit.io/library/api-reference/chat/st.chat_message)
-        * [Add statefulness to apps](https://docs.streamlit.io/library/advanced-features/session-state)
-            * [Why session state is not persisting between refresh?](https://discuss.streamlit.io/t/why-session-state-is-not-persisting-between-refresh/32020)
-        * [st.cache_resource](https://docs.streamlit.io/library/api-reference/performance/st.cache_resource)
-        * [Handling External Command Line Arguments](https://github.com/streamlit/streamlit/issues/337)
     * [Open WebUI](https://github.com/open-webui/open-webui)
         * [Running AI Locally Using Ollama on Ubuntu Linux](https://itsfoss.com/ollama-setup-linux/)
 * Text Processing and Cleaning:
