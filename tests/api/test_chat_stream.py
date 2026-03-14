@@ -13,8 +13,9 @@ def test_chat_stream_successful_response(client: TestClient):
         # Collect streamed tokens
         tokens = []
 
-        token = websocket.receive_text()
-        tokens.append(token)
+        for _ in range(10):  # Limit to 10 tokens for testing
+            token = websocket.receive_text()
+            tokens.append(token)
 
         # Verify we received tokens
         assert len(tokens) > 0
@@ -25,10 +26,15 @@ def test_chat_stream_empty_message(client: TestClient):
     with client.websocket_connect("/chat/stream") as websocket:
         websocket.send_json({"text": ""})
 
-        # Should still complete successfully
-        token = websocket.receive_text()
+        # Collect streamed tokens
+        tokens = []
 
-        assert token is not None
+        for _ in range(10):  # Limit to 10 tokens for testing
+            token = websocket.receive_text()
+            tokens.append(token)
+
+        # Verify we received tokens
+        assert len(tokens) > 0
 
 
 def test_chat_stream_multiple_requests(client: TestClient):
@@ -37,9 +43,15 @@ def test_chat_stream_multiple_requests(client: TestClient):
         for i in range(3):
             websocket.send_json({"text": f"Question {i + 1}"})
 
-            token = websocket.receive_text()
+            # Collect streamed tokens
+            tokens = []
 
-            assert token is not None
+            for _ in range(10):  # Limit to 10 tokens for testing
+                token = websocket.receive_text()
+                tokens.append(token)
+
+            # Verify we received tokens
+            assert len(tokens) > 0
 
 
 def test_chat_stream_invalid_payload(client: TestClient):
