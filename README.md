@@ -76,6 +76,7 @@ To deal with context overflows, we implemented two approaches:
 * Python 3.12+
 * GPU supporting CUDA 12.4+
 * Poetry 2.3.0
+* Node 22.12+ for the UI
 
 ### Install Poetry
 
@@ -113,6 +114,8 @@ To easily install the dependencies we created a make file.
         * Creates an environment and installs all dependencies with NVIDIA CUDA acceleration.
     * Setup with Metal GPU acceleration: ```make setup_metal```
         * Creates an environment and installs all dependencies with Metal GPU acceleration for macOS system only.
+* Start: ```make start```
+    *  Start both the backend and frontend ensuring that the backend is running and ready before launching the frontend.
 * Update: ```make update```
     * Update an environment and installs all updated dependencies.
 * Tidy up the code: ```make tidy```
@@ -187,6 +190,14 @@ To start the frontend (in a new terminal):
 ```shell
 cd frontend && yarn dev
 ```
+
+or just run:
+
+```shell
+make start
+```
+
+The application will be available at http://localhost:5173, with the backend API at http://localhost:8000.
 
 ![conversation-aware-chatbot.gif](images/conversation-aware-chatbot.gif)
 
