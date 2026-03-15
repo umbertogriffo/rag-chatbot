@@ -31,11 +31,8 @@
 - [Using the Open-Source Models Locally](#using-the-open-source-models-locally)
     - [Supported Models](#supported-models)
 - [Supported Response Synthesis strategies](#supported-response-synthesis-strategies)
-- [Example Data](#example-data)
 - [Build the memory index](#build-the-memory-index)
 - [Run the Chatbot](#run-the-chatbot)
-- [Run the RAG Chatbot](#run-the-rag-chatbot)
-- [How to debug the Streamlit app on Pycharm](#how-to-debug-the-streamlit-app-on-pycharm)
 - [References](#references)
 
 ## Introduction
@@ -66,7 +63,7 @@ The most relevant sections are then used as context to generate the final answer
 Additionally, the chatbot is designed to remember previous interactions. It saves the chat history and considers the
 relevant context from previous conversations to provide more accurate answers.
 
-To deal with context overflows, we implemented three approaches:
+To deal with context overflows, we implemented two approaches:
 
 * `Create And Refine the Context`: synthesize a responses sequentially through all retrieved contents.
     * ![create-and-refine-the-context.png](images/create-and-refine-the-context.png)
@@ -165,15 +162,12 @@ format.
 | `create-and-refine` Create and Refine                                   | ✅         |       |
 | `tree-summarization` **Recommended** - Tree Summarization               | ✅         |       |
 
-## Example Data
-
-You could download some Markdown pages from
-the [Blendle Employee Handbook](https://blendle.notion.site/Blendle-s-Employee-Handbook-7692ffe24f07450785f093b94bbe1a09)
-and put them under `docs`.
 
 ## Build the memory index
 
-Run:
+You could download some Markdown pages from the [Blendle Employee Handbook](https://blendle.notion.site/Blendle-s-Employee-Handbook-7692ffe24f07450785f093b94bbe1a09) and put them under `docs`.
+
+Then run:
 
 ```shell
 python chatbot/memory_builder.py --chunk-size 1000 --chunk-overlap 50
@@ -181,21 +175,22 @@ python chatbot/memory_builder.py --chunk-size 1000 --chunk-overlap 50
 
 ## Run the Chatbot
 
-To interact with a GUI type:
+The Chatbot has a UI built with `Vite`, `React` and `TypeScript`, and a backend built with `FastAPI` that serves the LLMs through `llama-cpp-python`.
+
+To start the backend type:
 
 ```shell
-streamlit run chatbot/chatbot_app.py -- --model llama-3.1 --max-new-tokens 1024
+cd backend && PYTHONPATH=.:../chatbot uvicorn main:app --reload
+```
+
+To start the frontend (in a new terminal):
+```shell
+cd frontend && yarn dev
 ```
 
 ![conversation-aware-chatbot.gif](images/conversation-aware-chatbot.gif)
 
-## Run the RAG Chatbot
-
-To interact with a GUI type:
-
-```shell
-streamlit run chatbot/rag_chatbot_app.py -- --model llama-3.1 --k 2 --synthesis-strategy async-tree-summarization
-```
+You can enable the RAG Mode feature in the UI to ask questions based on the context provided by the Markdown files you loaded and indexed in the previous step:
 
 ![rag_chatbot_example.gif](images%2Frag_chatbot_example.gif)
 
