@@ -1,12 +1,12 @@
 #!/bin/bash
 
 # Start backend in background
-cd backend
+cd backend || exit
 PYTHONPATH=.:../chatbot uvicorn main:app &
 BACKEND_PID=$!
 
 # Cleanup on exit
-trap "kill $BACKEND_PID" EXIT
+trap 'kill $BACKEND_PID' EXIT
 
 # Wait for backend to be ready
 echo "Waiting for backend to start..."
@@ -17,5 +17,5 @@ done
 echo "Backend is ready. Starting frontend..."
 
 # Start frontend
-cd ../frontend
+cd ../frontend || exit
 yarn dev
