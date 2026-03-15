@@ -76,7 +76,10 @@ To deal with context overflows, we implemented two approaches:
 * Python 3.12+
 * GPU supporting CUDA 12.4+
 * Poetry 2.3.0
-* Node 22.12+ for the UI
+
+For the UI:
+* Node 22.12+
+* Yarn 1.22+
 
 ### Install Poetry
 

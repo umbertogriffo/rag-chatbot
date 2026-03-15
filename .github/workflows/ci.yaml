@@ -6,14 +6,24 @@ on:
       - "main"
     paths:
       - "chatbot/**"
+      - "backend/**"
       - "tests/**"
       - ".github/workflows/**"
+      - "pyproject.toml"
+      - "poetry.lock"
+      - "!.gitignore"
+      - "!README.md"
   pull_request:
     types: [opened, reopened, synchronize, ready_for_review]
     paths:
       - "chatbot/**"
+      - "backend/**"
       - "tests/**"
       - ".github/workflows/**"
+      - "pyproject.toml"
+      - "poetry.lock"
+      - "!.gitignore"
+      - "!README.md"
 
 jobs:
   test:
