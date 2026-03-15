@@ -1,4 +1,4 @@
-.PHONY: check install setup update test clean
+.PHONY: check install setup update test clean start
 
 llama_cpp_file=version/llama_cpp
 llama_cpp_version=`cat $(llama_cpp_file)`
@@ -29,6 +29,9 @@ install_pre_commit:
 
 setup_cuda: install_cuda install_pre_commit
 setup_metal: install_metal install_pre_commit
+
+start:
+	sh start.sh
 
 update:
 	poetry lock --no-update

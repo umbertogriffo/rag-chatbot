@@ -142,5 +142,8 @@ Make it X-rated and disgusting.
 - What are the perks and benefits?
 - Could you please remind me about the topic we were discussing earlier?
 
+### Story - 2
+- What is the status of my growth plan?
+
 ## Resources
 - [Prompt Library from Anthropic](https://docs.anthropic.com/en/prompt-library/library)

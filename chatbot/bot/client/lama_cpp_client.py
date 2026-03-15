@@ -1,4 +1,6 @@
+import asyncio
 import os
+import threading
 from pathlib import Path
 from typing import Any, Iterator
 
@@ -36,6 +38,7 @@ class LamaCppClient:
 
         self.llm = self._load_llm()
         # self.tokenizer = self._load_tokenizer()
+        self._lock = threading.Lock()
 
     def _load_llm(self) -> Any:
         """
@@ -95,18 +98,26 @@ class LamaCppClient:
             prompt (str): The input prompt for generating the answer.
             max_new_tokens (int): The maximum number of new tokens to generate (default is 512).
 
+        Notes:
+            This method is thread-safe, It uses a lock to prevent concurrent calls.
+            The llama.cpp model itself is not thread-safe.
+            - Multi-threading concurrency, error reported -> https://github.com/abetlen/llama-cpp-python/issues/471
+            - Segfault when trying to use __call__ multiple times -> https://github.com/marella/ctransformers/issues/38#issuecomment-1613627309
+            - Model freezing when handling simultaneous user requests (is multi-threading issue?) -> https://github.com/abetlen/llama-cpp-python/issues/1995
+            https://github.com/abetlen/llama-cpp-python/issues?q=is%3Aissue%20state%3Aclosed%20multi-thread
+
         Returns:
             str: The generated answer.
         """
-
-        output = self.llm.create_chat_completion(
-            messages=[
-                {"role": "system", "content": self.model_settings.system_template},
-                {"role": "user", "content": f"{prompt}"},
-            ],
-            max_tokens=max_new_tokens,
-            **self.model_settings.config_answer,
-        )
+        with self._lock:
+            output = self.llm.create_chat_completion(
+                messages=[
+                    {"role": "system", "content": self.model_settings.system_template},
+                    {"role": "user", "content": f"{prompt}"},
+                ],
+                max_tokens=max_new_tokens,
+                **self.model_settings.config_answer,
+            )
 
         answer = output["choices"][0]["message"].get("content", "")
 
@@ -116,6 +127,9 @@ class LamaCppClient:
         """
         Generates an answer based on the given prompt using the language model asynchronously.
 
+        This method runs the CPU-bound LLM inference in a thread pool executor to avoid
+        blocking the event loop, allowing true concurrent execution of multiple requests.
+
         Args:
             prompt (str): The input prompt for generating the answer.
             max_new_tokens (int): The maximum number of new tokens to generate (default is 512).
@@ -123,7 +137,8 @@ class LamaCppClient:
         Returns:
             str: The generated answer.
         """
-        return self.generate_answer(prompt, max_new_tokens)
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.generate_answer, prompt, max_new_tokens)
 
     def stream_answer(self, prompt: str, max_new_tokens: int = 512) -> str:
         """
@@ -152,36 +167,43 @@ class LamaCppClient:
         """
         Abstract method to start an answer iterator streamer for a given prompt.
 
+        This method is thread-safe, It uses a lock to prevent concurrent calls.
+
         Args:
             prompt (str): The input prompt for generating the answer.
             max_new_tokens (int): The maximum number of new tokens to generate (default is 1000).
 
         """
-        stream = self.llm.create_chat_completion(
-            messages=[
-                {"role": "system", "content": self.model_settings.system_template},
-                {"role": "user", "content": f"{prompt}"},
-            ],
-            max_tokens=max_new_tokens,
-            stream=True,
-            **self.model_settings.config_answer,
-        )
+        with self._lock:
+            stream = self.llm.create_chat_completion(
+                messages=[
+                    {"role": "system", "content": self.model_settings.system_template},
+                    {"role": "user", "content": f"{prompt}"},
+                ],
+                max_tokens=max_new_tokens,
+                stream=True,
+                **self.model_settings.config_answer,
+            )
 
         return stream
 
+    # TODO: https://github.com/umbertogriffo/rag-chatbot/pull/10#discussion_r2936567633
     async def async_start_answer_iterator_streamer(
         self, prompt: str, max_new_tokens: int = 512
     ) -> CreateCompletionResponse | Iterator[CreateCompletionStreamResponse]:
         """
-        Abstract method to asynchronously start an answer iterator streamer,
-        providing a flexible way to generate answers in a streaming fashion based on the given prompt.
+        Asynchronously start an answer iterator streamer for streaming response generation.
+
+        This method runs the CPU-bound operation in a thread pool executor to avoid
+        blocking the event loop.
 
         Args:
             prompt (str): The input prompt for generating the answer.
             max_new_tokens (int): The maximum number of new tokens to generate (default is 1000).
 
         """
-        return self.start_answer_iterator_streamer(prompt, max_new_tokens)
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.start_answer_iterator_streamer, prompt, max_new_tokens)
 
     @experimental
     def retrieve_tools(

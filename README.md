@@ -16,7 +16,7 @@
 > GitHub [issue](https://github.com/abetlen/llama-cpp-python/issues).
 
 > [!WARNING]
-> - `lama_cpp_pyhon` doesn't use `GPU` on `M1` if you are running an `x86` version of `Python`. More
+> - `llama_cpp_pyhon` doesn't use `GPU` on `M1` if you are running an `x86` version of `Python`. More
     info [here](https://github.com/abetlen/llama-cpp-python/issues/756#issuecomment-1870324323).
 > - It's important to note that the large language model sometimes generates hallucinations or false information.
 
@@ -27,28 +27,23 @@
     - [Install Poetry](#install-poetry)
 - [Bootstrap Environment](#bootstrap-environment)
     - [How to use the make file](#how-to-use-the-make-file)
+    - [Environment](#environment)
 - [Using the Open-Source Models Locally](#using-the-open-source-models-locally)
     - [Supported Models](#supported-models)
 - [Supported Response Synthesis strategies](#supported-response-synthesis-strategies)
-- [Example Data](#example-data)
 - [Build the memory index](#build-the-memory-index)
 - [Run the Chatbot](#run-the-chatbot)
-- [Run the RAG Chatbot](#run-the-rag-chatbot)
-- [How to debug the Streamlit app on Pycharm](#how-to-debug-the-streamlit-app-on-pycharm)
 - [References](#references)
 
 ## Introduction
 
-This project combines the power
-of [Lama.cpp](https://github.com/abetlen/llama-cpp-python), [Chroma](https://github.com/chroma-core/chroma)
-and [Streamlit](https://discuss.streamlit.io/) to build:
+This project combines the power of [llama.cpp](https://github.com/abetlen/llama-cpp-python) and [Chroma](https://github.com/chroma-core/chroma) to build:
 
 * a Conversation-aware Chatbot (ChatGPT like experience).
 * a RAG (Retrieval-augmented generation) ChatBot.
 
 The RAG Chatbot works by taking a collection of Markdown files as input and, when asked a question, provides the
-corresponding answer
-based on the context provided by those files.
+corresponding answer based on the context provided by those files.
 
 ![rag-chatbot-architecture-1.png](images/rag-chatbot-architecture-1.png)
 
@@ -59,8 +54,7 @@ based on the context provided by those files.
 The `Memory Builder` component of the project loads Markdown pages from the `docs` folder.
 It then divides these pages into smaller sections, calculates the embeddings (a numerical representation) of these
 sections with the [all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2)
-`sentence-transformer`, and saves them in an embedding database called [Chroma](https://github.com/chroma-core/chroma)
-for later use.
+`sentence-transformer`, and saves them in an embedding database called [Chroma](https://github.com/chroma-core/chroma) for later use.
 
 When a user asks a question, the RAG ChatBot retrieves the most relevant sections from the Embedding database.
 Since the original question can't be always optimal to retrieve for the LLM, we first prompt an LLM to rewrite the
@@ -69,21 +63,23 @@ The most relevant sections are then used as context to generate the final answer
 Additionally, the chatbot is designed to remember previous interactions. It saves the chat history and considers the
 relevant context from previous conversations to provide more accurate answers.
 
-To deal with context overflows, we implemented three approaches:
+To deal with context overflows, we implemented two approaches:
 
 * `Create And Refine the Context`: synthesize a responses sequentially through all retrieved contents.
     * ![create-and-refine-the-context.png](images/create-and-refine-the-context.png)
 * `Hierarchical Summarization of Context`: generate an answer for each relevant section independently, and then
   hierarchically combine the answers.
     * ![hierarchical-summarization.png](images/hierarchical-summarization.png)
-* `Async Hierarchical Summarization of Context`: parallelized version of the Hierarchical Summarization of Context which
-  lead to big speedups in response synthesis.
 
 ## Prerequisites
 
 * Python 3.12+
-* GPU supporting CUDA 12.1+
+* GPU supporting CUDA 12.4+
 * Poetry 2.3.0
+
+For the UI:
+* Node 22.12+
+* Yarn 1.22+
 
 ### Install Poetry
 
@@ -121,6 +117,8 @@ To easily install the dependencies we created a make file.
         * Creates an environment and installs all dependencies with NVIDIA CUDA acceleration.
     * Setup with Metal GPU acceleration: ```make setup_metal```
         * Creates an environment and installs all dependencies with Metal GPU acceleration for macOS system only.
+* Start: ```make start```
+    *  Start both the backend and frontend ensuring that the backend is running and ready before launching the frontend.
 * Update: ```make update```
     * Update an environment and installs all updated dependencies.
 * Tidy up the code: ```make tidy```
@@ -130,6 +128,10 @@ To easily install the dependencies we created a make file.
 * Test: ```make test```
     * Runs all tests.
     * Using [pytest](https://pypi.org/project/pytest/)
+
+### Environment
+
+Copy .𝐞𝐧𝐯.𝐞𝐱𝐚𝐦𝐩𝐥𝐞 → .𝐞𝐧𝐯 and fill it in.
 
 ## Using the Open-Source Models Locally
 
@@ -164,18 +166,14 @@ format.
 | ✨ Response Synthesis strategy                                           | Supported | Notes |
 |-------------------------------------------------------------------------|-----------|-------|
 | `create-and-refine` Create and Refine                                   | ✅         |       |
-| `tree-summarization` Tree Summarization                                 | ✅         |       |
-| `async-tree-summarization` - **Recommended** - Async Tree Summarization | ✅         |       |
+| `tree-summarization` **Recommended** - Tree Summarization               | ✅         |       |
 
-## Example Data
-
-You could download some Markdown pages from
-the [Blendle Employee Handbook](https://blendle.notion.site/Blendle-s-Employee-Handbook-7692ffe24f07450785f093b94bbe1a09)
-and put them under `docs`.
 
 ## Build the memory index
 
-Run:
+You could download some Markdown pages from the [Blendle Employee Handbook](https://blendle.notion.site/Blendle-s-Employee-Handbook-7692ffe24f07450785f093b94bbe1a09) and put them under `docs`.
+
+Then run:
 
 ```shell
 python chatbot/memory_builder.py --chunk-size 1000 --chunk-overlap 50
@@ -183,33 +181,49 @@ python chatbot/memory_builder.py --chunk-size 1000 --chunk-overlap 50
 
 ## Run the Chatbot
 
-To interact with a GUI type:
+The Chatbot has a UI built with `Vite`, `React` and `TypeScript`, and a backend built with `FastAPI` that serves the LLMs through `llama-cpp-python`.
+
+To install the UI dependencies, run:
 
 ```shell
-streamlit run chatbot/chatbot_app.py -- --model llama-3.1 --max-new-tokens 1024
+cd frontend
+nvm use
+yarn
+
+# Create .env file
+echo "VITE_API_URL=http://localhost:8000" > .env
 ```
+
+To start the backend type:
+
+```shell
+cd backend && PYTHONPATH=.:../chatbot uvicorn main:app --reload
+```
+
+To start the frontend (in a new terminal):
+```shell
+cd frontend && yarn dev
+```
+
+or to start both ensuring that the backend is running and ready before launching the frontend just run:
+
+```shell
+make start
+```
+
+The application will be available at http://localhost:5173, with the backend API at http://localhost:8000.
 
 ![conversation-aware-chatbot.gif](images/conversation-aware-chatbot.gif)
 
-## Run the RAG Chatbot
-
-To interact with a GUI type:
-
-```shell
-streamlit run chatbot/rag_chatbot_app.py -- --model llama-3.1 --k 2 --synthesis-strategy async-tree-summarization
-```
+You can enable the RAG Mode feature in the UI to ask questions based on the context provided by the Markdown files you loaded and indexed in the previous step:
 
 ![rag_chatbot_example.gif](images%2Frag_chatbot_example.gif)
 
-You can also upload a Markdown file using the file uploader in the sidebar.
-The Document management section shows the indexed documents.
-Once you upload one or multiple files, they will be: uploaded → chunked → embedded → upserted to Chroma
+You can also upload a Markdown file using the file uploader.
+The document management section shows the uploaded and indexed documents.
+Once you upload one or multiple files, they will be: uploaded → chunked → embedded → upserted to Chroma.
 
 ![rag_chatbot_load_doc_example.gif](images/rag_chatbot_load_doc_example.gif)
-
-## How to debug the Streamlit app on Pycharm
-
-![debug_streamlit.png](images/debug_streamlit.png)
 
 ## References
 
@@ -225,14 +239,6 @@ Once you upload one or multiple files, they will be: uploaded → chunked → em
     * llama.cpp:
         * [llama.cpp](https://github.com/ggerganov/llama.cpp)
         * [llama-cpp-python](https://github.com/abetlen/llama-cpp-python)
-    * Ollama:
-        * [Ollama](https://github.com/ollama/ollama/tree/main)
-        * [Ollama Python Library](https://github.com/ollama/ollama-python/tree/main)
-        * [On the architecture of ollama](https://blog.inoki.cc/2024/04/15/Ollama/)
-        * [Analysis of Ollama Architecture and Conversation Processing Flow for AI LLM Tool](https://medium.com/@rifewang/analysis-of-ollama-architecture-and-conversation-processing-flow-for-ai-llm-tool-ead4b9f40975)
-        * [How to Customize Ollama’s Storage Directory](https://medium.com/@chhaybunsy/unleash-your-machine-learning-models-how-to-customize-ollamas-storage-directory-c9ea1ea2961a#:~:text=By%20default%2C%20Ollama%20saves%20its,making%20predictions%20or%20further%20training)
-        * Use [CodeGPT](https://plugins.jetbrains.com/plugin/21056-codegpt) to access self-hosted models from Ollama for
-          a code assistant in PyCharm. More info [here](https://docs.codegpt.ee/providers/local/ollama).
     * Deepval - A framework for evaluating LLMs:
       * https://github.com/confident-ai/deepeval
     * [Structured Outputs](https://github.com/dottxt-ai/outlines)
@@ -278,14 +284,6 @@ Once you upload one or multiple files, they will be: uploaded → chunked → em
     * [Conversational awareness](https://langstream.ai/2023/10/13/rag-chatbot-with-conversation/)
     * [RAG is Dead, Again?](https://jina.ai/news/rag-is-dead-again/)
 * Chatbot UI:
-    * [Streamlit](https://discuss.streamlit.io/):
-        * [Build a basic LLM chat app](https://docs.streamlit.io/knowledge-base/tutorials/build-conversational-apps#build-a-chatgpt-like-app)
-        * [Layouts and Containers](https://docs.streamlit.io/library/api-reference/layout)
-        * [st.chat_message](https://docs.streamlit.io/library/api-reference/chat/st.chat_message)
-        * [Add statefulness to apps](https://docs.streamlit.io/library/advanced-features/session-state)
-            * [Why session state is not persisting between refresh?](https://discuss.streamlit.io/t/why-session-state-is-not-persisting-between-refresh/32020)
-        * [st.cache_resource](https://docs.streamlit.io/library/api-reference/performance/st.cache_resource)
-        * [Handling External Command Line Arguments](https://github.com/streamlit/streamlit/issues/337)
     * [Open WebUI](https://github.com/open-webui/open-webui)
         * [Running AI Locally Using Ollama on Ubuntu Linux](https://itsfoss.com/ollama-setup-linux/)
 * Text Processing and Cleaning:

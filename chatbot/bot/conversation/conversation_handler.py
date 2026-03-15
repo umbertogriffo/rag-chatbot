@@ -1,19 +1,19 @@
 import re
-from asyncio import get_event_loop
 from typing import Any
 
-import streamlit as st
 from entities.document import Document
 from helpers.log import get_logger
 
 from bot.client.lama_cpp_client import LamaCppClient
 from bot.conversation.chat_history import ChatHistory
-from bot.conversation.ctx_strategy import AsyncTreeSummarizationStrategy, BaseSynthesisStrategy
+from bot.conversation.ctx_strategy import BaseSynthesisStrategy
 
 logger = get_logger(__name__)
 
 
-def refine_question(llm: LamaCppClient, question: str, chat_history: ChatHistory, max_new_tokens: int = 128) -> str:
+async def refine_question(
+    llm: LamaCppClient, question: str, chat_history: ChatHistory, max_new_tokens: int = 128
+) -> str:
     """
     Refines the given question based on the chat history.
 
@@ -38,7 +38,7 @@ def refine_question(llm: LamaCppClient, question: str, chat_history: ChatHistory
 
         logger.info(f"--- Prompt:\n {conversation_awareness_prompt} \n---")
 
-        refined_question = llm.generate_answer(conversation_awareness_prompt, max_new_tokens=max_new_tokens)
+        refined_question = await llm.async_generate_answer(conversation_awareness_prompt, max_new_tokens=max_new_tokens)
 
         if llm.model_settings.reasoning:
             refined_question = extract_content_after_reasoning(refined_question, llm.model_settings.reasoning_stop_tag)
@@ -52,7 +52,7 @@ def refine_question(llm: LamaCppClient, question: str, chat_history: ChatHistory
         return question
 
 
-def answer(llm: LamaCppClient, question: str, chat_history: ChatHistory, max_new_tokens: int = 512) -> Any:
+async def answer(llm: LamaCppClient, question: str, chat_history: ChatHistory, max_new_tokens: int = 512) -> Any:
     """
     Generates an answer to the given question based on the chat history or a direct prompt.
 
@@ -84,17 +84,19 @@ def answer(llm: LamaCppClient, question: str, chat_history: ChatHistory, max_new
 
         logger.debug(f"--- Prompt:\n {conversation_awareness_prompt} \n---")
 
-        streamer = llm.start_answer_iterator_streamer(conversation_awareness_prompt, max_new_tokens=max_new_tokens)
+        streamer = await llm.async_start_answer_iterator_streamer(
+            conversation_awareness_prompt, max_new_tokens=max_new_tokens
+        )
 
         return streamer
     else:
         prompt = llm.generate_qa_prompt(question=question)
         logger.debug(f"--- Prompt:\n {prompt} \n---")
-        streamer = llm.start_answer_iterator_streamer(prompt, max_new_tokens=max_new_tokens)
+        streamer = await llm.async_start_answer_iterator_streamer(prompt, max_new_tokens=max_new_tokens)
         return streamer
 
 
-def answer_with_context(
+async def answer_with_context(
     llm: LamaCppClient,
     ctx_synthesis_strategy: BaseSynthesisStrategy,
     question: str,
@@ -119,17 +121,12 @@ def answer_with_context(
         tuple: A tuple containing the answer streamer and formatted prompts.
     """
     if not retrieved_contents:
-        return answer(llm, question, chat_history, max_new_tokens=max_new_tokens), []
+        return await answer(llm, question, chat_history, max_new_tokens=max_new_tokens), []
 
-    if isinstance(ctx_synthesis_strategy, AsyncTreeSummarizationStrategy):
-        loop = get_event_loop()
-        streamer, fmt_prompts = loop.run_until_complete(
-            ctx_synthesis_strategy.generate_response(retrieved_contents, question, max_new_tokens=max_new_tokens)
-        )
-    else:
-        streamer, fmt_prompts = ctx_synthesis_strategy.generate_response(
-            retrieved_contents, question, max_new_tokens=max_new_tokens
-        )
+    streamer, fmt_prompts = await ctx_synthesis_strategy.generate_response(
+        retrieved_contents, question, max_new_tokens=max_new_tokens
+    )
+
     return streamer, fmt_prompts
 
 
@@ -160,7 +157,7 @@ def extract_content_after_reasoning(text: str, reasoning_stop_tag: str) -> str:
 
 
 # TODO: Use it later
-def stream_response_with_reasoning(
+async def stream_response_with_reasoning(
     llm: LamaCppClient, user_input: str, chat_history: ChatHistory, max_new_tokens: int
 ) -> tuple[str, str]:
     """
@@ -183,11 +180,10 @@ def stream_response_with_reasoning(
         - The reasoning portion is identified and displayed separately using start and stop tags.
         - The response is updated token by token, with a cursor ("▌") indicating ongoing generation.
     """
-    message_placeholder = st.empty()
     full_response = ""
     reasoning_response = ""
     inside_think = False
-    for token in answer(llm=llm, question=user_input, chat_history=chat_history, max_new_tokens=max_new_tokens):
+    for token in await answer(llm=llm, question=user_input, chat_history=chat_history, max_new_tokens=max_new_tokens):
         parsed_token = llm.parse_token(token)
         stripped_token = parsed_token.strip()
 
@@ -205,9 +201,5 @@ def stream_response_with_reasoning(
             reasoning_response += parsed_token
         else:
             full_response += llm.parse_token(token)
-
-        message_placeholder.markdown(reasoning_response + full_response + "▌")
-
-    message_placeholder.markdown(reasoning_response + full_response)
 
     return full_response, reasoning_response
