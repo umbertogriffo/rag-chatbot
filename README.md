@@ -180,6 +180,17 @@ python chatbot/memory_builder.py --chunk-size 1000 --chunk-overlap 50
 
 The Chatbot has a UI built with `Vite`, `React` and `TypeScript`, and a backend built with `FastAPI` that serves the LLMs through `llama-cpp-python`.
 
+To install the UI dependencies, run:
+
+```shell
+cd frontend
+nvm use
+yarn
+
+# Create .env file
+echo "VITE_API_URL=http://localhost:8000" > .env
+```
+
 To start the backend type:
 
 ```shell
@@ -191,7 +202,7 @@ To start the frontend (in a new terminal):
 cd frontend && yarn dev
 ```
 
-or just run:
+or to start both ensuring that the backend is running and ready before launching the frontend just run:
 
 ```shell
 make start

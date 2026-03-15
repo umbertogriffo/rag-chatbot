@@ -18,6 +18,7 @@ from api.deps import ChatHistoryDep, LamaCppClientDep, VectorDatabaseDep
 logger = get_logger(__name__)
 
 
+# TODO: https://github.com/umbertogriffo/rag-chatbot/pull/10#discussion_r2936567672
 async def stream_chat_response(
     websocket: WebSocket, llm_client: LamaCppClientDep, query: ChatRequest, chat_history: ChatHistoryDep
 ):
@@ -62,6 +63,7 @@ async def stream_chat_response(
         await websocket.send_text("Error during streaming.")
 
 
+# TODO: https://github.com/umbertogriffo/rag-chatbot/pull/10#discussion_r2936567672
 async def stream_rag_response(
     websocket: WebSocket,
     llm_client: LamaCppClientDep,
@@ -99,7 +101,6 @@ async def stream_rag_response(
                 retrieval_response += "\n\n"
         else:
             retrieval_response += "I did not detect any pertinent chunk of text from the documents. \n\n"
-            await websocket.send_text(retrieval_response)
 
         await websocket.send_text(retrieval_response)
         await websocket.send_text("-" * 20 + "\n\n")

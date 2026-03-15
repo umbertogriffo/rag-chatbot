@@ -2,8 +2,11 @@
 
 # Start backend in background
 cd backend
-PYTHONPATH=.:../chatbot uvicorn main:app --reload &
+PYTHONPATH=.:../chatbot uvicorn main:app &
 BACKEND_PID=$!
+
+# Cleanup on exit
+trap "kill $BACKEND_PID" EXIT
 
 # Wait for backend to be ready
 echo "Waiting for backend to start..."
@@ -16,6 +19,3 @@ echo "Backend is ready. Starting frontend..."
 # Start frontend
 cd ../frontend
 yarn dev
-
-# Cleanup on exit
-trap "kill $BACKEND_PID" EXIT

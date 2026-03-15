@@ -74,8 +74,21 @@ async def upload_document(file: Annotated[UploadFile, File(...)], index: VectorD
     )
     _documents[document_id] = doc_info
 
+    try:
+        page_content = content.decode("utf-8")
+    except UnicodeDecodeError as exc:
+        logger.warning(
+            "Failed to decode uploaded file '%s' as UTF-8: %s",
+            file.filename,
+            exc,
+        )
+        raise HTTPException(
+            status_code=400,
+            detail="Uploaded file is not valid UTF-8 text and cannot be processed.",
+        )
+
     document = Document(
-        page_content=content.decode("utf-8"),
+        page_content=page_content,
         metadata={
             "source": str(file_path),
             "document_id": document_id,
@@ -135,5 +148,6 @@ async def delete_document(document_id: str, index: VectorDatabaseDep):
         shutil.rmtree(dest_dir)
 
     # TODO: implement an efficient way to remove all chunks associated with this document from the vector database index
+    # https://github.com/umbertogriffo/rag-chatbot/pull/10#discussion_r2936567674
 
     del _documents[document_id]

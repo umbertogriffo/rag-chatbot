@@ -187,6 +187,7 @@ class LamaCppClient:
 
         return stream
 
+    # TODO: https://github.com/umbertogriffo/rag-chatbot/pull/10#discussion_r2936567633
     async def async_start_answer_iterator_streamer(
         self, prompt: str, max_new_tokens: int = 512
     ) -> CreateCompletionResponse | Iterator[CreateCompletionStreamResponse]:

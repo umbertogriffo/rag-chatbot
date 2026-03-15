@@ -15,7 +15,6 @@ class Settings(BaseSettings):
 
     PROJECT_NAME: str = "Chatbot API"
     VERSION: str = "0.1.0"
-    API_V1_PREFIX: str = "/api"
     HOST: str = "0.0.0.0"
     PORT: int = 8000
 
