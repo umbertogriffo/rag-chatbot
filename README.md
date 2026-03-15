@@ -206,7 +206,7 @@ You can enable the RAG Mode feature in the UI to ask questions based on the cont
 ![rag_chatbot_example.gif](images%2Frag_chatbot_example.gif)
 
 You can also upload a Markdown file using the file uploader.
-The Document management section shows the uploaded and indexed documents.
+The document management section shows the uploaded and indexed documents.
 Once you upload one or multiple files, they will be: uploaded → chunked → embedded → upserted to Chroma.
 
 ![rag_chatbot_load_doc_example.gif](images/rag_chatbot_load_doc_example.gif)
