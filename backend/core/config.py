@@ -32,14 +32,14 @@ class Settings(BaseSettings):
     VECTOR_STORE_PATH: Path = ROOT_PATH / "vector_store" / "docs_index"
     DOCS_PATH: Path = ROOT_PATH / Path("docs")
 
-    DEFAULT_MODEL: str = "llama-3.2:1b"
-    DEFAULT_K: int = 2
-    DEFAULT_MAX_NEW_TOKENS: int = 512
-    DEFAULT_CHUNK_SIZE: int = 1000
-    DEFAULT_CHUNK_OVERLAP: int = 50
-    DEFAULT_SYNTHESIS_STRATEGY: str = "async-tree-summarization"
-    DEFAULT_CHAT_HISTORY_LENGTH: int = 2
-    DEFAULT_NUM_RETRIEVALS: int = 2
+    MODEL: str = "llama-3.2:1b"
+    K: int = 2
+    MAX_NEW_TOKENS: int = 512
+    CHUNK_SIZE: int = 1000
+    CHUNK_OVERLAP: int = 50
+    SYNTHESIS_STRATEGY: str = "tree-summarization"
+    CHAT_HISTORY_LENGTH: int = 2
+    NUM_RETRIEVALS: int = 2
 
     WEBSOCKET_MAX_SIZE: int = 10 * 1024 * 1024  # 10 MB
     ALLOWED_UPLOAD_EXTENSIONS: list[str] = [".md"]

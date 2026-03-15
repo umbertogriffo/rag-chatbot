@@ -84,9 +84,7 @@ async def upload_document(file: Annotated[UploadFile, File(...)], index: VectorD
             "size": len(content),
         },
     )
-    chunks = split_chunks(
-        [document], chunk_size=settings.DEFAULT_CHUNK_SIZE, chunk_overlap=settings.DEFAULT_CHUNK_OVERLAP
-    )
+    chunks = split_chunks([document], chunk_size=settings.CHUNK_SIZE, chunk_overlap=settings.CHUNK_OVERLAP)
     num_chunks = len(chunks)
 
     logger.info(f"Number of generated chunks: {num_chunks}")

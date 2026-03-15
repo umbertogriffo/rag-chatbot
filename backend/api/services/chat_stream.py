@@ -37,7 +37,7 @@ async def stream_chat_response(
             llm=llm_client,
             question=query.text,
             chat_history=chat_history,
-            max_new_tokens=settings.DEFAULT_MAX_NEW_TOKENS,
+            max_new_tokens=settings.MAX_NEW_TOKENS,
         )
         for output in stream:
             token = llm_client.parse_token(output)
@@ -80,16 +80,16 @@ async def stream_rag_response(
     """
     try:
         start_time = time.time()
-        ctx_synthesis_strategy = get_ctx_synthesis_strategy(settings.DEFAULT_SYNTHESIS_STRATEGY, llm=llm_client)
+        ctx_synthesis_strategy = get_ctx_synthesis_strategy(settings.SYNTHESIS_STRATEGY, llm=llm_client)
 
         retrieval_response = ""
         full_response = ""
 
-        refined_user_input = refine_question(
-            llm_client, query.text, chat_history=chat_history, max_new_tokens=settings.DEFAULT_MAX_NEW_TOKENS
+        refined_user_input = await refine_question(
+            llm_client, query.text, chat_history=chat_history, max_new_tokens=settings.MAX_NEW_TOKENS
         )
         retrieved_contents, sources = index.similarity_search_with_threshold(
-            query=refined_user_input, k=settings.DEFAULT_NUM_RETRIEVALS
+            query=refined_user_input, k=settings.NUM_RETRIEVALS
         )
         if retrieved_contents:
             retrieval_response += "Here are the retrieved text chunks with a content preview: \n\n"
@@ -111,7 +111,7 @@ async def stream_rag_response(
             query.text,
             chat_history,
             retrieved_contents,
-            settings.DEFAULT_MAX_NEW_TOKENS,
+            settings.MAX_NEW_TOKENS,
         )
 
         for output in streamer:

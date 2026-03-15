@@ -7,4 +7,4 @@ def init_chat_history(total_length: int = 2) -> ChatHistory:
     return chat_history
 
 
-chat_history = init_chat_history(settings.DEFAULT_CHAT_HISTORY_LENGTH)
+chat_history = init_chat_history(settings.CHAT_HISTORY_LENGTH)

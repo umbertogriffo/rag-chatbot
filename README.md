@@ -73,8 +73,6 @@ To deal with context overflows, we implemented three approaches:
 * `Hierarchical Summarization of Context`: generate an answer for each relevant section independently, and then
   hierarchically combine the answers.
     * ![hierarchical-summarization.png](images/hierarchical-summarization.png)
-* `Async Hierarchical Summarization of Context`: parallelized version of the Hierarchical Summarization of Context which
-  lead to big speedups in response synthesis.
 
 ## Prerequisites
 
@@ -165,8 +163,7 @@ format.
 | ✨ Response Synthesis strategy                                           | Supported | Notes |
 |-------------------------------------------------------------------------|-----------|-------|
 | `create-and-refine` Create and Refine                                   | ✅         |       |
-| `tree-summarization` Tree Summarization                                 | ✅         |       |
-| `async-tree-summarization` - **Recommended** - Async Tree Summarization | ✅         |       |
+| `tree-summarization` **Recommended** - Tree Summarization               | ✅         |       |
 
 ## Example Data
 

@@ -16,9 +16,7 @@ async def chat(query: ChatRequest, llm_client: LamaCppClientDep):
     logger.info(query)
 
     try:
-        # Your existing LLM logic here
-        # response = MARKDOWN_RESPONSE
-        answer = llm_client.generate_answer(query.text, max_new_tokens=settings.DEFAULT_MAX_NEW_TOKENS)
+        answer = await llm_client.async_generate_answer(query.text, max_new_tokens=settings.MAX_NEW_TOKENS)
         return JSONResponse({"response": answer})
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": f"Failed to generate response: {str(e)}"})

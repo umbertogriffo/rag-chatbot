@@ -6,12 +6,14 @@ from helpers.log import get_logger
 
 from bot.client.lama_cpp_client import LamaCppClient
 from bot.conversation.chat_history import ChatHistory
-from bot.conversation.ctx_strategy import AsyncTreeSummarizationStrategy, BaseSynthesisStrategy
+from bot.conversation.ctx_strategy import BaseSynthesisStrategy
 
 logger = get_logger(__name__)
 
 
-def refine_question(llm: LamaCppClient, question: str, chat_history: ChatHistory, max_new_tokens: int = 128) -> str:
+async def refine_question(
+    llm: LamaCppClient, question: str, chat_history: ChatHistory, max_new_tokens: int = 128
+) -> str:
     """
     Refines the given question based on the chat history.
 
@@ -36,7 +38,7 @@ def refine_question(llm: LamaCppClient, question: str, chat_history: ChatHistory
 
         logger.info(f"--- Prompt:\n {conversation_awareness_prompt} \n---")
 
-        refined_question = llm.generate_answer(conversation_awareness_prompt, max_new_tokens=max_new_tokens)
+        refined_question = await llm.async_generate_answer(conversation_awareness_prompt, max_new_tokens=max_new_tokens)
 
         if llm.model_settings.reasoning:
             refined_question = extract_content_after_reasoning(refined_question, llm.model_settings.reasoning_stop_tag)
@@ -121,15 +123,9 @@ async def answer_with_context(
     if not retrieved_contents:
         return await answer(llm, question, chat_history, max_new_tokens=max_new_tokens), []
 
-    if isinstance(ctx_synthesis_strategy, AsyncTreeSummarizationStrategy):
-        streamer, fmt_prompts = await ctx_synthesis_strategy.generate_response(
-            retrieved_contents, question, max_new_tokens=max_new_tokens
-        )
-
-    else:
-        streamer, fmt_prompts = ctx_synthesis_strategy.generate_response(
-            retrieved_contents, question, max_new_tokens=max_new_tokens
-        )
+    streamer, fmt_prompts = await ctx_synthesis_strategy.generate_response(
+        retrieved_contents, question, max_new_tokens=max_new_tokens
+    )
 
     return streamer, fmt_prompts
 
