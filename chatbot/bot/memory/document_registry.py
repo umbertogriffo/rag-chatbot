@@ -11,6 +11,24 @@ from sqlmodel import Field, Session, SQLModel, create_engine, select
 logger = logging.getLogger(__name__)
 
 
+def _create_sqlite_engine(db_path: Path):
+    """Create a SQLite engine with WAL journal mode for concurrent-read safety."""
+    from sqlalchemy import event
+
+    engine = create_engine(
+        f"sqlite:///{db_path}",
+        connect_args={"check_same_thread": False},
+    )
+
+    @event.listens_for(engine, "connect")
+    def _set_sqlite_pragma(dbapi_connection, connection_record):
+        cursor = dbapi_connection.cursor()
+        cursor.execute("PRAGMA journal_mode=WAL;")
+        cursor.close()
+
+    return engine
+
+
 class DocumentRecord(SQLModel, table=True):
     """A single row in the document registry."""
 
@@ -46,10 +64,7 @@ class DocumentRegistry:
     def __init__(self, db_path: str | Path) -> None:
         db_path = Path(db_path)
         db_path.parent.mkdir(parents=True, exist_ok=True)
-        self._engine = create_engine(
-            f"sqlite:///{db_path}",
-            connect_args={"check_same_thread": False},
-        )
+        self._engine = _create_sqlite_engine(db_path)
         SQLModel.metadata.create_all(self._engine)
 
     @property
