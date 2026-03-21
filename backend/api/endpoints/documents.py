@@ -3,6 +3,7 @@ import uuid
 from pathlib import Path
 from typing import Annotated
 
+from bot.memory.document_registry import DocumentRegistry
 from bot.memory.vector_database.id_generator import compute_version_hash
 from core.config import settings
 from entities.document import Document
@@ -11,7 +12,7 @@ from helpers.log import get_logger
 from memory_builder import split_chunks
 from schemas.documents import DocumentInfo, DocumentListResponse, DocumentUploadResponse
 
-from api.deps import DocumentRegistryDep, VectorDatabaseDep
+from api.deps import SessionDep, VectorDatabaseDep
 
 logger = get_logger(__name__)
 
@@ -30,7 +31,7 @@ router = APIRouter()
 async def upload_document(
     file: Annotated[UploadFile, File(...)],
     index: VectorDatabaseDep,
-    registry: DocumentRegistryDep,
+    session: SessionDep,
 ):
     """
     Upload a document to the knowledge base.
@@ -38,7 +39,7 @@ async def upload_document(
     Args:
         file: The file to upload. Must have an allowed extension.
         index: Vector database dependency for storing document chunks.
-        registry: Document registry dependency for metadata tracking.
+        session: Database session dependency for the document registry.
 
     Returns:
         DocumentUploadResponse containing the generated document_id and filename.
@@ -47,6 +48,7 @@ async def upload_document(
         HTTPException: 400 if file type is not supported.
         HTTPException: 409 if a document with the same filename already exists.
     """
+    registry = DocumentRegistry(session)
     suffix = Path(file.filename or "").suffix.lower()
     if suffix not in settings.ALLOWED_UPLOAD_EXTENSIONS:
         raise HTTPException(
@@ -124,13 +126,14 @@ async def upload_document(
 
 
 @router.get("/documents", response_model=DocumentListResponse)
-async def list_documents(registry: DocumentRegistryDep):
+async def list_documents(session: SessionDep):
     """
     List all uploaded documents.
 
     Returns:
         DocumentListResponse containing a list of all document metadata.
     """
+    registry = DocumentRegistry(session)
     records = registry.get_all()
     documents = [
         DocumentInfo(
@@ -150,7 +153,7 @@ async def list_documents(registry: DocumentRegistryDep):
     status_code=204,
     responses={404: {"description": "Not Found - Document with the given ID does not exist."}},
 )
-async def delete_document(document_id: str, index: VectorDatabaseDep, registry: DocumentRegistryDep):
+async def delete_document(document_id: str, index: VectorDatabaseDep, session: SessionDep):
     """
     Delete a document from the knowledge base.
 
@@ -160,11 +163,12 @@ async def delete_document(document_id: str, index: VectorDatabaseDep, registry: 
     Args:
         document_id: The unique identifier of the document to delete.
         index: Vector database dependency for removing document chunks.
-        registry: Document registry dependency for metadata tracking.
+        session: Database session dependency for the document registry.
 
     Raises:
         HTTPException: 404 if the document with the given ID is not found.
     """
+    registry = DocumentRegistry(session)
     rec = registry.get(document_id)
     if rec is None:
         raise HTTPException(status_code=404, detail=f"Document '{document_id}' not found.")

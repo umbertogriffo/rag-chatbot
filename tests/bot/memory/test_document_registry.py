@@ -3,12 +3,10 @@ from bot.memory.document_registry import DocumentRecord, DocumentRegistry
 
 
 @pytest.fixture
-def registry(tmp_path):
+def registry(session):
     """Provide a fresh DocumentRegistry backed by a temp SQLite DB."""
-    db_path = tmp_path / "test_registry.db"
-    reg = DocumentRegistry(db_path)
+    reg = DocumentRegistry(session)
     yield reg
-    reg.close()
 
 
 class TestUpsertAndGet:

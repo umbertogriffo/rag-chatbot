@@ -6,12 +6,13 @@ from typing import Annotated, Generator
 
 from bot.client.lama_cpp_client import LamaCppClient
 from bot.conversation.chat_history import ChatHistory
-from bot.memory.document_registry import DocumentRegistry
 from bot.memory.vector_database.chroma import Chroma
 from chat_history import chat_history
+from database import engine
 from fastapi import Depends
 from llm_client import llm_client
-from vector_database import index, registry
+from sqlmodel import Session
+from vector_database import index
 
 
 def get_llm_client() -> Generator[LamaCppClient, None, None]:
@@ -37,14 +38,15 @@ def get_index() -> Generator[Chroma, None, None]:
     yield index
 
 
-def get_registry() -> Generator[DocumentRegistry, None, None]:
+def get_db_session() -> Generator[Session, None, None]:
     """
-    Dependency to get the document registry instance.
+    Create a new database session and close the session after the operation has ended.
     """
-    yield registry
+    with Session(engine) as session:
+        yield session
 
 
 LamaCppClientDep = Annotated[LamaCppClient, Depends(get_llm_client)]
 ChatHistoryDep = Annotated[ChatHistory, Depends(get_chat_history)]
 VectorDatabaseDep = Annotated[Chroma, Depends(get_index)]
-DocumentRegistryDep = Annotated[DocumentRegistry, Depends(get_registry)]
+SessionDep = Annotated[Session, Depends(get_db_session)]

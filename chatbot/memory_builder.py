@@ -6,11 +6,13 @@ from bot.memory.document_registry import DocumentRegistry
 from bot.memory.embedder import Embedder
 from bot.memory.vector_database.chroma import Chroma
 from bot.memory.vector_database.id_generator import compute_version_hash, generate_deterministic_id
+from database import engine
 from document_loader.format import Format
 from document_loader.loader import DirectoryLoader
 from document_loader.text_splitter import create_recursive_text_splitter
 from entities.document import Document
 from helpers.log import get_logger
+from sqlmodel import Session
 
 logger = get_logger(__name__)
 
@@ -59,8 +61,6 @@ def build_memory_index(
     vector_store_path: str,
     chunk_size: int,
     chunk_overlap: int,
-    registry: DocumentRegistry | None = None,
-    vector_database: Chroma | None = None,
     full_rebuild: bool = False,
 ) -> dict:
     """
@@ -75,13 +75,11 @@ def build_memory_index(
     # ------------------------------------------------------------------
     # bootstrap vector DB + registry if not injected
     # ------------------------------------------------------------------
-    if vector_database is None:
-        embedding = Embedder()
-        vector_database = Chroma(is_persistent=True, persist_directory=str(vector_store_path), embedding=embedding)
+    embedding = Embedder()
+    vector_database = Chroma(is_persistent=True, persist_directory=str(vector_store_path), embedding=embedding)
 
-    if registry is None:
-        registry_path = Path(vector_store_path).parent / "document_registry.db"
-        registry = DocumentRegistry(registry_path)
+    session = Session(engine)
+    registry = DocumentRegistry(session)
 
     # ------------------------------------------------------------------
     # full-rebuild: wipe everything first
@@ -173,6 +171,7 @@ def build_memory_index(
         "skipped": len(current_docs) - len(to_ingest),
     }
     logger.info("Memory Index updated – %s", stats)
+    session.close()
     return stats
 
 
