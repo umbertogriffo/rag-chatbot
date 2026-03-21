@@ -66,9 +66,9 @@ def build_memory_index(
     """
     Build or incrementally update the vector memory index.
 
-    When *full_rebuild* is ``True`` the Chroma collection and the registry are
-    wiped before ingesting everything from scratch.  Otherwise only new and
-    changed documents are processed, and deleted documents are removed.
+    When `full_rebuild` is `True` the Chroma collection and the registry are
+    wiped before ingesting everything from scratch.
+    Otherwise, only new and changed documents are processed, and deleted documents are removed.
 
     Returns a stats dict with counts of processed / deleted / skipped docs.
     """

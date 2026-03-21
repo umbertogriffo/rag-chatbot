@@ -2,8 +2,12 @@ from logging.config import fileConfig
 
 from alembic import context
 from bot.memory.document_registry import DocumentRecord  # noqa: F401 – registers the model
+from core.config import settings
+from helpers.log import get_logger
 from sqlalchemy import engine_from_config, pool
 from sqlmodel import SQLModel
+
+logger = get_logger(__name__)
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -32,6 +36,7 @@ def run_migrations_offline() -> None:
 
     """
     url = config.get_main_option("sqlalchemy.url")
+    logger.info(f"DATABASE_URL {url}")
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -50,6 +55,16 @@ def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
+    # Get database URL from environment variable
+    if settings.DATABASE_URL is None:
+        logger.info(
+            "DATABASE_URL environment variable is not set. "
+            "Applying migrations Using sqlalchemy.url from alembic.ini."
+        )
+    else:
+        logger.info("Applying migrations Using DATABASE_URL from environment variable.")
+        config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
+
     connectable = engine_from_config(
         config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",

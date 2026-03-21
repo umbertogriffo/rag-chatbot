@@ -29,9 +29,10 @@ class Settings(BaseSettings):
 
     MODEL_FOLDER: Path = ROOT_PATH / "models"
     VECTOR_STORE_PATH: Path = ROOT_PATH / "vector_store" / "docs_index"
-    DOC_REGISTRY_DB_PATH: Path = ROOT_PATH / "vector_store" / "document_registry.db"
-    DOC_REGISTRY_DB_URL: str = f"sqlite:///{ROOT_PATH / 'vector_store' / 'document_registry.db'}"
     DOCS_PATH: Path = ROOT_PATH / Path("docs")
+
+    DATABASE_PATH: Path = ROOT_PATH / "vector_store" / "registry.db"
+    DATABASE_URL: str = f"sqlite:///{ROOT_PATH / 'vector_store' / 'registry.db'}"
 
     MODEL: str = "llama-3.2:1b"
     K: int = 2

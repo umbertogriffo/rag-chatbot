@@ -36,4 +36,4 @@ def init_registry(db_path: Path) -> DocumentRegistry:
 
 
 index = init_index(settings.VECTOR_STORE_PATH)
-registry = init_registry(settings.DOC_REGISTRY_DB_PATH)
+registry = init_registry(settings.DATABASE_PATH)
