@@ -325,7 +325,7 @@ class Chroma:
         Remove chunks belonging to a specific document.
 
         When *chunk_ids* is provided the deletion is precise (by ID list).
-        Otherwise falls back to a metadata-based ``where`` filter.
+        Otherwise, falls back to a metadata-based ``where`` filter.
 
         Args:
             document_id: The document identifier whose chunks should be deleted.
