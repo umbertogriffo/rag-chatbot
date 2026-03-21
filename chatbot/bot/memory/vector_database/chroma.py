@@ -228,7 +228,7 @@ class Chroma:
         texts: list[str],
         metadata: list[dict] | None = None,
         ids: list[str] | None = None,
-    ) -> None:
+    ) -> list[str]:
         """
         Adds a batch of texts to the Chroma collection, optionally with metadata and IDs.
 
@@ -242,7 +242,7 @@ class Chroma:
                 Defaults to None.
 
         Returns:
-            None
+            list[str]: List of IDs of the added texts.
         """
         # Generate deterministic IDs if not provided
         if ids is None:
@@ -260,16 +260,21 @@ class Chroma:
                 ids=batch[0],
             )
 
-    def from_chunks(self, chunks: list[Document]) -> None:
+        return ids
+
+    def from_chunks(self, chunks: list[Document]) -> list[str]:
         """
         Add document chunks to the vector database index.
 
         Args:
             chunks (list): List of Document chunks to add to the collection.
+
+        Returns:
+            list[str]: List of IDs of the added chunks.
         """
         texts = [clean(doc.page_content, no_emoji=True) for doc in chunks]
         metadata = [doc.metadata for doc in chunks]
-        self.from_texts(
+        return self.from_texts(
             texts=texts,
             metadata=metadata,
         )
@@ -309,6 +314,31 @@ class Chroma:
             logger.info("Chroma collection deleted successfully.")
         except Exception as e:
             logger.error(f"Error deleting Chroma collection: {e}", exc_info=True, stack_info=True)
+            raise
+
+    def delete_chunks_by_document_id(
+        self,
+        document_id: str,
+        chunk_ids: list[str] | None = None,
+    ) -> None:
+        """
+        Remove chunks belonging to a specific document.
+
+        When *chunk_ids* is provided the deletion is precise (by ID list).
+        Otherwise falls back to a metadata-based ``where`` filter.
+
+        Args:
+            document_id: The document identifier whose chunks should be deleted.
+            chunk_ids: Optional explicit list of chunk IDs to delete.
+        """
+        try:
+            if chunk_ids:
+                self.collection.delete(ids=chunk_ids)
+            else:
+                self.collection.delete(where={"document_id": document_id})
+            logger.info("Deleted chunks for document_id=%s", document_id)
+        except Exception as e:
+            logger.error("Error deleting chunks for document_id=%s: %s", document_id, e)
             raise
 
     def similarity_search_with_threshold(

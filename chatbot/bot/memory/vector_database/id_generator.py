@@ -79,3 +79,21 @@ def generate_deterministic_ids(texts: list[str]) -> list[str]:
         ids.append(deterministic_id)
 
     return ids
+
+
+def compute_version_hash(content: str) -> str:
+    """
+    Compute a SHA-256 version fingerprint for a whole source document.
+
+    The content is normalized with :func:`normalize_text` before hashing so
+    that insignificant whitespace / casing differences don't produce a
+    different version hash.
+
+    Args:
+        content (str): Full document content.
+
+    Returns:
+        str: SHA-256 hex digest representing the document version.
+    """
+    normalized = normalize_text(content)
+    return hashlib.sha256(normalized.encode("utf-8")).hexdigest()

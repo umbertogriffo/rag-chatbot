@@ -144,3 +144,52 @@ def test_similarity_search_with_relevance_scores(chroma_instance):
     assert isinstance(results[0][0], Document)
     assert isinstance(results[0][1], float)
     assert 0.0 <= results[0][1] <= 1.0
+
+
+def test_from_texts_returns_ids(chroma_instance):
+    """Test that from_texts returns a list of chunk IDs"""
+    texts = ["Hello world", "Foo bar"]
+    ids = chroma_instance.from_texts(texts)
+    assert isinstance(ids, list)
+    assert len(ids) == 2
+    assert all(isinstance(i, str) for i in ids)
+
+
+def test_from_chunks_returns_ids(chroma_instance):
+    """Test that from_chunks returns a list of chunk IDs"""
+    chunks = [
+        Document(page_content="chunk one", metadata={"source": "a.md"}),
+        Document(page_content="chunk two", metadata={"source": "a.md"}),
+    ]
+    ids = chroma_instance.from_chunks(chunks)
+    assert isinstance(ids, list)
+    assert len(ids) == 2
+
+
+def test_delete_chunks_by_document_id_with_ids(chroma_instance):
+    """Test deletion of specific chunk IDs"""
+    texts = ["alpha content", "beta content"]
+    metadata = [{"document_id": "doc1"}, {"document_id": "doc1"}]
+    ids = chroma_instance.from_texts(texts, metadata)
+
+    # Delete only the first chunk by explicit ID
+    chroma_instance.delete_chunks_by_document_id("doc1", chunk_ids=[ids[0]])
+    results = chroma_instance.similarity_search("content", k=10)
+    assert len(results) == 1
+    assert results[0].page_content == "beta content"
+
+
+def test_delete_chunks_by_document_id_with_where(chroma_instance):
+    """Test deletion via document_id metadata filter (fallback)"""
+    texts = ["doc1 chunk a", "doc1 chunk b", "doc2 chunk a"]
+    metadata = [
+        {"document_id": "doc1"},
+        {"document_id": "doc1"},
+        {"document_id": "doc2"},
+    ]
+    chroma_instance.from_texts(texts, metadata)
+
+    chroma_instance.delete_chunks_by_document_id("doc1")
+    results = chroma_instance.similarity_search("chunk", k=10)
+    assert len(results) == 1
+    assert results[0].metadata["document_id"] == "doc2"

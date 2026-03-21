@@ -29,6 +29,7 @@ class Settings(BaseSettings):
 
     MODEL_FOLDER: Path = ROOT_PATH / "models"
     VECTOR_STORE_PATH: Path = ROOT_PATH / "vector_store" / "docs_index"
+    DOC_REGISTRY_DB_PATH: Path = ROOT_PATH / "vector_store" / "document_registry.db"
     DOCS_PATH: Path = ROOT_PATH / Path("docs")
 
     MODEL: str = "llama-3.2:1b"

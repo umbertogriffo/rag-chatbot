@@ -1,4 +1,5 @@
 from bot.memory.vector_database.id_generator import (
+    compute_version_hash,
     generate_deterministic_id,
     generate_deterministic_ids,
     normalize_text,
@@ -106,3 +107,30 @@ class TestDeduplication:
 
         # Different content should have different IDs
         assert id1 != id2
+
+
+class TestComputeVersionHash:
+    def test_same_content_same_hash(self):
+        """Same document content should always produce the same version hash"""
+        content = "# My Document\n\nThis is the full content."
+        h1 = compute_version_hash(content)
+        h2 = compute_version_hash(content)
+        assert h1 == h2
+
+    def test_different_content_different_hash(self):
+        """Different document content should produce different version hashes"""
+        h1 = compute_version_hash("Version 1 content")
+        h2 = compute_version_hash("Version 2 content")
+        assert h1 != h2
+
+    def test_normalization_applied(self):
+        """Whitespace / case differences should not change the hash"""
+        h1 = compute_version_hash("Hello World")
+        h2 = compute_version_hash("  hello   world  ")
+        assert h1 == h2
+
+    def test_returns_sha256_hex(self):
+        """Hash should be a valid SHA-256 hex digest (64 characters)"""
+        h = compute_version_hash("test")
+        assert len(h) == 64
+        assert all(c in "0123456789abcdef" for c in h)
