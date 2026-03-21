@@ -1,5 +1,13 @@
 # Plan: Production-Ready Incremental Vector Store Updates
 
+- **Document-level metadata tracking**: every chunk gets tagged with a source doc ID + version hash. When a doc changes, we regenerate chunks for that doc only, delete the old ones by metadata filter, and insert new ones. way cheaper than rebuilding the whole index.
+- **Incremental ingestion pipeline**: we run a job that diffs source docs against what's already indexed (using those version hashes). Only changed/new docs get processed. Keeps compute costs reasonable as the corpus grows.
+- **Handling deletions**:We keep a separate mapping table (doc_id → chunk_ids) so we can precisely target what to remove without scanning the whole store.
+
+> One thing to watch out for — if you ever swap embedding models, you must rebuild it from scratch since the vector spaces won’t be compatible. Plan for that early.
+
+## Task
+
 Replace the full-rebuild ingestion and in-memory _documents dict with a SQLite-backed DocumentRegistry,
 document-level version tracking on every chunk, targeted Chroma deletions, an incremental diff pipeline,
 and an admin reindex endpoint with concurrency guard and status polling.
@@ -25,12 +33,3 @@ Steps
    4. delete_document: look up in registry, call index.
    5. `delete_chunks_by_document_id(doc_id, chunk_ids)`, call `registry.remove(doc_id)`, delete file from disk.
    6. Add version_hash: str field to DocumentInfo in documents schema.
-
-
---- Key Benefits
-
-- **Document-level metadata tracking**: every chunk gets tagged with a source doc ID + version hash. When a doc changes, we regenerate chunks for that doc only, delete the old ones by metadata filter, and insert new ones. way cheaper than rebuilding the whole index.
-- **Incremental ingestion pipeline**: we run a job that diffs source docs against what's already indexed (using those version hashes). Only changed/new docs get processed. Keeps compute costs reasonable as the corpus grows.
-- **Handling deletions**:We keep a separate mapping table (doc_id → chunk_ids) so we can precisely target what to remove without scanning the whole store.
-
-> One thing to watch out for — if you ever swap embedding models, you must rebuild it from scratch since the vector spaces won’t be compatible. Plan for that early.
