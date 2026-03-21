@@ -132,7 +132,7 @@ def build_memory_index(
     for doc_id in changed_ids | deleted_ids:
         rec = registry.get(doc_id)
         chunk_ids = rec.chunk_ids if rec else None
-        vector_database.delete_chunks_by_document_id(doc_id, chunk_ids=chunk_ids or None)
+        vector_database.delete_chunks_by_document_id(doc_id, chunk_ids=chunk_ids)
         if doc_id in deleted_ids:
             registry.remove(doc_id)
 

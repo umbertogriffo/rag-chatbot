@@ -2,7 +2,7 @@
 Admin endpoints for triggering and monitoring background re-index operations.
 """
 
-import asyncio
+import threading
 from dataclasses import dataclass
 from datetime import datetime, timezone
 
@@ -17,7 +17,7 @@ logger = get_logger(__name__)
 router = APIRouter()
 
 # ── concurrency guard and shared state ───────────────────────────────────
-_reindex_lock = asyncio.Lock()
+_reindex_lock = threading.Lock()
 
 
 @dataclass
@@ -36,7 +36,7 @@ _state = _ReindexState()
 
 def _run_reindex(full_rebuild: bool, vector_store_path: str, docs_path: str, chunk_size: int, chunk_overlap: int):
     """
-    Synchronous function executed in a thread via BackgroundTasks.
+    Synchronous function executed in a background thread via BackgroundTasks.
 
     Calls the incremental (or full-rebuild) memory builder and updates the
     shared ``_state`` accordingly.
@@ -44,8 +44,8 @@ def _run_reindex(full_rebuild: bool, vector_store_path: str, docs_path: str, chu
     global _state
     try:
         stats = build_memory_index(
-            docs_path=settings.DOCS_PATH,
-            vector_store_path=str(settings.VECTOR_STORE_PATH),
+            docs_path=docs_path,
+            vector_store_path=vector_store_path,
             chunk_size=chunk_size,
             chunk_overlap=chunk_overlap,
             full_rebuild=full_rebuild,
@@ -86,10 +86,8 @@ async def reindex(
     """
     global _state
 
-    if _reindex_lock.locked():
+    if not _reindex_lock.acquire(blocking=False):
         raise HTTPException(status_code=409, detail="A reindex operation is already in progress.")
-
-    await _reindex_lock.acquire()
 
     _state = _ReindexState(status="running", started_at=datetime.now(timezone.utc))
 
