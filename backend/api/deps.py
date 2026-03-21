@@ -1,15 +1,17 @@
 """
 Defines dependencies used by the endpoints.
 """
+
 from typing import Annotated, Generator
 
 from bot.client.lama_cpp_client import LamaCppClient
 from bot.conversation.chat_history import ChatHistory
+from bot.memory.document_registry import DocumentRegistry
 from bot.memory.vector_database.chroma import Chroma
 from chat_history import chat_history
 from fastapi import Depends
 from llm_client import llm_client
-from vector_database import index
+from vector_database import index, registry
 
 
 def get_llm_client() -> Generator[LamaCppClient, None, None]:
@@ -35,6 +37,14 @@ def get_index() -> Generator[Chroma, None, None]:
     yield index
 
 
+def get_registry() -> Generator[DocumentRegistry, None, None]:
+    """
+    Dependency to get the document registry instance.
+    """
+    yield registry
+
+
 LamaCppClientDep = Annotated[LamaCppClient, Depends(get_llm_client)]
 ChatHistoryDep = Annotated[ChatHistory, Depends(get_chat_history)]
 VectorDatabaseDep = Annotated[Chroma, Depends(get_index)]
+DocumentRegistryDep = Annotated[DocumentRegistry, Depends(get_registry)]

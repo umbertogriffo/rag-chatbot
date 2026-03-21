@@ -156,11 +156,7 @@ class DocumentRegistry:
 
         new_ids = current_ids - stored_ids
         deleted_ids = stored_ids - current_ids
-        changed_ids = {
-            doc_id
-            for doc_id in current_ids & stored_ids
-            if current_docs[doc_id] != stored[doc_id]
-        }
+        changed_ids = {doc_id for doc_id in current_ids & stored_ids if current_docs[doc_id] != stored[doc_id]}
 
         return new_ids, changed_ids, deleted_ids
 

@@ -3,6 +3,7 @@ import uuid
 from pathlib import Path
 from typing import Annotated
 
+from bot.memory.vector_database.id_generator import compute_version_hash
 from core.config import settings
 from entities.document import Document
 from fastapi import APIRouter, File, HTTPException, UploadFile
@@ -10,14 +11,11 @@ from helpers.log import get_logger
 from memory_builder import split_chunks
 from schemas.documents import DocumentInfo, DocumentListResponse, DocumentUploadResponse
 
-from api.deps import VectorDatabaseDep
+from api.deps import DocumentRegistryDep, VectorDatabaseDep
 
 logger = get_logger(__name__)
 
 router = APIRouter()
-
-# In-memory store of document metadata; keyed by document_id.
-_documents: dict[str, DocumentInfo] = {}
 
 
 @router.post(
@@ -29,13 +27,18 @@ _documents: dict[str, DocumentInfo] = {}
         409: {"description": "Conflict - Document with the same filename already exists."},
     },
 )
-async def upload_document(file: Annotated[UploadFile, File(...)], index: VectorDatabaseDep):
+async def upload_document(
+    file: Annotated[UploadFile, File(...)],
+    index: VectorDatabaseDep,
+    registry: DocumentRegistryDep,
+):
     """
     Upload a document to the knowledge base.
 
     Args:
         file: The file to upload. Must have an allowed extension.
         index: Vector database dependency for storing document chunks.
+        registry: Document registry dependency for metadata tracking.
 
     Returns:
         DocumentUploadResponse containing the generated document_id and filename.
@@ -51,12 +54,12 @@ async def upload_document(file: Annotated[UploadFile, File(...)], index: VectorD
             detail=f"File type '{suffix}' not supported. Allowed: {sorted(settings.ALLOWED_UPLOAD_EXTENSIONS)}",
         )
 
-    for doc in _documents.values():
-        if doc.filename == file.filename:
-            raise HTTPException(
-                status_code=409,
-                detail=f"Document '{file.filename}' already exists.",
-            )
+    existing = registry.get_by_filename(file.filename or "")
+    if existing is not None:
+        raise HTTPException(
+            status_code=409,
+            detail=f"Document '{file.filename}' already exists.",
+        )
 
     document_id = str(uuid.uuid4())
     dest_dir = settings.DOCS_PATH / document_id
@@ -65,14 +68,6 @@ async def upload_document(file: Annotated[UploadFile, File(...)], index: VectorD
 
     content = await file.read()
     file_path.write_bytes(content)
-
-    doc_info = DocumentInfo(
-        document_id=document_id,
-        filename=file.filename or document_id,
-        size=len(content),
-        content_type=file.content_type or "application/octet-stream",
-    )
-    _documents[document_id] = doc_info
 
     try:
         page_content = content.decode("utf-8")
@@ -87,6 +82,8 @@ async def upload_document(file: Annotated[UploadFile, File(...)], index: VectorD
             detail="Uploaded file is not valid UTF-8 text and cannot be processed.",
         )
 
+    version_hash = compute_version_hash(page_content)
+
     document = Document(
         page_content=page_content,
         metadata={
@@ -95,30 +92,57 @@ async def upload_document(file: Annotated[UploadFile, File(...)], index: VectorD
             "filename": file.filename,
             "content_type": file.content_type,
             "size": len(content),
+            "version_hash": version_hash,
         },
     )
     chunks = split_chunks([document], chunk_size=settings.CHUNK_SIZE, chunk_overlap=settings.CHUNK_OVERLAP)
-    num_chunks = len(chunks)
 
+    # Inject document_id + version_hash into every chunk's metadata
+    for chunk in chunks:
+        chunk.metadata["document_id"] = document_id
+        chunk.metadata["version_hash"] = version_hash
+
+    num_chunks = len(chunks)
     logger.info(f"Number of generated chunks: {num_chunks}")
     logger.info("Adding document chunks to the vector database index...")
 
-    index.from_chunks(chunks)
+    chunk_ids = index.from_chunks(chunks)
+
+    registry.upsert(
+        document_id,
+        source=str(file_path),
+        filename=file.filename or document_id,
+        size=len(content),
+        content_type=file.content_type or "application/octet-stream",
+        version_hash=version_hash,
+        chunk_ids=chunk_ids,
+    )
 
     logger.info("Memory Index has been updated successfully!")
 
-    return DocumentUploadResponse(document_id=document_id, filename=doc_info.filename)
+    return DocumentUploadResponse(document_id=document_id, filename=file.filename or document_id)
 
 
 @router.get("/documents", response_model=DocumentListResponse)
-async def list_documents():
+async def list_documents(registry: DocumentRegistryDep):
     """
     List all uploaded documents.
 
     Returns:
         DocumentListResponse containing a list of all document metadata.
     """
-    return DocumentListResponse(documents=list(_documents.values()))
+    records = registry.get_all()
+    documents = [
+        DocumentInfo(
+            document_id=rec.document_id,
+            filename=rec.filename,
+            size=rec.size,
+            content_type=rec.content_type,
+            version_hash=rec.version_hash,
+        )
+        for rec in records
+    ]
+    return DocumentListResponse(documents=documents)
 
 
 @router.delete(
@@ -126,28 +150,28 @@ async def list_documents():
     status_code=204,
     responses={404: {"description": "Not Found - Document with the given ID does not exist."}},
 )
-async def delete_document(document_id: str, index: VectorDatabaseDep):
+async def delete_document(document_id: str, index: VectorDatabaseDep, registry: DocumentRegistryDep):
     """
     Delete a document from the knowledge base.
 
-    Removes the document's metadata, associated file from disk, and should remove
-    chunks from the vector database index (currently not fully implemented).
+    Removes the document's metadata, associated file from disk, and its
+    chunks from the vector database index.
 
     Args:
         document_id: The unique identifier of the document to delete.
         index: Vector database dependency for removing document chunks.
+        registry: Document registry dependency for metadata tracking.
 
     Raises:
         HTTPException: 404 if the document with the given ID is not found.
     """
-    if document_id not in _documents:
+    rec = registry.get(document_id)
+    if rec is None:
         raise HTTPException(status_code=404, detail=f"Document '{document_id}' not found.")
+
+    index.delete_chunks_by_document_id(document_id, chunk_ids=rec.chunk_ids or None)
+    registry.remove(document_id)
 
     dest_dir = settings.DOCS_PATH / document_id
     if dest_dir.exists():
         shutil.rmtree(dest_dir)
-
-    # TODO: implement an efficient way to remove all chunks associated with this document from the vector database index
-    # https://github.com/umbertogriffo/rag-chatbot/pull/10#discussion_r2936567674
-
-    del _documents[document_id]

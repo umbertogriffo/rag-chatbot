@@ -6,6 +6,7 @@ class DocumentInfo(BaseModel):
     filename: str
     size: int
     content_type: str
+    version_hash: str = ""
 
 
 class DocumentUploadResponse(BaseModel):
