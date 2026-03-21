@@ -16,4 +16,13 @@ POST /admin/reindex?full_rebuild=false — attempt to acquire the lock; if alrea
 GET /admin/reindex/status — return the current ReindexState as JSON (always 200).
 The background task sets state to completed (with stats) or failed (with error message) when done, and releases the lock. Add ReindexResponse and ReindexStatusResponse schemas to a new backend/schemas/admin.py. Register the router in routes.py with tags=["admin"].
 
+
+--- Key Benefits
+
+- **document-level metadata tracking**: every chunk gets tagged with a source doc ID + version hash. when a doc changes, you regenerate chunks for that doc only, delete the old ones by metadata filter, and insert new ones. way cheaper than rebuilding the whole index.
+
+- **incremental ingestion pipeline**: we run a nightly job that diffs source docs against what's already indexed (using those version hashes). only changed/new docs get processed. keeps compute costs reasonable as your corpus grows.
+
+- **handling deletions is the annoying part**: most vector DBs don’t make bulk deletes fast. we ended up keeping a separate mapping table (doc_id → chunk_ids) so we can precisely target what to remove without scanning the whole store.
+
 > One thing to watch out for — if you ever swap embedding models, you basically have to rebuild from scratch since the vector spaces won’t be compatible. plan for that early.
