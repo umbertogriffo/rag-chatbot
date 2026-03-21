@@ -1,8 +1,9 @@
 """create_documents_table
 
 Revision ID: 040b0da03c42
-Revises: 
+Revises:
 Create Date: 2026-03-21 13:29:28.471629
+
 
 """
 from typing import Sequence, Union
