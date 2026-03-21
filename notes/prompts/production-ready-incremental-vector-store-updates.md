@@ -1,5 +1,7 @@
 Plan: Production-Ready Incremental Vector Store Updates
-Replace the full-rebuild ingestion and in-memory _documents dict with a SQLite-backed DocumentRegistry, document-level version tracking on every chunk, targeted Chroma deletions, an incremental diff pipeline, and an admin reindex endpoint with concurrency guard and status polling.
+Replace the full-rebuild ingestion and in-memory _documents dict with a SQLite-backed DocumentRegistry,
+document-level version tracking on every chunk, targeted Chroma deletions, an incremental diff pipeline,
+and an admin reindex endpoint with concurrency guard and status polling.
 
 Steps
 
@@ -13,3 +15,5 @@ Steps
 POST /admin/reindex?full_rebuild=false — attempt to acquire the lock; if already held return 409 Conflict. Otherwise, set state to running, launch build_memory_index via BackgroundTasks, and return 202 Accepted.
 GET /admin/reindex/status — return the current ReindexState as JSON (always 200).
 The background task sets state to completed (with stats) or failed (with error message) when done, and releases the lock. Add ReindexResponse and ReindexStatusResponse schemas to a new backend/schemas/admin.py. Register the router in routes.py with tags=["admin"].
+
+> One thing to watch out for — if you ever swap embedding models, you basically have to rebuild from scratch since the vector spaces won’t be compatible. plan for that early.
