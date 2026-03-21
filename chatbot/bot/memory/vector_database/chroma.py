@@ -138,7 +138,7 @@ class Chroma:
                 deduped_indices.append(id)
                 seen.add(value)
 
-        deduped_ids = list(seen)
+        deduped_ids = [ids[i] for i in deduped_indices]
         deduped_texts = [texts[i] for i in deduped_indices]
 
         return deduped_indices, deduped_ids, deduped_texts
