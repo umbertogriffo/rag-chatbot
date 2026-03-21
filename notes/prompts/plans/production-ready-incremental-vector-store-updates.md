@@ -20,10 +20,10 @@ Steps
    6. Add a full_rebuild: bool parameter that wipes the collection + registry first. Keep the --full-rebuild CLI flag in get_args for direct script invocation.
 6. Adapt `documents.py` to use `DocumentRegistry`.
    1. Remove `_documents dict`.
-   2. `upload_document`: compute version_hash, call index.from_chunks → capture returned chunk_ids, call registry.upsert(...).
-   3. list_documents: call registry.get_all().
+   2. `upload_document`: compute version_hash, call `index.from_chunks` → capture returned chunk_ids, call `registry.upsert(...)`.
+   3. list_documents: call `registry.get_all()`.
    4. delete_document: look up in registry, call index.
-   5. delete_chunks_by_document_id(doc_id, chunk_ids), call registry.remove(doc_id), delete file from disk.
+   5. `delete_chunks_by_document_id(doc_id, chunk_ids)`, call `registry.remove(doc_id)`, delete file from disk.
    6. Add version_hash: str field to DocumentInfo in documents schema.
 
 
