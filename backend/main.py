@@ -2,17 +2,19 @@ from contextlib import asynccontextmanager
 
 import uvicorn
 from api.routes import api_router
+from bot.memory.document_registry import SQLModel
 from core.config import settings
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from helpers.log import get_logger
+from vector_database import registry
 
 logger = get_logger(__name__)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # create_db_and_tables()
+    SQLModel.metadata.create_all(registry.engine)
     yield
 
 
