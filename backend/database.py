@@ -1,7 +1,7 @@
 from core.config import settings
 from helpers.log import get_logger
 from sqlalchemy import Engine, event, text
-from sqlmodel import SQLModel, create_engine
+from sqlmodel import create_engine
 
 logger = get_logger(__name__)
 
@@ -73,13 +73,3 @@ def check_health_safe(engine: Engine) -> bool:
         return True
     except Exception:
         return False
-
-
-def create_db_and_tables(engine: Engine):
-    """
-    Create database tables based on the defined SQLModel models.
-    """
-    SQLModel.metadata.create_all(engine)
-
-
-engine = create_db_engine()

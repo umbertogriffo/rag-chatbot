@@ -5,14 +5,40 @@ from pathlib import Path
 import pytest
 from alembic import command
 from alembic.config import Config
+from api.deps import get_db_session, get_llm_client
+from bot.client.lama_cpp_client import LamaCppClient
+from bot.model.model_registry import Model, get_model_settings
+from main import app
 from sqlmodel import Session, create_engine
+from starlette.testclient import TestClient
 
 
-@pytest.fixture
-def mock_models_folder(tmp_path):
-    models_folder = tmp_path / "models"
-    Path(models_folder).mkdir()
+@pytest.fixture(scope="session")
+def mock_models_folder(tmp_path_factory):
+    models_folder = tmp_path_factory.mktemp("models")
     return models_folder
+
+
+@pytest.fixture(scope="session")
+def cpu_config():
+    config = {
+        "n_ctx": 512,
+        "n_threads": 2,
+        "n_gpu_layers": 0,
+    }
+    return config
+
+
+@pytest.fixture(scope="session")
+def model_settings(cpu_config):
+    model_setting = get_model_settings(Model.LLAMA_3_2_one.value)
+    model_setting.config = cpu_config
+    return model_setting
+
+
+@pytest.fixture(scope="session")
+def lamacpp_client(mock_models_folder, model_settings):
+    return LamaCppClient(mock_models_folder, model_settings)
 
 
 @pytest.fixture(name="session")
@@ -39,8 +65,6 @@ def session_fixture(request, monkeypatch) -> Session:
     command.upgrade(config, "head")
 
     engine = create_engine(db_url)
-    # TODO: Alternatively, you can create tables directly without migrations for simpler setups.
-    # create_db_and_tables(engine)
 
     connection = engine.connect()
     session = Session(bind=connection)
@@ -54,3 +78,21 @@ def session_fixture(request, monkeypatch) -> Session:
     engine.dispose()
     if path:
         os.unlink(path)
+
+
+@pytest.fixture(name="client_with_overridden_deps")
+def client_fixture(session: Session, lamacpp_client: LamaCppClient):
+    def get_db_session_override():
+        return session
+
+    def get_llm_client_override():
+        return lamacpp_client
+
+    app.dependency_overrides[get_db_session] = get_db_session_override
+    app.dependency_overrides[get_llm_client] = get_llm_client_override
+
+    client = TestClient(app)
+
+    yield client
+
+    app.dependency_overrides.clear()

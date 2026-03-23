@@ -6,7 +6,7 @@ from bot.memory.document_registry import DocumentRegistry
 from bot.memory.embedder import Embedder
 from bot.memory.vector_database.chroma import Chroma
 from bot.memory.vector_database.id_generator import compute_version_hash, generate_deterministic_id
-from database import engine
+from database import create_db_engine
 from document_loader.format import Format
 from document_loader.loader import DirectoryLoader
 from document_loader.text_splitter import create_recursive_text_splitter
@@ -78,7 +78,7 @@ def build_memory_index(
     embedding = Embedder()
     vector_database = Chroma(is_persistent=True, persist_directory=str(vector_store_path), embedding=embedding)
 
-    session = Session(engine)
+    session = Session(create_db_engine())
     registry = DocumentRegistry(session)
 
     # ------------------------------------------------------------------

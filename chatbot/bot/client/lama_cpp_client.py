@@ -90,6 +90,12 @@ class LamaCppClient:
 
             print(f"=> Model: {file_name} downloaded successfully 🥳")
 
+    def close(self):
+        """
+        Closes the language model client and releases any resources.
+        """
+        self.llm.close()
+
     def generate_answer(self, prompt: str, max_new_tokens: int = 512) -> str:
         """
         Generates an answer based on the given prompt using the language model.
