@@ -4,7 +4,14 @@ from bot.model.settings.deep_seek import DeepSeekR1SevenSettings
 from bot.model.settings.llama import Llama31Settings, Llama31ToolSettings, Llama32OneSettings, Llama32ThreeSettings
 from bot.model.settings.openchat import OpenChat35Settings, OpenChat36Settings
 from bot.model.settings.phi import Phi35Settings
-from bot.model.settings.qwen import Qwen25ThreeMathReasoningSettings, Qwen25ThreeSettings
+from bot.model.settings.qwen import (
+    Qwen25ThreeMathReasoningSettings,
+    Qwen25ThreeSettings,
+    Qwen35FourSettings,
+    Qwen35NineSettings,
+    Qwen35TwoSettings,
+    Qwen35ZeroEightSettings,
+)
 from bot.model.settings.stablelm_zephyr import StableLMZephyrSettings
 from bot.model.settings.starling import StarlingSettings
 
@@ -21,6 +28,10 @@ class Model(Enum):
     LLAMA_3_2_three = "llama-3.2"
     QWEN_2_5_THREE = "qwen-2.5:3b"
     QWEN_2_5_THREE_MATH_REASONING = "qwen-2.5:3b-math-reasoning"
+    QWEN_3_5_ZERO_EIGHT = "qwen-3.5:0.8b"
+    QWEN_3_5_TWO = "qwen-3.5:2b"
+    QWEN_3_5_FOUR = "qwen-3.5:4b"
+    QWEN_3_5_NINE = "qwen-3.5:9b"
     DEEP_SEEK_R1_SEVEN = "deep-seek-r1:7b"
 
 
@@ -36,6 +47,10 @@ SUPPORTED_MODELS = {
     Model.LLAMA_3_2_three.value: Llama32ThreeSettings,
     Model.QWEN_2_5_THREE.value: Qwen25ThreeSettings,
     Model.QWEN_2_5_THREE_MATH_REASONING.value: Qwen25ThreeMathReasoningSettings,
+    Model.QWEN_3_5_ZERO_EIGHT.value: Qwen35ZeroEightSettings,
+    Model.QWEN_3_5_TWO.value: Qwen35TwoSettings,
+    Model.QWEN_3_5_FOUR.value: Qwen35FourSettings,
+    Model.QWEN_3_5_NINE.value: Qwen35NineSettings,
     Model.DEEP_SEEK_R1_SEVEN.value: DeepSeekR1SevenSettings,
 }
 

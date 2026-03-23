@@ -1,5 +1,4 @@
 # Todo
-- https://huggingface.co/bartowski/c4ai-command-r7b-12-2024-GGUF
 - Investigate llama.cpp:
   - server:
     - https://github.com/ggml-org/llama.cpp/tree/master/tools/server

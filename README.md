@@ -20,6 +20,19 @@
     info [here](https://github.com/abetlen/llama-cpp-python/issues/756#issuecomment-1870324323).
 > - It's important to note that the large language model sometimes generates hallucinations or false information.
 
+> [!NOTE]
+> To decide which hardware to use/buy to host you local LLMs we recommend you to read this great benchmarks:
+> - [Performance of llama.cpp on Nvidia CUDA](https://github.com/ggml-org/llama.cpp/discussions/15013)
+> - [Performance of llama.cpp on Apple Silicon M-series](https://github.com/ggml-org/llama.cpp/discussions/4167)
+>
+> **Decision model:**
+> - `Memory capacity` is the main limit. Check if your model fits in memory (with quantization) https://www.canirun.ai/.
+> - `Memory bandwidth` mostly determines speed (tokens/sec). Check if the bandwidth gives you acceptable speed.
+> - If not, upgrade hardware or optimize the model.
+>
+> For instance, it seems better to buy a second-hand or refurbished Mac Studio M2 Max with at least 64GB RAM,
+> since it has 400Gbps of memory bandwidth compared to the M4 Pro, which has just 273Gbps.
+
 ## Table of contents
 
 - [Introduction](#introduction)
@@ -149,11 +162,15 @@ format.
 
 | 🤖 Model                                                       | Supported | Model Size | Max Context Window | Notes and link to the model card                                                                                                                                     |
 |----------------------------------------------------------------|-----------|------------|--------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `qwen-3.5:0.8b` Qwen 3.5 0.8B                                  | ✅         | 0.8B       | 256k               | [Card](https://huggingface.co/unsloth/Qwen3.5-0.8B-GGUF)                                                                                                             |
+| `qwen-3.5:2b` Qwen 3.5 2B                                      | ✅         | 2B         | 256k               | [Card](https://huggingface.co/unsloth/Qwen3.5-2B-GGUF)                                                                                                               |
+| `qwen-3.5:4b` Qwen 3.5 4B                                      | ✅         | 4B         | 256k               | **Recommended model** [Card](https://huggingface.co/unsloth/Qwen3.5-4B-GGUF)                                                                                         |
+| `qwen-3.5:9b` Qwen 3.5 9B                                      | ✅         | 9B         | 256k               | **Recommended model** [Card](https://huggingface.co/unsloth/Qwen3.5-9B-GGUF)                                                                                         |
+| `qwen-2.5:3b` - Qwen2.5 Instruct                               | ✅         | 3B         | 128k               | [Card](https://huggingface.co/Qwen/Qwen2.5-3B-Instruct-GGUF)                                                                                                         |
+| `qwen-2.5:3b-math-reasoning` - Qwen2.5 Instruct Math Reasoning | ✅         | 3B         | 128k               | [Card](https://huggingface.co/ugriffo/Qwen2.5-3B-Instruct-Math-Reasoning-GGUF)                                                                                       |
 | `llama-3.2:1b` Meta Llama 3.2 Instruct                         | ✅         | 1B         | 128k               | Optimized to run locally on a mobile or edge device - [Card](https://huggingface.co/bartowski/Llama-3.2-1B-Instruct-GGUF)                                            |
 | `llama-3.2` Meta Llama 3.2 Instruct                            | ✅         | 3B         | 128k               | Optimized to run locally on a mobile or edge device - [Card](https://huggingface.co/bartowski/Llama-3.2-3B-Instruct-GGUF)                                            |
 | `llama-3.1` Meta Llama 3.1 Instruct                            | ✅         | 8B         | 128k               | **Recommended model** [Card](https://huggingface.co/bartowski/Meta-Llama-3.1-8B-Instruct-GGUF)                                                                       |
-| `qwen-2.5:3b` - Qwen2.5 Instruct                               | ✅         | 3B         | 128k               | [Card](https://huggingface.co/Qwen/Qwen2.5-3B-Instruct-GGUF)                                                                                                         |
-| `qwen-2.5:3b-math-reasoning` - Qwen2.5 Instruct Math Reasoning | ✅         | 3B         | 128k               | [Card](https://huggingface.co/ugriffo/Qwen2.5-3B-Instruct-Math-Reasoning-GGUF)                                                                                       |
 | `deep-seek-r1:7b` - DeepSeek R1 Distill Qwen 7B                | ✅         | 7B         | 128k               | **Experimental** [Card](https://huggingface.co/bartowski/DeepSeek-R1-Distill-Qwen-7B-GGUF)                                                                           |
 | `openchat-3.6` - OpenChat 3.6                                  | ✅         | 8B         | 8192               | [Card](https://huggingface.co/bartowski/openchat-3.6-8b-20240522-GGUF)                                                                                               |
 | `openchat-3.5` - OpenChat 3.5                                  | ✅         | 7B         | 8192               | [Card](https://huggingface.co/TheBloke/openchat-3.5-0106-GGUF)                                                                                                       |
