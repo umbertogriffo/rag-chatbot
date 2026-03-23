@@ -31,7 +31,7 @@ def cpu_config():
 
 @pytest.fixture(scope="session")
 def model_settings(cpu_config):
-    model_setting = get_model_settings(Model.LLAMA_3_2_one.value)
+    model_setting = get_model_settings(Model.QWEN_3_5_ZERO_EIGHT.value)
     model_setting.config = cpu_config
     return model_setting
 
