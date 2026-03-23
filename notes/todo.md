@@ -1,4 +1,6 @@
 # Todo
+- `Qwen3.5-27B-Claude-4.6-Opus-Reasoning-Distilled`: a `27B` parameter reasoning specialist. This model was distilled from Claude's reasoning patterns into Qwen's architecture, creating a powerful chain-of-thought thinker that's surprisingly accessible.
+  - https://huggingface.co/Jackrong/Qwen3.5-27B-Claude-4.6-Opus-Reasoning-Distilled
 - Investigate llama.cpp:
   - server:
     - https://github.com/ggml-org/llama.cpp/tree/master/tools/server
