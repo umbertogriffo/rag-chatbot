@@ -90,7 +90,7 @@ we only update the corresponding chunks in the vector store instead of rebuildin
 This is achieved through:
 - **Document-level metadata tracking**: every chunk gets tagged with a source doc ID + version hash. When a doc changes, we regenerate chunks for that doc only, delete the old ones by metadata filter, and insert new ones. way cheaper than rebuilding the whole index.
 - **Incremental ingestion pipeline**: the pipeline diffs source docs against what's already indexed (using those version hashes). Only changed/new docs get processed. Keeps compute costs reasonable as the corpus grows.
-- **Handling deletions**: we keep a separate mapping table (doc_id → chunk_ids) so we can precisely target what to remove without scanning the whole store.
+- **Handling deletions**: we keep a separate mapping table (doc_id → chunk_ids) in a `SQLite` db so we can precisely target what to remove without scanning the whole store.
 
 > [!IMPORTANT]
 > One thing to watch out for — if you ever swap embedding models, you must rebuild it from scratch since the vector spaces won’t be compatible. Plan for that early.
