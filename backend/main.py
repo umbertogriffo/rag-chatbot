@@ -1,19 +1,35 @@
 from contextlib import asynccontextmanager
 
+import state
 import uvicorn
 from api.routes import api_router
 from core.config import settings
+from database import create_db_engine
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from helpers.log import get_logger
+from llm_client import create_llm_client
+from vector_database import init_index
 
 logger = get_logger(__name__)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # create_db_and_tables()
+    # Initialize global state
+    state.engine = create_db_engine()
+    state.llm_client = create_llm_client(settings.MODEL_FOLDER)
+    state.index = init_index(settings.VECTOR_STORE_PATH)
+
     yield
+
+    # Cleanup
+    if state.engine:
+        state.engine.dispose()
+        logger.info("Database engine disposed")
+    if state.llm_client:
+        state.llm_client.close()
+        logger.info("LLM client closed")
 
 
 app = FastAPI(

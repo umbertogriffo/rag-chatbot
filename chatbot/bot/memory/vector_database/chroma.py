@@ -1,16 +1,16 @@
-import logging
+import uuid
 from typing import Any, Iterable
 
 import chromadb
 import chromadb.config
 from bot.memory.embedder import Embedder
 from bot.memory.vector_database.distance_metric import DistanceMetric, get_relevance_score_fn
-from bot.memory.vector_database.id_generator import generate_deterministic_ids
 from chromadb.utils.batch_utils import create_batches
 from cleantext import clean
 from entities.document import Document
+from helpers.log import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class Chroma:
@@ -56,6 +56,8 @@ class Chroma:
 
         self.embedding = embedding
         self.distance_metric = distance_metric
+        self.collection_name = collection_name
+        self.collection_metadata = collection_metadata
 
         # If embedding_function is None, Chroma will use Sentence Transformer all-MiniLM-L6-v2 embedding
         # function as a default.
@@ -118,31 +120,6 @@ class Chroma:
             **kwargs,
         )
 
-    def __dedupe(self, ids: list[str], texts: list[str]) -> tuple[list[int], list[str], list[str]]:
-        """
-        Deduplicates the input texts based on their IDs.
-
-        Args:
-            ids (list[str]): List of IDs corresponding to the texts.
-            texts (list[str]): List of texts to be deduplicated.
-
-        Returns:
-            Tuple containing deduplicated lists of IDs, texts, and metadata (if provided).
-        """
-
-        # Keep only the first occurrence of duplicated IDs
-        seen = set()
-        deduped_indices = []
-        for id, value in enumerate(ids):
-            if value not in seen:
-                deduped_indices.append(id)
-                seen.add(value)
-
-        deduped_ids = list(seen)
-        deduped_texts = [texts[i] for i in deduped_indices]
-
-        return deduped_indices, deduped_ids, deduped_texts
-
     def add_texts(
         self,
         texts: Iterable[str],
@@ -156,8 +133,7 @@ class Chroma:
             texts (Iterable[str]): Texts to add to the vectorstore.
             metadata (list[dict] | None): Optional list of metadata.
             ids (list[str] | None): Optional list of IDs. If not provided,
-                deterministic IDs will be generated from normalized text content
-                to enable deduplication.
+                random UUIDs will be generated for each text.
 
         Returns:
             List[str]: List of IDs of the added texts.
@@ -168,11 +144,12 @@ class Chroma:
 
         texts = list(texts)
 
+        # Generate unique IDs if not provided
         if ids is None:
-            ids = generate_deterministic_ids(texts)
+            ids = [str(uuid.uuid4()) for _ in texts]
 
-        deduped_indices, deduped_ids, deduped_texts = self.__dedupe(ids, texts)
-        embeddings = self.embedding.embed_documents(deduped_texts)
+        # Generate embeddings for all texts
+        embeddings = self.embedding.embed_documents(texts)
 
         try:
             if metadata:
@@ -183,19 +160,17 @@ class Chroma:
                 if length_diff:
                     metadata = metadata + [{}] * length_diff
 
-                deduped_metadata = [metadata[i] for i in deduped_indices]
-
-                non_empty_ids = [idx for idx, m in enumerate(deduped_metadata) if m]
-                empty_ids = [idx for idx, m in enumerate(deduped_metadata) if not m]
+                non_empty_ids = [idx for idx, m in enumerate(metadata) if m]
+                empty_ids = [idx for idx, m in enumerate(metadata) if not m]
 
                 if non_empty_ids:
                     # Upsert texts with metadata
-                    metadata = [deduped_metadata[idx] for idx in non_empty_ids]
-                    texts_with_metadata = [deduped_texts[idx] for idx in non_empty_ids]
+                    metadata_with_data = [metadata[idx] for idx in non_empty_ids]
+                    texts_with_metadata = [texts[idx] for idx in non_empty_ids]
                     embeddings_with_metadata = [embeddings[idx] for idx in non_empty_ids] if embeddings else None
-                    ids_with_metadata = [deduped_ids[idx] for idx in non_empty_ids]
+                    ids_with_metadata = [ids[idx] for idx in non_empty_ids]
                     self.collection.upsert(
-                        metadatas=metadata,
+                        metadatas=metadata_with_data,
                         embeddings=embeddings_with_metadata,
                         documents=texts_with_metadata,
                         ids=ids_with_metadata,
@@ -203,9 +178,9 @@ class Chroma:
 
                 if empty_ids:
                     # Upsert texts without metadata
-                    texts_without_metadata = [deduped_texts[j] for j in empty_ids]
+                    texts_without_metadata = [texts[j] for j in empty_ids]
                     embeddings_without_metadata = [embeddings[j] for j in empty_ids] if embeddings else None
-                    ids_without_metadata = [deduped_ids[j] for j in empty_ids]
+                    ids_without_metadata = [ids[j] for j in empty_ids]
                     self.collection.upsert(
                         embeddings=embeddings_without_metadata,
                         documents=texts_without_metadata,
@@ -215,8 +190,8 @@ class Chroma:
             else:
                 self.collection.upsert(
                     embeddings=embeddings,
-                    documents=deduped_texts,
-                    ids=deduped_ids,
+                    documents=texts,
+                    ids=ids,
                 )
         except Exception as e:
             logger.error(f"Error adding texts to Chroma collection: {e}")
@@ -228,7 +203,7 @@ class Chroma:
         texts: list[str],
         metadata: list[dict] | None = None,
         ids: list[str] | None = None,
-    ) -> None:
+    ) -> list[str]:
         """
         Adds a batch of texts to the Chroma collection, optionally with metadata and IDs.
 
@@ -237,16 +212,15 @@ class Chroma:
             metadata (list[dict], optional): List of metadata dictionaries corresponding to the texts.
                 Defaults to None.
             ids (list[str], optional): List of IDs for the texts. If not provided,
-                deterministic IDs will be generated from normalized text content
-                to enable deduplication.
+                random UUIDs will be generated for each text.
                 Defaults to None.
 
         Returns:
-            None
+            list[str]: List of IDs of the added texts.
         """
-        # Generate deterministic IDs if not provided
+        # Generate unique IDs if not provided
         if ids is None:
-            ids = generate_deterministic_ids(texts)
+            ids = [str(uuid.uuid4()) for _ in texts]
 
         for batch in create_batches(
             api=self.client,
@@ -260,16 +234,21 @@ class Chroma:
                 ids=batch[0],
             )
 
-    def from_chunks(self, chunks: list[Document]) -> None:
+        return ids
+
+    def from_chunks(self, chunks: list[Document]) -> list[str]:
         """
         Add document chunks to the vector database index.
 
         Args:
             chunks (list): List of Document chunks to add to the collection.
+
+        Returns:
+            list[str]: List of IDs of the added chunks.
         """
         texts = [clean(doc.page_content, no_emoji=True) for doc in chunks]
         metadata = [doc.metadata for doc in chunks]
-        self.from_texts(
+        return self.from_texts(
             texts=texts,
             metadata=metadata,
         )
@@ -309,6 +288,53 @@ class Chroma:
             logger.info("Chroma collection deleted successfully.")
         except Exception as e:
             logger.error(f"Error deleting Chroma collection: {e}", exc_info=True, stack_info=True)
+            raise
+
+    def reset_collection(self) -> None:
+        """
+        Resets the collection by deleting all its items while keeping the collection itself.
+        This avoids creating new UUID folders and orphaning old index files.
+        """
+        try:
+            # Get all IDs in the collection
+            results = self.collection.get()
+            if results and results.get("ids"):
+                ids_to_delete = results["ids"]
+                # Delete all items in batches to avoid potential issues with large collections
+                batch_size = 5000
+                for i in range(0, len(ids_to_delete), batch_size):
+                    batch = ids_to_delete[i : i + batch_size]
+                    self.collection.delete(ids=batch)
+                logger.info(f"Cleared {len(ids_to_delete)} items from collection '{self.collection_name}'")
+            else:
+                logger.info(f"Collection '{self.collection_name}' is already empty")
+        except Exception as e:
+            logger.error(f"Error resetting Chroma collection: {e}", exc_info=True, stack_info=True)
+            raise
+
+    def delete_chunks_by_document_id(
+        self,
+        document_id: str,
+        chunk_ids: list[str] | None = None,
+    ) -> None:
+        """
+        Remove chunks belonging to a specific document.
+
+        When *chunk_ids* is provided the deletion is precise (by ID list).
+        Otherwise, falls back to a metadata-based ``where`` filter.
+
+        Args:
+            document_id: The document identifier whose chunks should be deleted.
+            chunk_ids: Optional explicit list of chunk IDs to delete.
+        """
+        try:
+            if chunk_ids:
+                self.collection.delete(ids=chunk_ids)
+            else:
+                self.collection.delete(where={"document_id": document_id})
+            logger.info("Deleted chunks for document_id=%s", document_id)
+        except Exception as e:
+            logger.error("Error deleting chunks for document_id=%s: %s", document_id, e)
             raise
 
     def similarity_search_with_threshold(

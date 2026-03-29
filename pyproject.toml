@@ -30,6 +30,8 @@ fastapi = { extras = ["standard"], version = "~=0.115.14" }
 uvicorn = { version = "~=0.32.0", extras = ["standard"] }
 pydantic-settings = "^2.6.0,<3.0.0"
 python-multipart = "~=0.0.22"
+sqlmodel = "~=0.0.37"
+alembic = "^1.18.4,<2.0.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "~=7.2.1"
@@ -57,7 +59,8 @@ exclude = [
     ".ruff_cache",
     ".pytest_cache",
     "docs",
-    "frontend"
+    "frontend",
+    "backend/alembic/versions"
 ]
 line-length = 120
 indent-width = 4

@@ -1,6 +1,7 @@
 import pytest
 from bot.memory.embedder import Embedder
 from bot.memory.vector_database.chroma import Chroma
+from bot.memory.vector_database.id_generator import generate_id
 from entities.document import Document
 
 
@@ -37,10 +38,11 @@ def test_deduplication_with_upsert(chroma_instance):
     """Test that duplicate documents are deduplicated via upsert"""
     text = "This is a duplicate document."
     metadata = {"source": "test.md"}
+    text_id = generate_id(text)
 
     # Add the same document twice
-    chroma_instance.add_texts([text], [metadata])
-    chroma_instance.add_texts([text], [metadata])
+    chroma_instance.add_texts(texts=[text], metadata=[metadata], ids=[text_id])
+    chroma_instance.add_texts(texts=[text], metadata=[metadata], ids=[text_id])
 
     # Query to get all documents
     results = chroma_instance.similarity_search(text, k=10)
@@ -63,38 +65,56 @@ def test_different_documents_not_deduplicated(chroma_instance):
 
 
 @pytest.mark.parametrize(
-    "texts,metadata,expected_count",
+    "texts, ids, metadata,expected_count",
     [
-        (["Duplicate text", "Duplicate text", "Unique text"], [], 2),
-        (["Duplicate text", "Duplicate text", "Unique text"], [{"source": "doc.md"}], 2),
+        (["Text 1", "Text 2", "Text 3"], ["a", "b", "c"], [], 3),
+        (["Text 1", "Text 2", "Text 3"], ["a", "b", "c"], [{"source": "doc.md"}], 3),
         (
-            ["Duplicate text", "Duplicate text", "Unique text"],
+            ["Text 1", "Text 2", "Text 3"],
+            ["a", "b", "c"],
             [{"source": "doc.md"}, {"source": "doc.md"}, {"source": "unique.md"}],
-            2,
+            3,
         ),
-        (["Duplicate text", "Duplicate text", "Unique text"], [{"source": "doc.md"}, {"source": "doc.md"}], 2),
-        (["Duplicate text", "Duplicate text", "Unique text"], [{"source": "doc.md"}, {}, {"source": "unique.md"}], 2),
+        (
+            ["Text 1", "Text 2", "Text 3"],
+            ["a", "b", "c"],
+            [{"source": "doc.md"}, {"source": "doc.md"}],
+            3,
+        ),
+        (
+            ["Text 1", "Text 2", "Text 3"],
+            ["a", "b", "c"],
+            [{"source": "doc.md"}, {}, {"source": "unique.md"}],
+            3,
+        ),
     ],
     ids=[
         "no_metadata",
         "single_metadata_for_all",
-        "full_metadata_with_duplicates",
+        "full_metadata",
         "partial_metadata_missing_last",
         "partial_metadata_with_empty_dict",
     ],
 )
-def test_from_texts_deduplication(chroma_instance, texts, metadata, expected_count):
-    """Test that from_texts method deduplicates duplicate documents"""
-    chroma_instance.from_texts(texts, metadata)
+def test_from_texts_metadata(chroma_instance, texts, ids, metadata, expected_count):
+    """
+    Test that from_texts correctly handles various metadata scenarios and that documents are retrievable with
+    expected metadata
+    """
+    chroma_instance.from_texts(texts, metadata, ids)
 
     results = chroma_instance.similarity_search("text", k=10)
 
     assert len(results) == expected_count
-    assert results[1].page_content == "Duplicate text"
-    assert results[1].metadata.get("source") == "doc.md" or results[1].metadata.get("source") is None
 
-    assert results[0].page_content == "Unique text"
-    assert results[0].metadata.get("source") == "unique.md" or results[0].metadata.get("source") is None
+    assert results[0].page_content == "Text 1"
+    assert results[0].metadata.get("source") is None or results[0].metadata.get("source") == "doc.md"
+
+    assert results[1].page_content == "Text 2"
+    assert results[1].metadata.get("source") is None or results[1].metadata.get("source") == "doc.md"
+
+    assert results[2].page_content == "Text 3"
+    assert results[2].metadata.get("source") is None or results[2].metadata.get("source") == "unique.md"
 
 
 def test_similarity_search(chroma_instance):
@@ -144,3 +164,52 @@ def test_similarity_search_with_relevance_scores(chroma_instance):
     assert isinstance(results[0][0], Document)
     assert isinstance(results[0][1], float)
     assert 0.0 <= results[0][1] <= 1.0
+
+
+def test_from_texts_returns_ids(chroma_instance):
+    """Test that from_texts returns a list of chunk IDs"""
+    texts = ["Hello world", "Foo bar"]
+    ids = chroma_instance.from_texts(texts)
+    assert isinstance(ids, list)
+    assert len(ids) == 2
+    assert all(isinstance(i, str) for i in ids)
+
+
+def test_from_chunks_returns_ids(chroma_instance):
+    """Test that from_chunks returns a list of chunk IDs"""
+    chunks = [
+        Document(page_content="chunk one", metadata={"source": "a.md"}),
+        Document(page_content="chunk two", metadata={"source": "a.md"}),
+    ]
+    ids = chroma_instance.from_chunks(chunks)
+    assert isinstance(ids, list)
+    assert len(ids) == 2
+
+
+def test_delete_chunks_by_document_id_with_ids(chroma_instance):
+    """Test deletion of specific chunk IDs"""
+    texts = ["alpha content", "beta content"]
+    metadata = [{"document_id": "doc1"}, {"document_id": "doc1"}]
+    ids = chroma_instance.from_texts(texts, metadata)
+
+    # Delete only the first chunk by explicit ID
+    chroma_instance.delete_chunks_by_document_id("doc1", chunk_ids=[ids[0]])
+    results = chroma_instance.similarity_search("content", k=10)
+    assert len(results) == 1
+    assert results[0].page_content == "beta content"
+
+
+def test_delete_chunks_by_document_id_with_where(chroma_instance):
+    """Test deletion via document_id metadata filter (fallback)"""
+    texts = ["doc1 chunk a", "doc1 chunk b", "doc2 chunk a"]
+    metadata = [
+        {"document_id": "doc1"},
+        {"document_id": "doc1"},
+        {"document_id": "doc2"},
+    ]
+    chroma_instance.from_texts(texts, metadata)
+
+    chroma_instance.delete_chunks_by_document_id("doc1")
+    results = chroma_instance.similarity_search("chunk", k=10)
+    assert len(results) == 1
+    assert results[0].metadata["document_id"] == "doc2"

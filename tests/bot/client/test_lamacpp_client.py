@@ -1,31 +1,6 @@
 import asyncio
-from unittest.mock import patch
 
 import pytest
-from bot.client.lama_cpp_client import LamaCppClient
-from bot.model.model_registry import Model, get_model_settings
-
-
-@pytest.fixture
-def cpu_config():
-    config = {
-        "n_ctx": 512,
-        "n_threads": 2,
-        "n_gpu_layers": 0,
-    }
-    return config
-
-
-@pytest.fixture
-def model_settings():
-    model_setting = get_model_settings(Model.LLAMA_3_2_one.value)
-    return model_setting
-
-
-@pytest.fixture
-def lamacpp_client(mock_models_folder, model_settings, cpu_config):
-    with patch.object(model_settings, "config", cpu_config):
-        return LamaCppClient(mock_models_folder, model_settings)
 
 
 def test_generate_answer(lamacpp_client):

@@ -31,6 +31,8 @@ class Settings(BaseSettings):
     VECTOR_STORE_PATH: Path = ROOT_PATH / "vector_store" / "docs_index"
     DOCS_PATH: Path = ROOT_PATH / Path("docs")
 
+    DATABASE_URL: str = f"sqlite:///{ROOT_PATH / 'vector_store' / 'registry.db'}"
+
     MODEL: str = "llama-3.2:1b"
     K: int = 2
     MAX_NEW_TOKENS: int = 512

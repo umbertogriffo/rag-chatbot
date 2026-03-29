@@ -1,23 +1,23 @@
-import shutil
-import uuid
 from pathlib import Path
 from typing import Annotated
 
+from bot.memory.document_registry import DocumentRegistry
+from bot.memory.vector_database.id_generator import generate_id
 from core.config import settings
-from entities.document import Document
+from document_loader.loader import DirectoryLoader
 from fastapi import APIRouter, File, HTTPException, UploadFile
 from helpers.log import get_logger
 from memory_builder import split_chunks
 from schemas.documents import DocumentInfo, DocumentListResponse, DocumentUploadResponse
 
-from api.deps import VectorDatabaseDep
+from api.deps import SessionDep, VectorDatabaseDep
 
 logger = get_logger(__name__)
 
 router = APIRouter()
 
-# In-memory store of document metadata; keyed by document_id.
-_documents: dict[str, DocumentInfo] = {}
+# In-memory store of the uploaded document metadata, keyed by document_id.
+_uploaded_documents: dict[str, DocumentInfo] = {}
 
 
 @router.post(
@@ -29,13 +29,18 @@ _documents: dict[str, DocumentInfo] = {}
         409: {"description": "Conflict - Document with the same filename already exists."},
     },
 )
-async def upload_document(file: Annotated[UploadFile, File(...)], index: VectorDatabaseDep):
+async def upload_document(
+    file: Annotated[UploadFile, File(...)],
+    index: VectorDatabaseDep,
+    session: SessionDep,
+):
     """
     Upload a document to the knowledge base.
 
     Args:
         file: The file to upload. Must have an allowed extension.
         index: Vector database dependency for storing document chunks.
+        session: Database session dependency for the document registry.
 
     Returns:
         DocumentUploadResponse containing the generated document_id and filename.
@@ -44,6 +49,7 @@ async def upload_document(file: Annotated[UploadFile, File(...)], index: VectorD
         HTTPException: 400 if file type is not supported.
         HTTPException: 409 if a document with the same filename already exists.
     """
+
     suffix = Path(file.filename or "").suffix.lower()
     if suffix not in settings.ALLOWED_UPLOAD_EXTENSIONS:
         raise HTTPException(
@@ -51,74 +57,118 @@ async def upload_document(file: Annotated[UploadFile, File(...)], index: VectorD
             detail=f"File type '{suffix}' not supported. Allowed: {sorted(settings.ALLOWED_UPLOAD_EXTENSIONS)}",
         )
 
-    for doc in _documents.values():
-        if doc.filename == file.filename:
-            raise HTTPException(
-                status_code=409,
-                detail=f"Document '{file.filename}' already exists.",
-            )
+    registry = DocumentRegistry(session)
+    existing = registry.get_by_filename(file.filename or "")
+    if existing is not None:
+        raise HTTPException(
+            status_code=409,
+            detail=f"Document '{file.filename}' already exists.",
+        )
 
-    document_id = str(uuid.uuid4())
-    dest_dir = settings.DOCS_PATH / document_id
+    dest_dir = settings.DOCS_PATH
     dest_dir.mkdir(parents=True, exist_ok=True)
-    file_path = dest_dir / (file.filename or document_id)
+    file_path = dest_dir / file.filename
+    document_id = generate_id(str(file_path))
 
     content = await file.read()
     file_path.write_bytes(content)
 
+    # Use DirectoryLoader to load the file content (same as build_memory_index)
+    # This ensures consistent content processing and version hashing
+    # TODO: refactor to avoid writing to disk and re-reading, but this is simpler for now and leverages existing loader
+    #  logic
+    try:
+        loader = DirectoryLoader(
+            path=file_path.parent,
+            glob=file_path.name,
+            show_progress=False,
+        )
+        loaded_docs = loader.load()
+
+        if not loaded_docs:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Failed to load document '{file.filename}'. The file may be corrupted or in an"
+                f" unsupported format.",
+            )
+
+        # Extract the loaded document (should be exactly one)
+        document = loaded_docs[0]
+        page_content = document.page_content
+
+    except Exception as exc:
+        logger.warning(
+            f"Failed to load uploaded file '{file.filename}': {exc}",
+        )
+        # Clean up the saved file on error
+        if file_path.exists():
+            file_path.unlink()
+        raise HTTPException(
+            status_code=400,
+            detail=f"Failed to process document '{file.filename}': {str(exc)}",
+        )
+
+    version_hash = generate_id(page_content)
+
+    # Update document metadata with our tracking fields
+    document.metadata.update(
+        {
+            "source": str(file_path),
+            "document_id": document_id,
+            "filename": file.filename,
+            "content_type": file.content_type,
+            "size": len(content),
+            "version_hash": version_hash,
+        }
+    )
+
+    # Store the document metadata in the in-memory registry for listing purposes
     doc_info = DocumentInfo(
         document_id=document_id,
         filename=file.filename or document_id,
         size=len(content),
         content_type=file.content_type or "application/octet-stream",
     )
-    _documents[document_id] = doc_info
+    _uploaded_documents[document_id] = doc_info
 
-    try:
-        page_content = content.decode("utf-8")
-    except UnicodeDecodeError as exc:
-        logger.warning(
-            "Failed to decode uploaded file '%s' as UTF-8: %s",
-            file.filename,
-            exc,
-        )
-        raise HTTPException(
-            status_code=400,
-            detail="Uploaded file is not valid UTF-8 text and cannot be processed.",
-        )
-
-    document = Document(
-        page_content=page_content,
-        metadata={
-            "source": str(file_path),
-            "document_id": document_id,
-            "filename": file.filename,
-            "content_type": file.content_type,
-            "size": len(content),
-        },
-    )
+    # Split the document into chunks for vector indexing
     chunks = split_chunks([document], chunk_size=settings.CHUNK_SIZE, chunk_overlap=settings.CHUNK_OVERLAP)
-    num_chunks = len(chunks)
 
+    # Inject document_id + version_hash into every chunk's metadata
+    for chunk in chunks:
+        chunk.metadata["document_id"] = document_id
+        chunk.metadata["version_hash"] = version_hash
+
+    num_chunks = len(chunks)
     logger.info(f"Number of generated chunks: {num_chunks}")
     logger.info("Adding document chunks to the vector database index...")
 
-    index.from_chunks(chunks)
+    chunk_ids = index.from_chunks(chunks)
+
+    registry.upsert(
+        document_id,
+        source=str(file_path),
+        filename=file.filename or document_id,
+        size=len(content),
+        content_type=file.content_type or "application/octet-stream",
+        version_hash=version_hash,
+        chunk_ids=chunk_ids,
+    )
 
     logger.info("Memory Index has been updated successfully!")
 
-    return DocumentUploadResponse(document_id=document_id, filename=doc_info.filename)
+    return DocumentUploadResponse(document_id=document_id, filename=file.filename or document_id)
 
 
 @router.get("/documents", response_model=DocumentListResponse)
-async def list_documents():
+async def list_documents(session: SessionDep):
     """
     List all uploaded documents.
 
     Returns:
         DocumentListResponse containing a list of all document metadata.
     """
-    return DocumentListResponse(documents=list(_documents.values()))
+    return DocumentListResponse(documents=list(_uploaded_documents.values()))
 
 
 @router.delete(
@@ -126,28 +176,30 @@ async def list_documents():
     status_code=204,
     responses={404: {"description": "Not Found - Document with the given ID does not exist."}},
 )
-async def delete_document(document_id: str, index: VectorDatabaseDep):
+async def delete_document(document_id: str, index: VectorDatabaseDep, session: SessionDep):
     """
-    Delete a document from the knowledge base.
+    Delete the uploaded document from the knowledge base.
 
-    Removes the document's metadata, associated file from disk, and should remove
-    chunks from the vector database index (currently not fully implemented).
+    Removes the document's metadata, associated file from disk, and its
+    chunks from the vector database index.
 
     Args:
         document_id: The unique identifier of the document to delete.
         index: Vector database dependency for removing document chunks.
+        session: Database session dependency for the document registry.
 
     Raises:
         HTTPException: 404 if the document with the given ID is not found.
     """
-    if document_id not in _documents:
+    registry = DocumentRegistry(session)
+    entry = registry.get(document_id)
+
+    if entry is None:
         raise HTTPException(status_code=404, detail=f"Document '{document_id}' not found.")
 
-    dest_dir = settings.DOCS_PATH / document_id
-    if dest_dir.exists():
-        shutil.rmtree(dest_dir)
+    index.delete_chunks_by_document_id(document_id, chunk_ids=entry.chunk_ids or None)
+    registry.remove(document_id)
 
-    # TODO: implement an efficient way to remove all chunks associated with this document from the vector database index
-    # https://github.com/umbertogriffo/rag-chatbot/pull/10#discussion_r2936567674
-
-    del _documents[document_id]
+    file_path = settings.DOCS_PATH / entry.filename
+    if file_path.exists():
+        file_path.unlink()
