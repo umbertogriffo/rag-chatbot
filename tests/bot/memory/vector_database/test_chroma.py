@@ -67,22 +67,22 @@ def test_different_documents_not_deduplicated(chroma_instance):
 @pytest.mark.parametrize(
     "texts, ids, metadata,expected_count",
     [
-        (["Duplicate text", "Duplicate text", "Unique text"], ["a", "b", "c"], [], 3),
-        (["Duplicate text", "Duplicate text", "Unique text"], ["a", "b", "c"], [{"source": "doc.md"}], 3),
+        (["Text 1", "Text 2", "Unique text"], ["a", "b", "c"], [], 3),
+        (["Text 1", "Text 2", "Unique text"], ["a", "b", "c"], [{"source": "doc.md"}], 3),
         (
-            ["Duplicate text", "Duplicate text", "Unique text"],
+            ["Text 1", "Text 2", "Unique text"],
             ["a", "b", "c"],
             [{"source": "doc.md"}, {"source": "doc.md"}, {"source": "unique.md"}],
             3,
         ),
         (
-            ["Duplicate text", "Duplicate text", "Unique text"],
+            ["Text 1", "Text 2", "Unique text"],
             ["a", "b", "c"],
             [{"source": "doc.md"}, {"source": "doc.md"}],
             3,
         ),
         (
-            ["Duplicate text", "Duplicate text", "Unique text"],
+            ["Text 1", "Text 2", "Unique text"],
             ["a", "b", "c"],
             [{"source": "doc.md"}, {}, {"source": "unique.md"}],
             3,
@@ -91,13 +91,16 @@ def test_different_documents_not_deduplicated(chroma_instance):
     ids=[
         "no_metadata",
         "single_metadata_for_all",
-        "full_metadata_with_duplicates",
+        "full_metadata",
         "partial_metadata_missing_last",
         "partial_metadata_with_empty_dict",
     ],
 )
-def test_from_texts_deduplication(chroma_instance, texts, ids, metadata, expected_count):
-    """Test that from_texts method deduplicates duplicate documents"""
+def test_from_texts_metadata(chroma_instance, texts, ids, metadata, expected_count):
+    """
+    Test that from_texts correctly handles various metadata scenarios and that documents are retrievable with
+    expected metadata
+    """
     chroma_instance.from_texts(texts, metadata, ids)
 
     results = chroma_instance.similarity_search("text", k=10)
