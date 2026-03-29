@@ -75,6 +75,8 @@ async def upload_document(
 
     # Use DirectoryLoader to load the file content (same as build_memory_index)
     # This ensures consistent content processing and version hashing
+    # TODO: refactor to avoid writing to disk and re-reading, but this is simpler for now and leverages existing loader
+    #  logic
     try:
         loader = DirectoryLoader(
             path=file_path.parent,
