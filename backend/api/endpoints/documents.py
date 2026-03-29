@@ -18,6 +18,9 @@ logger = get_logger(__name__)
 
 router = APIRouter()
 
+# In-memory store of the uploaded document metadata, keyed by document_id.
+_uploaded_documents: dict[str, DocumentInfo] = {}
+
 
 @router.post(
     "/documents",
@@ -48,7 +51,7 @@ async def upload_document(
         HTTPException: 400 if file type is not supported.
         HTTPException: 409 if a document with the same filename already exists.
     """
-    registry = DocumentRegistry(session)
+
     suffix = Path(file.filename or "").suffix.lower()
     if suffix not in settings.ALLOWED_UPLOAD_EXTENSIONS:
         raise HTTPException(
@@ -56,6 +59,7 @@ async def upload_document(
             detail=f"File type '{suffix}' not supported. Allowed: {sorted(settings.ALLOWED_UPLOAD_EXTENSIONS)}",
         )
 
+    registry = DocumentRegistry(session)
     existing = registry.get_by_filename(file.filename or "")
     if existing is not None:
         raise HTTPException(
@@ -97,6 +101,17 @@ async def upload_document(
             "version_hash": version_hash,
         },
     )
+
+    # Store the document metadata in the in-memory registry for listing purposes
+    doc_info = DocumentInfo(
+        document_id=document_id,
+        filename=file.filename or document_id,
+        size=len(content),
+        content_type=file.content_type or "application/octet-stream",
+    )
+    _uploaded_documents[document_id] = doc_info
+
+    # Split the document into chunks for vector indexing
     chunks = split_chunks([document], chunk_size=settings.CHUNK_SIZE, chunk_overlap=settings.CHUNK_OVERLAP)
 
     # Inject document_id + version_hash into every chunk's metadata
@@ -133,19 +148,7 @@ async def list_documents(session: SessionDep):
     Returns:
         DocumentListResponse containing a list of all document metadata.
     """
-    registry = DocumentRegistry(session)
-    records = registry.get_all()
-    documents = [
-        DocumentInfo(
-            document_id=rec.document_id,
-            filename=rec.filename,
-            size=rec.size,
-            content_type=rec.content_type,
-            version_hash=rec.version_hash,
-        )
-        for rec in records
-    ]
-    return DocumentListResponse(documents=documents)
+    return DocumentListResponse(documents=list(_uploaded_documents.values()))
 
 
 @router.delete(
@@ -155,7 +158,7 @@ async def list_documents(session: SessionDep):
 )
 async def delete_document(document_id: str, index: VectorDatabaseDep, session: SessionDep):
     """
-    Delete a document from the knowledge base.
+    Delete the uploaded document from the knowledge base.
 
     Removes the document's metadata, associated file from disk, and its
     chunks from the vector database index.
@@ -169,11 +172,12 @@ async def delete_document(document_id: str, index: VectorDatabaseDep, session: S
         HTTPException: 404 if the document with the given ID is not found.
     """
     registry = DocumentRegistry(session)
-    rec = registry.get(document_id)
-    if rec is None:
+    entry = registry.get(document_id)
+
+    if entry is None:
         raise HTTPException(status_code=404, detail=f"Document '{document_id}' not found.")
 
-    index.delete_chunks_by_document_id(document_id, chunk_ids=rec.chunk_ids or None)
+    index.delete_chunks_by_document_id(document_id, chunk_ids=entry.chunk_ids or None)
     registry.remove(document_id)
 
     dest_dir = settings.DOCS_PATH / document_id
