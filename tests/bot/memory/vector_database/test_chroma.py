@@ -67,22 +67,22 @@ def test_different_documents_not_deduplicated(chroma_instance):
 @pytest.mark.parametrize(
     "texts, ids, metadata,expected_count",
     [
-        (["Text 1", "Text 2", "Unique text"], ["a", "b", "c"], [], 3),
-        (["Text 1", "Text 2", "Unique text"], ["a", "b", "c"], [{"source": "doc.md"}], 3),
+        (["Text 1", "Text 2", "Text 3"], ["a", "b", "c"], [], 3),
+        (["Text 1", "Text 2", "Text 3"], ["a", "b", "c"], [{"source": "doc.md"}], 3),
         (
-            ["Text 1", "Text 2", "Unique text"],
+            ["Text 1", "Text 2", "Text 3"],
             ["a", "b", "c"],
             [{"source": "doc.md"}, {"source": "doc.md"}, {"source": "unique.md"}],
             3,
         ),
         (
-            ["Text 1", "Text 2", "Unique text"],
+            ["Text 1", "Text 2", "Text 3"],
             ["a", "b", "c"],
             [{"source": "doc.md"}, {"source": "doc.md"}],
             3,
         ),
         (
-            ["Text 1", "Text 2", "Unique text"],
+            ["Text 1", "Text 2", "Text 3"],
             ["a", "b", "c"],
             [{"source": "doc.md"}, {}, {"source": "unique.md"}],
             3,
@@ -106,11 +106,15 @@ def test_from_texts_metadata(chroma_instance, texts, ids, metadata, expected_cou
     results = chroma_instance.similarity_search("text", k=10)
 
     assert len(results) == expected_count
-    assert results[1].page_content == "Duplicate text"
-    assert results[1].metadata.get("source") == "doc.md" or results[1].metadata.get("source") is None
 
-    assert results[0].page_content == "Unique text"
-    assert results[0].metadata.get("source") == "unique.md" or results[0].metadata.get("source") is None
+    assert results[0].page_content == "Text 1"
+    assert results[0].metadata.get("source") is None or results[0].metadata.get("source") == "doc.md"
+
+    assert results[1].page_content == "Text 2"
+    assert results[1].metadata.get("source") is None or results[1].metadata.get("source") == "doc.md"
+
+    assert results[2].page_content == "Text 3"
+    assert results[2].metadata.get("source") is None or results[2].metadata.get("source") == "unique.md"
 
 
 def test_similarity_search(chroma_instance):
