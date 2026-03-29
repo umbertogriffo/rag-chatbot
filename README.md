@@ -214,7 +214,7 @@ echo "VITE_API_URL=http://localhost:8000" > .env
 To start the backend type:
 
 ```shell
-cd backend && PYTHONPATH=.:../chatbot uvicorn main:app --reload
+cd backend && PYTHONPATH=.:../chatbot poetry run python migration.py && PYTHONPATH=.:../chatbot uvicorn main:app --reload
 ```
 
 To start the frontend (in a new terminal):

@@ -73,7 +73,7 @@ def build_memory_index(
     Returns a stats dict with counts of processed / deleted / skipped docs.
     """
     # ------------------------------------------------------------------
-    # bootstrap vector DB + registry if not injected
+    # bootstrap vector DB + registry
     # ------------------------------------------------------------------
     embedding = Embedder()
     vector_database = Chroma(is_persistent=True, persist_directory=str(vector_store_path), embedding=embedding)
@@ -93,8 +93,8 @@ def build_memory_index(
             persist_directory=str(vector_store_path),
             embedding=vector_database.embedding,
         )
-        for rec in registry.get_all():
-            registry.remove(rec.document_id)
+        for record in registry.get_all():
+            registry.remove(record.document_id)
 
     # ------------------------------------------------------------------
     # (a) load source docs, compute document_id + version_hash
@@ -117,19 +117,16 @@ def build_memory_index(
     # ------------------------------------------------------------------
     new_ids, changed_ids, deleted_ids = registry.get_stale_documents(current_docs)
     logger.info(
-        "Diff result – new: %d, changed: %d, deleted: %d, unchanged: %d",
-        len(new_ids),
-        len(changed_ids),
-        len(deleted_ids),
-        len(current_docs) - len(new_ids) - len(changed_ids),
+        f"Diff result – new: {len(new_ids)}, changed: {len(changed_ids)}, deleted: {len(deleted_ids)}, "
+        f"unchanged: {len(current_docs) - len(new_ids) - len(changed_ids)}",
     )
 
     # ------------------------------------------------------------------
     # (c) remove changed / deleted docs from Chroma + registry
     # ------------------------------------------------------------------
     for doc_id in changed_ids | deleted_ids:
-        rec = registry.get(doc_id)
-        chunk_ids = rec.chunk_ids if rec else None
+        record = registry.get(doc_id)
+        chunk_ids = record.chunk_ids if record else None
         vector_database.delete_chunks_by_document_id(doc_id, chunk_ids=chunk_ids)
         if doc_id in deleted_ids:
             registry.remove(doc_id)
