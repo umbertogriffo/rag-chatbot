@@ -34,66 +34,21 @@ def normalize_text(text: str) -> str:
     return normalized
 
 
-def generate_deterministic_id(text: str) -> str:
+def generate_id(text: str) -> str:
     """
-    Generate a deterministic ID from text content using SHA-256 hash.
-
-    This ensures that identical content always produces the same ID,
-    enabling deduplication when using upsert() operations.
+    Generate a deterministic SHA-256 fingerprint for a text.
 
     Args:
         text (str): The text content to hash
 
     Returns:
-        str: SHA-256 hex digest as deterministic ID
+        str: SHA-256 hex digest representing the document version.
 
     Example:
-        >>> generate_deterministic_id("Hello World")
+        >>> generate_id("Hello World")
         'd2a84f4b8b650937ec8f73cd8be2c74add5a911ba64df27458ed8229da804a26'
     """
-
     # Normalize the text for consistent hashing
-    content_to_hash = normalize_text(text)
-
+    normalized = normalize_text(text)
     # Generate SHA-256 hash
-    hash_object = hashlib.sha256(content_to_hash.encode("utf-8"))
-    deterministic_id = hash_object.hexdigest()
-
-    return deterministic_id
-
-
-def generate_deterministic_ids(texts: list[str]) -> list[str]:
-    """
-    Generate deterministic IDs for a list of texts.
-
-    Args:
-        texts (list[str]): List of text contents
-
-    Returns:
-        list[str]: List of deterministic IDs
-    """
-    ids = []
-
-    for text in texts:
-        deterministic_id = generate_deterministic_id(text)
-        ids.append(deterministic_id)
-
-    return ids
-
-
-def compute_version_hash(content: str) -> str:
-    """
-    Compute a SHA-256 version fingerprint for a whole source document.
-
-    The content is normalized with :func:`normalize_text` before hashing so
-    that insignificant whitespace / casing differences don't produce a
-    different version hash.
-
-    Args:
-        content (str): Full document content.
-
-    Returns:
-        str: SHA-256 hex digest representing the document version.
-    """
-    normalized = normalize_text(content)
     return hashlib.sha256(normalized.encode("utf-8")).hexdigest()

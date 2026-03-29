@@ -1,4 +1,4 @@
-.PHONY: check install setup update test clean start
+.PHONY: check install setup update test clean start migrate_db
 
 llama_cpp_file=version/llama_cpp
 llama_cpp_version=`cat $(llama_cpp_file)`
@@ -27,8 +27,11 @@ install_pre_commit:
 	poetry run pre-commit install
 	poetry run pre-commit install --hook-type pre-commit
 
-setup_cuda: install_cuda install_pre_commit
-setup_metal: install_metal install_pre_commit
+setup_cuda: install_cuda install_pre_commit migrate_db
+setup_metal: install_metal install_pre_commit migrate_db
+
+migrate_db:
+	cd backend && PYTHONPATH=.:../chatbot poetry run python migration.py
 
 start:
 	sh start.sh

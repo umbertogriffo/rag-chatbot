@@ -1,12 +1,10 @@
-import shutil
-import uuid
 from pathlib import Path
 from typing import Annotated
 
 from bot.memory.document_registry import DocumentRegistry
-from bot.memory.vector_database.id_generator import compute_version_hash
+from bot.memory.vector_database.id_generator import generate_id
 from core.config import settings
-from entities.document import Document
+from document_loader.loader import DirectoryLoader
 from fastapi import APIRouter, File, HTTPException, UploadFile
 from helpers.log import get_logger
 from memory_builder import split_chunks
@@ -67,39 +65,59 @@ async def upload_document(
             detail=f"Document '{file.filename}' already exists.",
         )
 
-    document_id = str(uuid.uuid4())
-    dest_dir = settings.DOCS_PATH / document_id
+    dest_dir = settings.DOCS_PATH
     dest_dir.mkdir(parents=True, exist_ok=True)
-    file_path = dest_dir / (file.filename or document_id)
+    file_path = dest_dir / file.filename
+    document_id = generate_id(str(file_path))
 
     content = await file.read()
     file_path.write_bytes(content)
 
+    # Use DirectoryLoader to load the file content (same as build_memory_index)
+    # This ensures consistent content processing and version hashing
     try:
-        page_content = content.decode("utf-8")
-    except UnicodeDecodeError as exc:
-        logger.warning(
-            "Failed to decode uploaded file '%s' as UTF-8: %s",
-            file.filename,
-            exc,
+        loader = DirectoryLoader(
+            path=file_path.parent,
+            glob=file_path.name,
+            show_progress=False,
         )
+        loaded_docs = loader.load()
+
+        if not loaded_docs:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Failed to load document '{file.filename}'. The file may be corrupted or in an"
+                f" unsupported format.",
+            )
+
+        # Extract the loaded document (should be exactly one)
+        document = loaded_docs[0]
+        page_content = document.page_content
+
+    except Exception as exc:
+        logger.warning(
+            f"Failed to load uploaded file '{file.filename}': {exc}",
+        )
+        # Clean up the saved file on error
+        if file_path.exists():
+            file_path.unlink()
         raise HTTPException(
             status_code=400,
-            detail="Uploaded file is not valid UTF-8 text and cannot be processed.",
+            detail=f"Failed to process document '{file.filename}': {str(exc)}",
         )
 
-    version_hash = compute_version_hash(page_content)
+    version_hash = generate_id(page_content)
 
-    document = Document(
-        page_content=page_content,
-        metadata={
+    # Update document metadata with our tracking fields
+    document.metadata.update(
+        {
             "source": str(file_path),
             "document_id": document_id,
             "filename": file.filename,
             "content_type": file.content_type,
             "size": len(content),
             "version_hash": version_hash,
-        },
+        }
     )
 
     # Store the document metadata in the in-memory registry for listing purposes
@@ -180,6 +198,6 @@ async def delete_document(document_id: str, index: VectorDatabaseDep, session: S
     index.delete_chunks_by_document_id(document_id, chunk_ids=entry.chunk_ids or None)
     registry.remove(document_id)
 
-    dest_dir = settings.DOCS_PATH / document_id
-    if dest_dir.exists():
-        shutil.rmtree(dest_dir)
+    file_path = settings.DOCS_PATH / entry.filename
+    if file_path.exists():
+        file_path.unlink()

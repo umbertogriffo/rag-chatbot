@@ -5,7 +5,7 @@ from pathlib import Path
 from bot.memory.document_registry import DocumentRegistry
 from bot.memory.embedder import Embedder
 from bot.memory.vector_database.chroma import Chroma
-from bot.memory.vector_database.id_generator import compute_version_hash, generate_deterministic_id
+from bot.memory.vector_database.id_generator import generate_id
 from database import create_db_engine
 from document_loader.format import Format
 from document_loader.loader import DirectoryLoader
@@ -86,13 +86,7 @@ def build_memory_index(
     # ------------------------------------------------------------------
     if full_rebuild:
         logger.info("Full rebuild requested – wiping collection and registry.")
-        vector_database.delete_collection()
-        # Re-create the collection after deletion so subsequent operations work
-        vector_database = Chroma(
-            is_persistent=True,
-            persist_directory=str(vector_store_path),
-            embedding=vector_database.embedding,
-        )
+        vector_database.reset_collection()
         for record in registry.get_all():
             registry.remove(record.document_id)
 
@@ -107,8 +101,8 @@ def build_memory_index(
     doc_map: dict[str, Document] = {}  # {document_id: Document}
     for doc in sources:
         source_path = doc.metadata.get("source", "")
-        doc_id = generate_deterministic_id(source_path)
-        ver_hash = compute_version_hash(doc.page_content)
+        doc_id = generate_id(source_path)
+        ver_hash = generate_id(doc.page_content)
         current_docs[doc_id] = ver_hash
         doc_map[doc_id] = doc
 

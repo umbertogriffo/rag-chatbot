@@ -84,6 +84,17 @@ To deal with context overflows, we implemented two approaches:
   hierarchically combine the answers.
     * ![hierarchical-summarization.png](images/hierarchical-summarization.png)
 
+The`Memory Builder` builds the vector database in an incremental way, which means that when a document changes,
+we only update the corresponding chunks in the vector store instead of rebuilding the whole index.
+
+This is achieved through:
+- **Document-level metadata tracking**: every chunk gets tagged with a source doc ID + version hash. When a doc changes, we regenerate chunks for that doc only, delete the old ones by metadata filter, and insert new ones. way cheaper than rebuilding the whole index.
+- **Incremental ingestion pipeline**: the pipeline diffs source docs against what's already indexed (using those version hashes). Only changed/new docs get processed. Keeps compute costs reasonable as the corpus grows.
+- **Handling deletions**: we keep a separate mapping table (doc_id → chunk_ids) so we can precisely target what to remove without scanning the whole store.
+
+> [!IMPORTANT]
+> One thing to watch out for — if you ever swap embedding models, you must rebuild it from scratch since the vector spaces won’t be compatible. Plan for that early.
+
 ## Prerequisites
 
 * Python 3.12+
@@ -190,7 +201,7 @@ format.
 
 You could download some Markdown pages from the [Blendle Employee Handbook](https://blendle.notion.site/Blendle-s-Employee-Handbook-7692ffe24f07450785f093b94bbe1a09) and put them under `docs`.
 
-Then run:
+Build the memory index by running:
 
 ```shell
 python chatbot/memory_builder.py --chunk-size 1000 --chunk-overlap 50
@@ -214,7 +225,7 @@ echo "VITE_API_URL=http://localhost:8000" > .env
 To start the backend type:
 
 ```shell
-cd backend && PYTHONPATH=.:../chatbot poetry run python migration.py && PYTHONPATH=.:../chatbot uvicorn main:app --reload
+cd backend && PYTHONPATH=.:../chatbot uvicorn main:app --reload
 ```
 
 To start the frontend (in a new terminal):
