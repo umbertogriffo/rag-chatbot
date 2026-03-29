@@ -1,4 +1,4 @@
-# Plan: Production-Ready Incremental Vector Store Updates
+# Plan: Incremental Vector Store Updates
 
 - **Document-level metadata tracking**: every chunk gets tagged with a source doc ID + version hash. When a doc changes, we regenerate chunks for that doc only, delete the old ones by metadata filter, and insert new ones. way cheaper than rebuilding the whole index.
 - **Incremental ingestion pipeline**: we run a job that diffs source docs against what's already indexed (using those version hashes). Only changed/new docs get processed. Keeps compute costs reasonable as the corpus grows.
