@@ -204,6 +204,7 @@ You could download some Markdown pages from the [Blendle Employee Handbook](http
 Build the memory index by running:
 
 ```shell
+make migrate_db
 python chatbot/memory_builder.py --chunk-size 1000 --chunk-overlap 50
 ```
 
