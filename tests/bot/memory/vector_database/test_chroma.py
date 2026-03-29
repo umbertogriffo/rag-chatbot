@@ -1,6 +1,7 @@
 import pytest
 from bot.memory.embedder import Embedder
 from bot.memory.vector_database.chroma import Chroma
+from bot.memory.vector_database.id_generator import generate_id
 from entities.document import Document
 
 
@@ -37,10 +38,11 @@ def test_deduplication_with_upsert(chroma_instance):
     """Test that duplicate documents are deduplicated via upsert"""
     text = "This is a duplicate document."
     metadata = {"source": "test.md"}
+    text_id = generate_id(text)
 
     # Add the same document twice
-    chroma_instance.add_texts([text], [metadata])
-    chroma_instance.add_texts([text], [metadata])
+    chroma_instance.add_texts(texts=[text], metadata=[metadata], ids=[text_id])
+    chroma_instance.add_texts(texts=[text], metadata=[metadata], ids=[text_id])
 
     # Query to get all documents
     results = chroma_instance.similarity_search(text, k=10)
@@ -63,17 +65,28 @@ def test_different_documents_not_deduplicated(chroma_instance):
 
 
 @pytest.mark.parametrize(
-    "texts,metadata,expected_count",
+    "texts, ids, metadata,expected_count",
     [
-        (["Duplicate text", "Duplicate text", "Unique text"], [], 2),
-        (["Duplicate text", "Duplicate text", "Unique text"], [{"source": "doc.md"}], 2),
+        (["Duplicate text", "Duplicate text", "Unique text"], ["a", "b", "c"], [], 3),
+        (["Duplicate text", "Duplicate text", "Unique text"], ["a", "b", "c"], [{"source": "doc.md"}], 3),
         (
             ["Duplicate text", "Duplicate text", "Unique text"],
+            ["a", "b", "c"],
             [{"source": "doc.md"}, {"source": "doc.md"}, {"source": "unique.md"}],
-            2,
+            3,
         ),
-        (["Duplicate text", "Duplicate text", "Unique text"], [{"source": "doc.md"}, {"source": "doc.md"}], 2),
-        (["Duplicate text", "Duplicate text", "Unique text"], [{"source": "doc.md"}, {}, {"source": "unique.md"}], 2),
+        (
+            ["Duplicate text", "Duplicate text", "Unique text"],
+            ["a", "b", "c"],
+            [{"source": "doc.md"}, {"source": "doc.md"}],
+            3,
+        ),
+        (
+            ["Duplicate text", "Duplicate text", "Unique text"],
+            ["a", "b", "c"],
+            [{"source": "doc.md"}, {}, {"source": "unique.md"}],
+            3,
+        ),
     ],
     ids=[
         "no_metadata",
@@ -83,9 +96,9 @@ def test_different_documents_not_deduplicated(chroma_instance):
         "partial_metadata_with_empty_dict",
     ],
 )
-def test_from_texts_deduplication(chroma_instance, texts, metadata, expected_count):
+def test_from_texts_deduplication(chroma_instance, texts, ids, metadata, expected_count):
     """Test that from_texts method deduplicates duplicate documents"""
-    chroma_instance.from_texts(texts, metadata)
+    chroma_instance.from_texts(texts, metadata, ids)
 
     results = chroma_instance.similarity_search("text", k=10)
 
