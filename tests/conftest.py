@@ -3,8 +3,10 @@ from pathlib import Path
 import pytest
 from alembic import command
 from alembic.config import Config
-from api.deps import get_db_session, get_llm_client
+from api.deps import get_db_session, get_index, get_llm_client
 from bot.client.lama_cpp_client import LamaCppClient
+from bot.memory.embedder import Embedder
+from bot.memory.vector_database.chroma import Chroma
 from bot.model.model_registry import Model, get_model_settings
 from main import app
 from sqlmodel import Session, create_engine
@@ -39,14 +41,17 @@ def lamacpp_client(mock_models_folder, model_settings):
     return LamaCppClient(mock_models_folder, model_settings)
 
 
+@pytest.fixture
+def chroma_instance(tmp_path):
+    return Chroma(embedding=Embedder(), persist_directory=str(tmp_path), is_persistent=True)
+
+
 @pytest.fixture(scope="session")
 def db_engine(tmp_path_factory, session_mocker):
     """
     Create a session-scoped database engine.
     Database is created once and migrations run once for all tests.
     """
-    # TODO: Use an in-memory SQLite database for faster tests if possible.
-    #       https://sqlmodel.tiangolo.com/tutorial/fastapi/tests/#memory-database
 
     # Create a temporary database file for SQLite
     temp_dir = tmp_path_factory.mktemp("db")
@@ -92,15 +97,19 @@ def session_fixture(db_engine) -> Session:
 
 
 @pytest.fixture(name="client_with_overridden_deps")
-def client_fixture(session: Session, lamacpp_client: LamaCppClient):
+def client_fixture(session: Session, lamacpp_client: LamaCppClient, chroma_instance: Chroma):
     def get_db_session_override():
         return session
 
     def get_llm_client_override():
         return lamacpp_client
 
+    def get_index_client_override():
+        return chroma_instance
+
     app.dependency_overrides[get_db_session] = get_db_session_override
     app.dependency_overrides[get_llm_client] = get_llm_client_override
+    app.dependency_overrides[get_index] = get_index_client_override
 
     client = TestClient(app)
 
