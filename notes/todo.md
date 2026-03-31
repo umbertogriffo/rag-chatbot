@@ -10,12 +10,6 @@
  - https://huggingface.co/jinaai/jina-embeddings-v4
 - `Qwen3.5-27B-Claude-4.6-Opus-Reasoning-Distilled`: a `27B` parameter reasoning specialist. This model was distilled from Claude's reasoning patterns into Qwen's architecture, creating a powerful chain-of-thought thinker that's surprisingly accessible.
   - https://huggingface.co/Jackrong/Qwen3.5-27B-Claude-4.6-Opus-Reasoning-Distilled
-- Investigate llama.cpp:
-  - server:
-    - https://github.com/ggml-org/llama.cpp/tree/master/tools/server
-  - webui:
-    - https://github.com/ggml-org/llama.cpp/discussions/16938
-    - https://github.com/ggml-org/llama.cpp/tree/master/tools/server/webui
 - Chunking:
   - [Introducing Contextual Retrieval](https://www.anthropic.com/news/contextual-retrieval)
   - [Chunking for RAG: Stop Breaking Your Documents Into Meaningless Pieces](https://www.youtube.com/watch?v=trG5pjChAkM)
@@ -25,6 +19,8 @@
   - https://github.com/PrithivirajDamodaran/FlashRank
   - https://github.com/AnswerDotAI/rerankers
   - https://huggingface.co/jinaai/jina-reranker-m0-GGUF
+- Test Flash attention:
+  - https://github.com/ggerganov/llama.cpp/pull/5021
 - Experiment Agentic Patterns:
   - https://weaviate.io/blog/what-is-agentic-rag
   - https://github.com/neural-maze/agentic_patterns
@@ -55,7 +51,11 @@
     - Explore also the structure of the repo https://github.com/mem0ai/mem0/tree/main/mem0 and the vector store implementation.
   - https://github.com/timescale/pgai - PostgreSQL extension for AI.
   - https://github.com/letta-ai/letta
+- Investigate llama.cpp:
+  - server:
+    - https://github.com/ggml-org/llama.cpp/tree/master/tools/server
+  - webui:
+    - https://github.com/ggml-org/llama.cpp/discussions/16938
+    - https://github.com/ggml-org/llama.cpp/tree/master/tools/server/webui
 - Investigate Chroma batch querying: https://github.com/langchain-ai/langchain/blob/907c758d67764385828c8abad14a3e64cf44d05b/libs/community/langchain_community/vectorstores/chroma.py#L42
-- Make docker container.
-- Test Flash attention:
-  - https://github.com/ggerganov/llama.cpp/pull/5021
+- Make docker containers.
