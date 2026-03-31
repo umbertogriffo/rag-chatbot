@@ -9,6 +9,8 @@ class Embedder:
         Initialize the Embedder class with the specified parameters.
 
         Args:
+            model_name (str): The name of the SentenceTransformer model to use for embedding.
+            cache_folder (str | None): The directory where the model will be cached.
             **kwargs (Any): Additional keyword arguments to pass to the SentenceTransformer model.
         """
         self.client = sentence_transformers.SentenceTransformer(model_name, cache_folder=cache_folder, **kwargs)
@@ -29,10 +31,12 @@ class Embedder:
         texts = [x.replace("\n", " ") for x in texts]
         if multi_process:
             pool = self.client.start_multi_process_pool()
-            embeddings = self.client.encode_multi_process(texts, pool)
+            embeddings = self.client.encode(sentences=texts, pool=pool)
             sentence_transformers.SentenceTransformer.stop_multi_process_pool(pool)
         else:
-            embeddings = self.client.encode(texts, normalize_embeddings=False, show_progress_bar=True, **encode_kwargs)
+            embeddings = self.client.encode(
+                sentences=texts, normalize_embeddings=False, show_progress_bar=True, **encode_kwargs
+            )
 
         return embeddings.tolist()
 
