@@ -1,7 +1,12 @@
 # Todo
+- Support PDF and DOCX files in the RAG pipeline:
+  - https://www.linkedin.com/feed/update/urn:li:activity:7421507563424432128/
+  - https://theembedding1.substack.com/p/hands-on-retrieval-augmented-generation
 - Explore Jina AI Embeddings, Rerankers amd Small LMs:
  - https://huggingface.co/jinaai
- - https://huggingface.co/jinaai/jina-embeddings-v5-text-small
+ - https://huggingface.co/collections/jinaai/jina-embeddings-v5-text (239M & 677M parameters)
+   - https://www.linkedin.com/feed/update/urn:li:activity:7430263215462318080?updateEntityUrn=urn%3Ali%3Afs_updateV2%3A%28urn%3Ali%3Aactivity%3A7430263215462318080%2CFEED_DETAIL%2CEMPTY%2CDEFAULT%2Cfalse%29
+   - https://huggingface.co/jinaai/jina-embeddings-v5-text-small
  - https://huggingface.co/jinaai/jina-embeddings-v4
 - `Qwen3.5-27B-Claude-4.6-Opus-Reasoning-Distilled`: a `27B` parameter reasoning specialist. This model was distilled from Claude's reasoning patterns into Qwen's architecture, creating a powerful chain-of-thought thinker that's surprisingly accessible.
   - https://huggingface.co/Jackrong/Qwen3.5-27B-Claude-4.6-Opus-Reasoning-Distilled
