@@ -12,8 +12,8 @@ torch = [
     { version = "~=2.10.0", source = "pytorch", platform = "!=darwin" },
     { version = "~=2.10.0", source = "PyPI", platform = "darwin" }
 ]
-sentence-transformers = { version = "~=5.0.0" }
-sentencepiece = "~=0.2.1"
+sentence-transformers = { version = "~=5.1.2" }
+peft = "~=0.18.1"
 chromadb = "~=1.5.0"
 grpcio = "==1.78.0" # 1.78.1 used by chromadb, is yanked.
 rich = "~=13.4.2"

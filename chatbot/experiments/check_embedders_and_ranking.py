@@ -15,12 +15,12 @@ def load_texts(file_path: Path) -> list[str]:
         return [line.strip() for line in f if line.strip()]
 
 
-def run_experiment(texts: list[str], query: str, model_name: str = "all-MiniLM-L6-v2") -> None:
+def run_experiment(texts: list[str], query: str, model_name: str = "all-MiniLM-L6-v2", **kwargs) -> None:
     print(f"---{model_name}---")
 
     start_time = time.time()
 
-    embedding = Embedder(model_name=model_name)
+    embedding = Embedder(model_name=model_name, **kwargs)
     index = Chroma(embedding=embedding)
     index.from_texts(texts=texts)
 
@@ -60,3 +60,7 @@ if __name__ == "__main__":
     run_experiment(texts, query, model_name="all-MiniLM-L6-v2")
     run_experiment(texts, query, model_name="all-MiniLM-L12-v2")
     run_experiment(texts, query, model_name="all-mpnet-base-v2")
+    # https://huggingface.co/jinaai/jina-embeddings-v5-text-small-retrieval (677M)
+    run_experiment(texts, query, model_name="jinaai/jina-embeddings-v5-text-small-retrieval")
+    # https://huggingface.co/jinaai/jina-embeddings-v5-text-nano-retrieval (239M)
+    run_experiment(texts, query, model_name="jinaai/jina-embeddings-v5-text-nano-retrieval")

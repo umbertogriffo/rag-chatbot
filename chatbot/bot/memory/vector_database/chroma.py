@@ -346,26 +346,24 @@ class Chroma:
         """
         Performs similarity search on the given query.
 
-        Parameters:
-        -----------
-        query : str
-            The query string.
+        Args:
+            query : str
+                The query string.
 
-        k : int, optional
-            The number of retrievals to consider (default is 4).
+            k : int, optional
+                The number of retrievals to consider (default is 4).
 
-        threshold : float, optional
-            The threshold for considering similarity scores (default is 0.2).
+            threshold : float, optional
+                The threshold for considering similarity scores (default is 0.2).
 
         Returns:
-        -------
-        tuple[list[Document], list[dict[str, Any]]]
-            A tuple containing the list of matched documents and a list of their sources.
+            tuple[list[Document], list[dict[str, Any]]]
+                A tuple containing the list of matched documents and a list of their sources.
 
         """
         # `similarity_search_with_relevance_scores` return docs and relevance scores in the range [0, 1].
         # 0 is dissimilar, 1 is most similar.
-        docs_and_scores = self.similarity_search_with_relevance_scores(query, k)
+        docs_and_scores = self.similarity_search_with_relevance_scores(query=query, k=k)
 
         if threshold is not None:
             docs_and_scores = [doc for doc in docs_and_scores if doc[1] > threshold]
@@ -393,13 +391,14 @@ class Chroma:
 
         Args:
             query (str): Query text to search for.
+            prompt_name (str): The name of the prompt to use for embedding the query. Default is None.
             k (int): Number of results to return. Defaults to 4.
             filter (dict[str, str]|None): Filter by metadata. Defaults to None.
 
         Returns:
             List[Document]: List of documents most similar to the query text.
         """
-        docs_and_scores = self.similarity_search_with_score(query, k, filter=filter)
+        docs_and_scores = self.similarity_search_with_score(query=query, k=k, filter=filter)
         return [doc for doc, _ in docs_and_scores]
 
     def similarity_search_with_score(
@@ -417,7 +416,6 @@ class Chroma:
             k (int): Number of results to return. Defaults to 4.
             filter (dict[str, str]|None): Filter by metadata. Defaults to None.
             where_document (dict[str, str]|None): Filter by document content. Defaults to None.
-            **kwargs (Any): Additional keyword arguments.
 
         Returns:
             list[tuple[Document, float]]: List of documents most similar to
@@ -432,7 +430,7 @@ class Chroma:
                 where_document=where_document,
             )
         else:
-            query_embedding = self.embedding.embed_query(query)
+            query_embedding = self.embedding.embed_query(text=query)
             results = self.__query_collection(
                 query_embeddings=[query_embedding],
                 n_results=k,
@@ -464,7 +462,7 @@ class Chroma:
         # relevance_score_fn is a function to calculate relevance score from distance.
         relevance_score_fn = get_relevance_score_fn(self.distance_metric)
 
-        docs_and_scores = self.similarity_search_with_score(query, k)
+        docs_and_scores = self.similarity_search_with_score(query=query, k=k)
         docs_and_similarities = [(doc, relevance_score_fn(score)) for doc, score in docs_and_scores]
         if any(similarity < 0.0 or similarity > 1.0 for _, similarity in docs_and_similarities):
             logger.warning(f"Relevance scores must be between 0 and 1, got {docs_and_similarities}")

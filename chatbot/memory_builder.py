@@ -62,6 +62,7 @@ def build_memory_index(
     chunk_size: int,
     chunk_overlap: int,
     full_rebuild: bool = False,
+    model_name: str = "jinaai/jina-embeddings-v5-text-small-retrieval",
 ) -> dict:
     """
     Build or incrementally update the vector memory index.
@@ -75,7 +76,7 @@ def build_memory_index(
     # ------------------------------------------------------------------
     # bootstrap vector DB + registry
     # ------------------------------------------------------------------
-    embedding = Embedder()
+    embedding = Embedder(model_name=model_name)
     vector_database = Chroma(is_persistent=True, persist_directory=str(vector_store_path), embedding=embedding)
 
     session = Session(create_db_engine())
@@ -188,6 +189,14 @@ def get_args() -> argparse.Namespace:
         default=False,
         help="Wipe the vector store and registry and rebuild from scratch.",
     )
+    parser.add_argument(
+        "--model-name",
+        type=str,
+        help="The name of the SentenceTransformer model to use for embedding. "
+        "Defaults to 'jinaai/jina-embeddings-v5-text-small-retrieval'.",
+        required=False,
+        default="jinaai/jina-embeddings-v5-text-small-retrieval",
+    )
 
     return parser.parse_args()
 
@@ -198,11 +207,12 @@ def main(parameters):
     vector_store_path = root_folder / "vector_store" / "docs_index"
 
     build_memory_index(
-        doc_path,
-        str(vector_store_path),
-        parameters.chunk_size,
-        parameters.chunk_overlap,
+        docs_path=doc_path,
+        vector_store_path=str(vector_store_path),
+        chunk_size=parameters.chunk_size,
+        chunk_overlap=parameters.chunk_overlap,
         full_rebuild=parameters.full_rebuild,
+        model_name=parameters.model_name,
     )
 
 

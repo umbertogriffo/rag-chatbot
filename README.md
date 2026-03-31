@@ -42,8 +42,9 @@ Check out the todo list to see the next steps and improvements we want to implem
 - [Bootstrap Environment](#bootstrap-environment)
     - [How to use the make file](#how-to-use-the-make-file)
     - [Environment](#environment)
-- [Using the Open-Source Models Locally](#using-the-open-source-models-locally)
-    - [Supported Models](#supported-models)
+- [Using the Open-Source LLMs/Embedding Models Locally](#using-the-open-source-llmsembedding-models-locally)
+    - [Supported LLMs Models](#supported-llms-models)
+    - [Supported Embedding Models](#supported-embedding-models)
 - [Supported Response Synthesis strategies](#supported-response-synthesis-strategies)
 - [Build the memory index](#build-the-memory-index)
 - [Run the Chatbot](#run-the-chatbot)
@@ -67,8 +68,8 @@ corresponding answer based on the context provided by those files.
 
 The `Memory Builder` component of the project loads Markdown pages from the `docs` folder.
 It then divides these pages into smaller sections, calculates the embeddings (a numerical representation) of these
-sections with the [all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2)
-`sentence-transformer`, and saves them in an embedding database called [Chroma](https://github.com/chroma-core/chroma) for later use.
+sections with the [Semantic Search](https://sbert.net/examples/sentence_transformer/applications/semantic-search/README.html) models
+from [Sentence Transformers](https://sbert.net/index.html), and saves them in an embedding database called [Chroma](https://github.com/chroma-core/chroma) for later use.
 
 When a user asks a question, the RAG ChatBot retrieves the most relevant sections from the Embedding database.
 Since the original question can't be always optimal to retrieve for the LLM, we first prompt an LLM to rewrite the
@@ -85,7 +86,7 @@ To deal with context overflows, we implemented two approaches:
   hierarchically combine the answers.
     * ![hierarchical-summarization.png](images/hierarchical-summarization.png)
 
-The`Memory Builder` builds the vector database in an incremental way, which means that when a document changes,
+The `Memory Builder` builds the vector database in an incremental way, which means that when a document changes,
 we only update the corresponding chunks in the vector store instead of rebuilding the whole index.
 
 This is achieved through:
@@ -128,7 +129,7 @@ pipx install poetry==<version> --force
 
 ## Bootstrap Environment
 
-To easily install the dependencies we created a make file.
+To easily install the dependencies and start the services we created a make file.
 
 ### How to use the make file
 
@@ -157,20 +158,19 @@ To easily install the dependencies we created a make file.
 ### Environment
 
 Copy .𝐞𝐧𝐯.𝐞𝐱𝐚𝐦𝐩𝐥𝐞 → .𝐞𝐧𝐯 and fill it in.
+Copy /frontend/.𝐞𝐧𝐯.𝐞𝐱𝐚𝐦𝐩𝐥𝐞 → .𝐞𝐧𝐯 and fill it in.
 
-## Using the Open-Source Models Locally
+## Using the Open-Source LLMs/Embedding Models Locally
 
-We utilize the open-source library [llama-cpp-python](https://github.com/abetlen/llama-cpp-python), a binding
-for [llama-cpp](https://github.com/ggerganov/llama.cpp),
+We utilize the open-source library [llama-cpp-python](https://github.com/abetlen/llama-cpp-python), a binding for [llama-cpp](https://github.com/ggerganov/llama.cpp),
 allowing us to utilize it within a Python environment.
 `llama-cpp` serves as a C++ backend designed to work efficiently with transformer-based models.
 Running the LLMs architecture on a local PC is impossible due to the large (~7 billion) number of parameters.
 This library enable us to run them either on a `CPU` or `GPU`.
 Additionally, we use the `Quantization and 4-bit precision` to reduce number of bits required to represent the numbers.
-The quantized models are stored in [GGML/GGUF](https://medium.com/@phillipgimmi/what-is-gguf-and-ggml-e364834d241c)
-format.
+The quantized models are stored in [GGML/GGUF](https://medium.com/@phillipgimmi/what-is-gguf-and-ggml-e364834d241c) format.
 
-### Supported Models
+### Supported LLMs Models
 
 | 🤖 Model                                                       | Supported | Model Size | Max Context Window | Notes and link to the model card                                                                                                                                     |
 |----------------------------------------------------------------|-----------|------------|--------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -190,6 +190,21 @@ format.
 | `phi-3.5` Phi-3.5 Mini  Instruct                               | ✅         | 3.8B       | 128k               | [Card](https://huggingface.co/MaziyarPanahi/Phi-3.5-mini-instruct-GGUF)                                                                                              |
 | `stablelm-zephyr` StableLM Zephyr OpenOrca                     | ✅         | 3B         | 4096               | [Card](https://huggingface.co/TheBloke/stablelm-zephyr-3b-GGUF)                                                                                                      |
 
+### Supported Embedding Models
+
+For the semantic search, we support all the embedding models from `Sentence Transformers` but we tested those on the table below.
+To find the list of best embeddings models for the retrieval task in your language (or multiple languages) go to the [Massive Text Embedding Benchmark (MTEB) Leaderboard](https://huggingface.co/spaces/mteb/leaderboard).
+We do recommend you to use the [jina-embeddings-v5-text](https://huggingface.co/collections/jinaai/jina-embeddings-v5-text) models,
+which are small (239M & 677M parameters) with SOTA performance for multilingual retrieval tasks, and they perform very well on the MTEB benchmark.
+
+| 🧠 Embedding Model                                                               | Supported | Model Size | Max Tokens | Retrieval score (MTEB) | Notes and link to the model card                                                                    |
+|----------------------------------------------------------------------------------|-----------|------------|------------|------------------------|-----------------------------------------------------------------------------------------------------|
+| `all-MiniLM-L6-v2` - Sentence Transformers All MiniLM L6 v2                      | ✅         | 0.023B     | 512        | 33.30                  | [Card](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2)                               |
+| `all-MiniLM-L12-v2` - Sentence Transformers All MiniLM L12 v2                    | ✅         | 0.033B     | 256        | 33.37                  | [Card](https://huggingface.co/sentence-transformers/all-MiniLM-L12-v2)                              |
+| `all-mpnet-base-v2` - Sentence Transformers All Mpnet base v2                    | ✅         | 0.109B     | 384        | 33.80                  | [Card](https://huggingface.co/sentence-transformers/all-mpnet-base-v2)                              |
+| `jinaai/jina-embeddings-v5-text-small-retrieval` - jina-embeddings-v5-text-small | ✅         | 0.596B     | 32k        | 64.88                  | **Recommended model** [Card](https://huggingface.co/jinaai/jina-embeddings-v5-text-small-retrieval) |
+| `jinaai/jina-embeddings-v5-text-nano-retrieval` - jina-embeddings-v5-text-nano   | ✅         | 0.212B     | 8k         | 63.26                  | [Card](https://huggingface.co/jinaai/jina-embeddings-v5-text-nano-retrieval)                        |
+
 ## Supported Response Synthesis strategies
 
 | ✨ Response Synthesis strategy                                           | Supported | Notes |
@@ -206,7 +221,7 @@ Build the memory index by running:
 
 ```shell
 make migrate_db
-python chatbot/memory_builder.py --chunk-size 1000 --chunk-overlap 50
+python chatbot/memory_builder.py --model-name jinaai/jina-embeddings-v5-text-small-retrieval --chunk-size 1000 --chunk-overlap 50
 ```
 
 ## Run the Chatbot
@@ -282,12 +297,6 @@ Once you upload one or multiple files, they will be: uploaded → chunked → em
     * [Atomic Agents](https://github.com/BrainBlend-AI/atomic-agents)
       * [Want to Build AI Agents? Tired of LangChain, CrewAI, AutoGen & Other AI Agent Frameworks?](https://ai.gopubby.com/want-to-build-ai-agents-c83ab4535411)
     * [agno](https://github.com/agno-agi/agno) - a lightweight, high-performance library for building Agents.
-* Embeddings:
-    * To find the list of best embeddings models for the retrieval task in your language go to
-      the [Massive Text Embedding Benchmark (MTEB) Leaderboard](https://huggingface.co/spaces/mteb/leaderboard)
-    * [all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2)
-        * This is a `sentence-transformers` model: It maps sentences & paragraphs to a 384 dimensional dense vector
-          space (Max Tokens 512) and can be used for tasks like classification or semantic search.
 * Vector Databases:
     * Indexing algorithms:
         * There are many algorithms for building indexes to optimize vector search. Most vector databases

@@ -21,7 +21,7 @@ def test_add_texts(chroma_instance):
     """Test that texts can be added to the Chroma collection and that IDs are returned"""
     texts = ["This is a test document."]
     metadata = [{"source": "test_source"}]
-    ids = chroma_instance.add_texts(texts, metadata)
+    ids = chroma_instance.add_texts(texts=texts, metadata=metadata)
     assert len(ids) == 1
 
 
@@ -30,7 +30,7 @@ def test_add_texts_with_missing_metadata(chroma_instance):
     texts = ["Test document 1", "Test document 2"]
     metadata = [{"source": "test.md"}]
 
-    ids = chroma_instance.add_texts(texts, metadata)
+    ids = chroma_instance.add_texts(texts=texts, metadata=metadata)
     assert len(ids) == 2
 
 
@@ -57,7 +57,7 @@ def test_different_documents_not_deduplicated(chroma_instance):
     texts = ["Document one", "Document two", "Document three"]
     metadata = [{"source": "test.md"}, {"source": "test.md"}, {"source": "test.md"}]
 
-    chroma_instance.add_texts(texts, metadata)
+    chroma_instance.add_texts(texts=texts, metadata=metadata)
 
     results = chroma_instance.similarity_search("Document", k=10)
 
@@ -101,7 +101,7 @@ def test_from_texts_metadata(chroma_instance, texts, ids, metadata, expected_cou
     Test that from_texts correctly handles various metadata scenarios and that documents are retrievable with
     expected metadata
     """
-    chroma_instance.from_texts(texts, metadata, ids)
+    chroma_instance.from_texts(texts=texts, metadata=metadata, ids=ids)
 
     results = chroma_instance.similarity_search("text", k=10)
 
@@ -121,7 +121,7 @@ def test_similarity_search(chroma_instance):
     """Test that similarity search returns relevant documents based on the query"""
     texts = ["This is a test document."]
     metadatas = [{"source": "test_source"}]
-    chroma_instance.add_texts(texts, metadatas)
+    chroma_instance.add_texts(texts=texts, metadata=metadatas)
 
     results = chroma_instance.similarity_search("test", k=1)
     assert len(results) == 1
@@ -132,7 +132,7 @@ def test_similarity_search_with_threshold(chroma_instance):
     """Test that similarity search with threshold returns documents that meet the relevance threshold"""
     texts = ["This is a test document."]
     metadatas = [{"source": "test_source"}]
-    chroma_instance.add_texts(texts, metadatas)
+    chroma_instance.add_texts(texts=texts, metadata=metadatas)
 
     results, source = chroma_instance.similarity_search_with_threshold("test", k=1, threshold=0.3)
     assert len(results) == 1
@@ -145,7 +145,7 @@ def test_similarity_search_with_score(chroma_instance):
     """Test that similarity search with score returns documents along with their relevance scores"""
     texts = ["This is a test document."]
     metadatas = [{"source": "test_source"}]
-    chroma_instance.add_texts(texts, metadatas)
+    chroma_instance.add_texts(texts=texts, metadata=metadatas)
 
     results = chroma_instance.similarity_search_with_score("test", k=1)
     assert len(results) == 1
@@ -157,7 +157,7 @@ def test_similarity_search_with_relevance_scores(chroma_instance):
     """Test that similarity search with relevance scores returns documents along with normalized relevance scores"""
     texts = ["This is a test document."]
     metadatas = [{"source": "test_source"}]
-    chroma_instance.add_texts(texts, metadatas)
+    chroma_instance.add_texts(texts=texts, metadata=metadatas)
 
     results = chroma_instance.similarity_search_with_relevance_scores("test", k=1)
     assert len(results) == 1
@@ -190,7 +190,7 @@ def test_delete_chunks_by_document_id_with_ids(chroma_instance):
     """Test deletion of specific chunk IDs"""
     texts = ["alpha content", "beta content"]
     metadata = [{"document_id": "doc1"}, {"document_id": "doc1"}]
-    ids = chroma_instance.from_texts(texts, metadata)
+    ids = chroma_instance.from_texts(texts=texts, metadata=metadata)
 
     # Delete only the first chunk by explicit ID
     chroma_instance.delete_chunks_by_document_id("doc1", chunk_ids=[ids[0]])
@@ -207,7 +207,7 @@ def test_delete_chunks_by_document_id_with_where(chroma_instance):
         {"document_id": "doc1"},
         {"document_id": "doc2"},
     ]
-    chroma_instance.from_texts(texts, metadata)
+    chroma_instance.from_texts(texts=texts, metadata=metadata)
 
     chroma_instance.delete_chunks_by_document_id("doc1")
     results = chroma_instance.similarity_search("chunk", k=10)

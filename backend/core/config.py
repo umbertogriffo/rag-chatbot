@@ -33,16 +33,24 @@ class Settings(BaseSettings):
 
     DATABASE_URL: str = f"sqlite:///{ROOT_PATH / 'vector_store' / 'registry.db'}"
 
+    # LLM Model Configuration
     MODEL: str = "llama-3.2:1b"
-    K: int = 2
     MAX_NEW_TOKENS: int = 512
+
+    # Retrieval Configuration
+    EMBEDDING_MODEL: str = "all-MiniLM-L6-v2"
+    SYNTHESIS_STRATEGY: str = "tree-summarization"
+    NUM_RETRIEVALS: int = 2
     CHUNK_SIZE: int = 1000
     CHUNK_OVERLAP: int = 50
-    SYNTHESIS_STRATEGY: str = "tree-summarization"
-    CHAT_HISTORY_LENGTH: int = 2
-    NUM_RETRIEVALS: int = 2
 
+    # Chat History Configuration
+    CHAT_HISTORY_LENGTH: int = 2
+
+    # WebSocket Configuration
     WEBSOCKET_MAX_SIZE: int = 10 * 1024 * 1024  # 10 MB
+
+    # File Upload Configuration
     ALLOWED_UPLOAD_EXTENSIONS: list[str] = [".md"]
 
 
