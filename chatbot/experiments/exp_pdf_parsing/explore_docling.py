@@ -2,7 +2,7 @@ import time
 from dataclasses import dataclass, field
 from enum import Enum
 
-from docling.backend.docling_parse_v2_backend import DoclingParseDocumentBackend
+from docling.backend.pypdfium2_backend import PyPdfiumDocumentBackend
 from docling.datamodel.accelerator_options import AcceleratorDevice, AcceleratorOptions
 from docling.datamodel.base_models import InputFormat
 from docling.datamodel.pipeline_options import (
@@ -77,7 +77,7 @@ class DoclingParser:
 
         self.converter = DocumentConverter(
             format_options={
-                InputFormat.PDF: PdfFormatOption(pipeline_options=pipeline_options, backend=DoclingParseDocumentBackend)
+                InputFormat.PDF: PdfFormatOption(pipeline_options=pipeline_options, backend=PyPdfiumDocumentBackend)
             }
         )
 
@@ -124,7 +124,7 @@ if __name__ == "__main__":
         engine=OCREngine.EASY_OCR,
         do_ocr=False,
         do_table_structure=True,
-        do_cell_matching=True,
+        do_cell_matching=False,
         table_structure_mode=TableFormerMode.FAST,
         generate_picture_images=False,
         generate_page_images=False,
