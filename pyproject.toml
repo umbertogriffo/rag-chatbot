@@ -18,7 +18,7 @@ chromadb = "~=1.5.0"
 grpcio = "==1.78.0" # 1.78.1 used by chromadb, is yanked.
 rich = "~=13.4.2"
 unstructured = { version = "~=0.20.2", extras = ["md"] }
-docling = "~=2.82.0"
+docling = { version = "~=2.82.0", extras = ["vlm","rapidocr","easyocr"] }
 transformers = "~=4.57.6"
 numpy = "~=2.4.4"
 requests = "~=2.33.0"
