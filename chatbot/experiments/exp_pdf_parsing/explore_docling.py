@@ -113,17 +113,19 @@ class DoclingParser:
             not export. Parallelizing per-page export actually makes things worse.
         """
         file_to_markdown = {}
-        for file_path in file_paths:
-            result = self.converter.convert(source=file_path)
-            file_to_markdown[file_path] = result.document.export_to_markdown(
+
+        results = self.converter.convert_all(source=file_paths, raises_on_error=False)
+
+        for result in results:
+            file_to_markdown[str(result.input.file)] = result.document.export_to_markdown(
                 image_mode=image_mode, traverse_pictures=traverse_pictures
             )
+
         return file_to_markdown
 
 
 if __name__ == "__main__":
-    file_paths = ["2501.17887v1.pdf"]
-    documents = list(file_paths)
+    file_paths = ["2501.17887v1.pdf", "2501.17887v1-2.pdf", "2501.17887v1-3.pdf", "2408.09869v5.pdf"]
 
     # For digitally born PDFs this is the fastest setup.
     # Only enable OCR for scanned pages or scanned documents.
@@ -146,7 +148,7 @@ if __name__ == "__main__":
     start_time = time.time()
     file_to_markdown = parser.parse_to_markdown(file_paths=file_paths)
     took = time.time() - start_time
-    print(f"--- Document converted in {took:.2f} seconds ---")
+    print(f"--- Documents converted in {took:.2f} seconds ---")
 
     for file_path, markdown in file_to_markdown.items():
         print(f"--- Markdown for {file_path} ---")
