@@ -27,7 +27,12 @@ class OCROptions:
     do_ocr: bool = False
     do_table_structure: bool = False
     do_cell_matching: bool = False
-    table_structure_mode: TableFormerMode = TableFormerMode.ACCURATE
+    do_code_enrichment: bool = False
+    do_formula_enrichment: bool = False
+    do_picture_classification: bool = False
+    do_picture_description: bool = False
+    do_chart_extraction: bool = False
+    table_structure_mode: TableFormerMode = TableFormerMode.FAST
     generate_picture_images: bool = False
     generate_page_images: bool = False
     lang: list[str] | None = None
@@ -120,11 +125,13 @@ if __name__ == "__main__":
     file_paths = ["2501.17887v1.pdf"]
     documents = list(file_paths)
 
+    # For digitally born PDFs this is the fastest setup.
+    # Only enable OCR for scanned pages or scanned documents.
     ocr_options = OCROptions(
         engine=OCREngine.EASY_OCR,
         do_ocr=False,
         do_table_structure=True,
-        do_cell_matching=False,
+        do_cell_matching=True,
         table_structure_mode=TableFormerMode.FAST,
         generate_picture_images=False,
         generate_page_images=False,
