@@ -123,8 +123,8 @@ if __name__ == "__main__":
     ocr_options = OCROptions(
         engine=OCREngine.EASY_OCR,
         do_ocr=False,
-        do_table_structure=False,
-        do_cell_matching=False,
+        do_table_structure=True,
+        do_cell_matching=True,
         table_structure_mode=TableFormerMode.FAST,
         generate_picture_images=False,
         generate_page_images=False,
