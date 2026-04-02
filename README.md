@@ -158,6 +158,7 @@ To easily install the dependencies and start the services we created a make file
 ### Environment
 
 Copy .𝐞𝐧𝐯.𝐞𝐱𝐚𝐦𝐩𝐥𝐞 → .𝐞𝐧𝐯 and fill it in.
+
 Copy /frontend/.𝐞𝐧𝐯.𝐞𝐱𝐚𝐦𝐩𝐥𝐞 → .𝐞𝐧𝐯 and fill it in.
 
 ## Using the Open-Source LLMs/Embedding Models Locally
