@@ -4,7 +4,7 @@ ignore-scripts true
 allow-git none
 ```
 
-Require a package cooldown period on builds, ref pnpm security docs
+Require a package cooldown period on builds, ref `pnpm` (move to PNPM) security docs
 ```
 minimumReleaseAge: 20160  # 2 weeks (in minutes)
 ```
