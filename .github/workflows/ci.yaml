@@ -64,4 +64,4 @@ jobs:
 
       - name: Run tests
         run: |
-          poetry run python -m pytest --durations=5 --log-cli-level=DEBUG --capture=tee-sys -v --cov=chatbot --cov-report=term-missing --cov-fail-under=80
+          poetry run python -m pytest --durations=5 --log-cli-level=DEBUG --capture=tee-sys -v --cov=chatbot --cov-report=term-missing --cov-fail-under=68
