@@ -23,6 +23,9 @@
   - https://github.com/neural-maze/agentic_patterns
   - https://www.youtube.com/watch?v=ApoDzZP8_ck
   - Function Calling in LLM https://medium.com/@danushidk507/function-calling-in-llm-e537b286a4fd
+  - MCP:
+    - https://theneuralmaze.substack.com/p/how-we-built-an-mcp-agent-from-scratch
+    - https://github.com/PrefectHQ/fastmcp
   - Google Search with LLM:
     - https://huggingface.co/blog/nand-tmp/google-search-with-llm
     - https://blog.nextideatech.com/how-to-use-google-search-with-langchain-openai/
