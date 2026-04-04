@@ -1,7 +1,9 @@
 # Web Search Tool Integration Using MCP Protocol
 
 ## **Executive Summary**
-This plan outlines the implementation of a web search capability for the RAG chatbot using the Model Context Protocol (MCP). The feature will allow users to toggle web search mode via the existing UI flag, enabling real-time information retrieval instead of relying solely on RAG-based document retrieval.
+This plan outlines the implementation of a web search capability for the RAG chatbot using the Model Context Protocol (MCP).
+The feature will allow users to toggle web search mode via the existing UI flag, enabling real-time
+information retrieval instead of relying solely on RAG-based document retrieval.
 
 ---
 
