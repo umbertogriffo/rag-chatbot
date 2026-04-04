@@ -1,14 +1,4 @@
-I'll explore your codebase to understand the current architecture and create a detailed implementation plan for adding web search capabilities. Let me start by investigating the structure.
-
-Great! I found the `web_search` flag in the schemas. Let me explore the key files:
-
-Now let me check the directory structure for a better understanding:
-
-Perfect! Now I have a comprehensive understanding of the codebase. Let me create a detailed implementation plan:
-
----
-
-# **Implementation Plan: Web Search Tool Integration Using MCP Protocol**
+# Web Search Tool Integration Using MCP Protocol
 
 ## **Executive Summary**
 This plan outlines the implementation of a web search capability for the RAG chatbot using the Model Context Protocol (MCP). The feature will allow users to toggle web search mode via the existing UI flag, enabling real-time information retrieval instead of relying solely on RAG-based document retrieval.
