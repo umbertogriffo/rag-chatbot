@@ -969,28 +969,7 @@ WEB_SEARCH_PROVIDER=duckduckgo
 - Validate URLs before display
 - Filter inappropriate content
 
----
-
-## **10. Migration Path**
-
-### **10.1 Rollout Strategy**
-1. **Week 1**: Backend MCP infrastructure (no UI changes)
-2. **Week 2**: Enable web search toggle (opt-in)
-3. **Week 3**: Testing and refinement
-4. **Week 4**: Documentation and monitoring
-
-### **10.2 Feature Flags**
-```python
-# Gradual rollout capability
-if settings.WEB_SEARCH_ENABLED:
-    # New behavior
-else:
-    # Fallback to existing behavior
-```
-
----
-
-## **11. Open Questions & Clarifications**
+## **10. Open Questions & Clarifications**
 
 Before proceeding, please clarify:
 
