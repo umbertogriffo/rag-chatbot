@@ -18,6 +18,7 @@
 - Test Flash attention:
   - https://pypi.org/project/flash-attn/
   - https://github.com/ggerganov/llama.cpp/pull/5021
+- LLM Wiki (from karpathy): https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f
 - Experiment Agentic Patterns:
   - https://weaviate.io/blog/what-is-agentic-rag
   - https://github.com/neural-maze/agentic_patterns
@@ -46,10 +47,12 @@
 - Explore long term memory:
   - https://help.openai.com/en/articles/8590148-memory-faq
   - https://ai.gopubby.com/long-term-memory-for-agentic-ai-systems-4ae9b37c6c0f
-  - https://github.com/mem0ai/mem0
-    - Explore also the structure of the repo https://github.com/mem0ai/mem0/tree/main/mem0 and the vector store implementation.
-  - https://github.com/timescale/pgai - PostgreSQL extension for AI.
-  - https://github.com/letta-ai/letta
+  - Tools:
+    - https://github.com/mem0ai/mem0
+      - Explore also the structure of the repo https://github.com/mem0ai/mem0/tree/main/mem0 and the vector store implementation.
+      - https://github.com/supermemoryai/supermemory
+    - https://github.com/timescale/pgai - PostgreSQL extension for AI.
+    - https://github.com/letta-ai/letta
 - Investigate llama.cpp:
   - server:
     - https://github.com/ggml-org/llama.cpp/tree/master/tools/server
