@@ -18,6 +18,7 @@
 - Test Flash attention:
   - https://pypi.org/project/flash-attn/
   - https://github.com/ggerganov/llama.cpp/pull/5021
+- https://github.com/JuliusBrussee/caveman/blob/main/caveman/SKILL.md
 - LLM Wiki (from karpathy): https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f
 - Experiment Agentic Patterns:
   - https://weaviate.io/blog/what-is-agentic-rag
