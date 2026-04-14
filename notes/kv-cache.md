@@ -1,5 +1,11 @@
 # KV Cache
 
+> KV cache stores intermediate key (K) and value (V) computations for reuse during inference (after training),
+> which results in a substantial speed-up when generating text.
+> The downside of a KV cache is that it adds more complexity to the code, increases memory requirements , and can't be
+> used during training. However, the inference speed-ups are often well worth the trade-offs in code complexity and
+> memory when using LLMs in production.
+
 ## Integer Mapping Table
 
 The integer values are defined by the underlying GGML library:
@@ -54,3 +60,27 @@ class Llama31Settings(ModelSettings):
     }
     config_answer = {"temperature": 0.7, "stop": []}
 ```
+
+## TurboQuant
+
+TurboQuant is a compression algorithm that shrinks the KV cache (the biggest memory bottleneck during LLM inference)
+down to 3-4 bits per element without any retraining or fine-tuning.
+The result is roughly a 4-6x reduction in KV cache memory with negligible quality loss.
+
+When a transformer model generates text, it computes key and value vectors for every token in the context and stores
+them so it doesn't have to recompute them on subsequent steps. This is the key-value (KV) cache.
+The issue is simple: it grows linearly with context length, and it stores everything in full precision (typically FP16).
+For an 8B parameter model at 32K context, the KV cache alone can consume around 4.6 GB of VRAM.
+Scale that to multiple concurrent users or longer contexts, and you're out of memory before the model weights themselves
+become the bottleneck.
+
+Existing approaches to this problem -- like FP8 quantization in vLLM or the q4_0/q8_0 cache types in llama.cpp --
+either don't compress aggressively enough or introduce quality trade-offs that are hard to predict.
+TurboQuant aims to do better on both fronts.
+
+## References
+- [Understanding and Coding the KV Cache in LLMs from Scratch](https://magazine.sebastianraschka.com/p/coding-the-kv-cache-in-llms)
+- [KV Caching Explained: Optimizing Transformer Inference Efficiency](https://huggingface.co/blog/not-lain/kv-caching)
+- Turboquant:
+  - [TurboQuant: What Developers Need to Know About Google's KV Cache Compression](https://dev.to/arshtechpro/turboquant-what-developers-need-to-know-about-googles-kv-cache-compression-eeg)
+  - [TurboQuant: What 3-Bit KV Caches Actually Mean for Your Inference Stack](https://themlsurgeon.substack.com/p/turboquant-what-3-bit-kv-caches-actually)
