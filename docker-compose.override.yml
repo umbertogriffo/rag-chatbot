@@ -1,0 +1,18 @@
+# Docker Compose override for CPU-only deployment
+# To use this file: docker-compose -f docker-compose.yml -f docker-compose.override.yml up
+
+services:
+  llama-server:
+    # Use CPU-only image
+    image: ghcr.io/ggml-org/llama.cpp:server
+    command: >
+      --model /models/model.gguf
+      --host 0.0.0.0
+      --port 8080
+      --ctx-size 4096
+      --threads 4
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 8G

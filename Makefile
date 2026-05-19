@@ -1,40 +1,35 @@
-.PHONY: check install setup update test clean start migrate_db
-
-llama_cpp_file=version/llama_cpp
-llama_cpp_version=`cat $(llama_cpp_file)`
+.PHONY: check setup install_pre_commit migrate_db start update tidy test check-formatting clean start_server start_docker
 
 check:
 	which pip3
 	which python3
 
-install_cuda:
+setup:
 	echo "Installing..."
 	mkdir -p .venv
 	poetry config virtualenvs.in-project true
 	poetry install --no-root --no-ansi
-	echo "Installing llama-cpp-python with pip to get NVIDIA CUDA acceleration"
-	. .venv/bin/activate && CMAKE_ARGS="-DGGML_CUDA=on" pip3 install llama-cpp-python==$(llama_cpp_version) -v
-
-install_metal:
-	echo "Installing..."
-	mkdir -p .venv
-	poetry config virtualenvs.in-project true
-	poetry install --no-root --no-ansi
-	echo "Installing llama-cpp-python with pip to get Metal GPU acceleration for macOS systems only (it doesn't install CUDA dependencies)"
-	. .venv/bin/activate && CMAKE_ARGS="-DGGML_METAL=on" pip3 install llama-cpp-python==$(llama_cpp_version) -v
+	$(MAKE) install_pre_commit
+	$(MAKE) migrate_db
 
 install_pre_commit:
 	poetry run pre-commit install
 	poetry run pre-commit install --hook-type pre-commit
-
-setup_cuda: install_cuda install_pre_commit migrate_db
-setup_metal: install_metal install_pre_commit migrate_db
 
 migrate_db:
 	cd backend && PYTHONPATH=.:../chatbot poetry run python migration.py
 
 start:
 	sh start.sh
+
+start_server:
+	@echo "Starting llama.cpp server..."
+	@echo "Note: This requires llama.cpp server binary and a model file."
+	@echo "See notes/llama-server-docker.md for instructions."
+	@echo "Example: llama-server -m models/model.gguf --host 0.0.0.0 --port 8080"
+
+start_docker:
+	docker-compose up -d
 
 update:
 	poetry lock --no-update

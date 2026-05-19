@@ -1,0 +1,63 @@
+# Git files
+.git
+.gitignore
+.github
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv
+venv/
+ENV/
+env/
+
+# Testing
+.pytest_cache
+.coverage
+htmlcov/
+.tox/
+
+# IDEs
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+models/*.gguf
+vector_store/
+docs/
+frontend/
+images/
+notes/
+
+# Build artifacts
+*.egg-info
+dist/
+build/
+.eggs/
+
+# Linters
+.ruff_cache
+.mypy_cache
+
+# Docker
+docker-compose.override.yml
+Dockerfile
+.dockerignore
+
+# Documentation
+README.md
+LICENSE
+*.md
+
+# CI/CD
+.pre-commit-config.yaml

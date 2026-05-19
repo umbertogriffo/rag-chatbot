@@ -1,0 +1,67 @@
+services:
+  # llama.cpp server for running LLM inference
+  llama-server:
+    image: ghcr.io/ggml-org/llama.cpp:server-cuda
+    container_name: rag-chatbot-llama-server
+    volumes:
+      - ./models:/models
+    ports:
+      - "8080:8080"
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+    command: >
+      --model /models/model.gguf
+      --host 0.0.0.0
+      --port 8080
+      --ctx-size 4096
+      --n-gpu-layers 99
+      --flash-attn
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+
+  # RAG Chatbot API service
+  chatbot-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rag-chatbot-api
+    depends_on:
+      llama-server:
+        condition: service_healthy
+    environment:
+      - LLAMA_SERVER_BASE_URL=http://llama-server:8080
+      - MODEL=llama-3.1
+      - MAX_NEW_TOKENS=512
+      - LOG_LEVEL=INFO
+      - HOST=0.0.0.0
+      - PORT=8000
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./vector_store:/app/vector_store
+      - ./docs:/app/docs
+      - ./models:/app/models
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    restart: unless-stopped
+
+volumes:
+  models:
+  vector_store:
+  docs:
