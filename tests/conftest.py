@@ -4,7 +4,7 @@ import pytest
 from alembic import command
 from alembic.config import Config
 from api.deps import get_db_session, get_index, get_llm_client
-from bot.client.lama_cpp_client import LamaCppClient
+from bot.client.openai_client import OpenAIClient
 from bot.memory.embedder import Embedder
 from bot.memory.vector_database.chroma import Chroma
 from bot.model.model_registry import Model, get_model_settings
@@ -20,25 +20,35 @@ def mock_models_folder(tmp_path_factory):
 
 
 @pytest.fixture(scope="session")
-def cpu_config():
-    config = {
-        "n_ctx": 512,
-        "n_threads": 2,
-        "n_gpu_layers": 0,
-    }
-    return config
+def llama_server_url():
+    """
+    URL of the llama.cpp server for integration tests.
+    Override this fixture or set LLAMA_SERVER_BASE_URL environment variable.
+    """
+    import os
+    return os.getenv("LLAMA_SERVER_BASE_URL", "http://localhost:8080")
 
 
 @pytest.fixture(scope="session")
-def model_settings(cpu_config):
+def model_settings():
+    """Get model settings for tests."""
     model_setting = get_model_settings(Model.LLAMA_3_2_one.value)
-    model_setting.config = cpu_config
     return model_setting
 
 
 @pytest.fixture(scope="session")
-def lamacpp_client(mock_models_folder, model_settings):
-    return LamaCppClient(mock_models_folder, model_settings)
+def openai_client(llama_server_url, model_settings):
+    """
+    Create OpenAI-compatible client for tests.
+    
+    Note: This requires a running llama.cpp server at llama_server_url.
+    """
+    return OpenAIClient(
+        base_url=llama_server_url,
+        model_name=Model.LLAMA_3_2_one.value,
+        model_settings=model_settings,
+        timeout=300,
+    )
 
 
 @pytest.fixture
@@ -97,12 +107,12 @@ def session_fixture(db_engine) -> Session:
 
 
 @pytest.fixture(name="client_with_overridden_deps")
-def client_fixture(session: Session, lamacpp_client: LamaCppClient, chroma_instance: Chroma):
+def client_fixture(session: Session, openai_client: OpenAIClient, chroma_instance: Chroma):
     def get_db_session_override():
         return session
 
     def get_llm_client_override():
-        return lamacpp_client
+        return openai_client
 
     def get_index_client_override():
         return chroma_instance
