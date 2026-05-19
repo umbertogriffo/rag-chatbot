@@ -18,9 +18,9 @@ async def refine_question(
     Refines the given question based on the chat history.
 
     Args:
-        llm (LlmClient): The language model client for conversation-related tasks.
+        llm (OpenAIClient): The language model client for conversation-related tasks.
         question (str): The original question.
-        chat_history (List[Tuple[str, str]]): A list to store the conversation
+        chat_history (ChatHistory): Chat history object to store the conversation
         history as tuples of questions and answers.
         max_new_tokens (int, optional): The maximum number of tokens to generate in the answer.
             Defaults to 128.
@@ -57,9 +57,9 @@ async def answer(llm: OpenAIClient, question: str, chat_history: ChatHistory, ma
     Generates an answer to the given question based on the chat history or a direct prompt.
 
     Args:
-        llm (LlmClient): The language model client for conversation-related tasks.
+        llm (OpenAIClient): The language model client for conversation-related tasks.
         question (str): The input question for which an answer is generated.
-        chat_history (List[Tuple[str, str]]): A list to store the conversation
+        chat_history (ChatHistory): Chat history object to store the conversation
         history as tuples of questions and answers.
         max_new_tokens (int, optional): The maximum number of tokens to generate in the answer.
             Defaults to 512.
@@ -109,10 +109,10 @@ async def answer_with_context(
     If the content is not provided generates an answer based on the chat history or a direct prompt.
 
     Args:
-        llm (LlmClient): The language model client for conversation-related tasks.
+        llm (OpenAIClient): The language model client for conversation-related tasks.
         ctx_synthesis_strategy (BaseSynthesisStrategy): The strategy to use for context synthesis.
         question (str): The input question for which an answer is generated.
-        chat_history (List[Tuple[str, str]]): A list to store the conversation
+        chat_history (ChatHistory): Chat history object to store the conversation
         history as tuples of questions and answers.
         retrieved_contents (list[Document]): A list of documents retrieved for context.
         max_new_tokens (int, optional): The maximum number of tokens to generate in the answer. Defaults to 512.

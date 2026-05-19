@@ -20,15 +20,15 @@ class BaseSynthesisStrategy:
     Base class for synthesis strategies.
 
     Attributes:
-        llm (LlmClient): The language model client used for generating responses.
+        llm (OpenAIClient): The language model client used for generating responses.
     """
 
     def __init__(self, llm: OpenAIClient) -> None:
         """
-        Initialize the synthesis strategy with the provided LlmClient.
+        Initialize the synthesis strategy with the provided OpenAI client.
 
         Args:
-            llm (LlmClient): The language model client.
+            llm (OpenAIClient): The language model client.
         """
         self.llm = llm
 

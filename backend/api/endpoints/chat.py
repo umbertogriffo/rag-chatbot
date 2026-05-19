@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 from helpers.log import get_logger
 from schemas.chat import ChatRequest
 
-from api.deps import LamaCppClientDep
+from api.deps import LLMClientDep
 
 logger = get_logger(__name__)
 
@@ -12,7 +12,7 @@ router = APIRouter()
 
 
 @router.post("/chat/")
-async def chat(query: ChatRequest, llm_client: LamaCppClientDep):
+async def chat(query: ChatRequest, llm_client: LLMClientDep):
     logger.info(query)
 
     try:
