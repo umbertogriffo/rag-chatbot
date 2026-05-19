@@ -13,13 +13,11 @@ Check out the todo list to see the next steps and improvements we want to implem
       an `NVIDIA GeForce RTX 3060`.
 >   * `MacOS Sonoma 14.3.1` running on a MacBook Pro M1 (2020).
 >
-> If you are using another Operating System or different hardware, and you can't load the models, please
-> take a look at the official Llama Cpp Python's GitHub [issue](https://github.com/abetlen/llama-cpp-python/issues).
+> The new architecture using llama.cpp server is platform-independent and should work on any system that can run Docker or llama.cpp server.
 
 > [!WARNING]
-> - `llama_cpp_pyhon` doesn't use `GPU` on `M1` if you are running an `x86` version of `Python`. More
-    info [here](https://github.com/abetlen/llama-cpp-python/issues/756#issuecomment-1870324323).
 > - It's important to note that the large language model sometimes generates hallucinations or false information.
+> - For production use, ensure proper monitoring and rate limiting of the llama.cpp server.
 
 > [!NOTE]
 > To decide which hardware to use/buy to host you local LLMs we recommend you to read this great benchmarks:
@@ -52,7 +50,7 @@ Check out the todo list to see the next steps and improvements we want to implem
 
 ## Introduction
 
-This project combines the power of [llama.cpp](https://github.com/abetlen/llama-cpp-python) and [Chroma](https://github.com/chroma-core/chroma) to build:
+This project combines the power of [llama.cpp server](https://github.com/ggml-org/llama.cpp/tree/master/tools/server) via [OpenAI SDK](https://github.com/openai/openai-python) and [Chroma](https://github.com/chroma-core/chroma) to build:
 
 * a Conversation-aware Chatbot (ChatGPT like experience).
 * a RAG (Retrieval-augmented generation) ChatBot.
@@ -100,8 +98,9 @@ This is achieved through:
 ## Prerequisites
 
 * Python 3.12+
-* GPU supporting CUDA 12.4+
+* GPU supporting CUDA 12.4+ (optional, for GPU acceleration)
 * Poetry 2.3.0
+* Docker and Docker Compose (optional, for containerized deployment)
 
 For the UI:
 * Node 22.12+
@@ -129,6 +128,37 @@ pipx install poetry==<version> --force
 
 ## Bootstrap Environment
 
+### Quick Start with Docker (Recommended)
+
+The easiest way to get started is using Docker Compose:
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/umbertogriffo/rag-chatbot.git
+cd rag-chatbot
+
+# 2. Download a model to ./models/ directory
+# Example: wget https://huggingface.co/.../model.gguf -O models/model.gguf
+
+# 3. Update docker-compose.yml with your model path
+# Edit the --model parameter to point to your model file
+
+# 4. Start services (llama.cpp server + chatbot API)
+docker-compose up -d
+
+# 5. View logs
+docker-compose logs -f
+
+# Access the API at http://localhost:8000
+# llama.cpp server runs at http://localhost:8080
+```
+
+For detailed Docker setup and configuration options, see [notes/llama-server-docker.md](notes/llama-server-docker.md).
+
+### Local Development Setup
+
+If you prefer running without Docker:
+
 To easily install the dependencies and start the services we created a make file.
 
 ### How to use the make file
@@ -138,13 +168,15 @@ To easily install the dependencies and start the services we created a make file
 
 * Check: ```make check```
     * Use it to check that `which pip3` and `which python3` points to the right path.
-* Setup:
-    * Setup with NVIDIA CUDA acceleration: ```make setup_cuda```
-        * Creates an environment and installs all dependencies with NVIDIA CUDA acceleration.
-    * Setup with Metal GPU acceleration: ```make setup_metal```
-        * Creates an environment and installs all dependencies with Metal GPU acceleration for macOS system only.
+* Setup: ```make setup```
+    * Creates an environment and installs all dependencies.
+    * **Note**: Hardware-specific builds (CUDA/Metal) are no longer needed. The llama.cpp server handles model inference.
+* Start Server: ```make start_server```
+    * Instructions for starting llama.cpp server locally.
+    * Requires llama.cpp server binary and model files.
 * Start: ```make start```
     *  Start both the backend and frontend ensuring that the backend is running and ready before launching the frontend.
+    *  **Note**: Ensure llama.cpp server is running first (via Docker or manually).
 * Update: ```make update```
     * Update an environment and installs all updated dependencies.
 * Tidy up the code: ```make tidy```
@@ -153,23 +185,39 @@ To easily install the dependencies and start the services we created a make file
     * Removes the environment and all cached files.
 * Test: ```make test```
     * Runs all tests.
+    * **Note**: Requires llama.cpp server running for integration tests.
     * Using [pytest](https://pypi.org/project/pytest/)
 
 ### Environment
 
 Copy .𝐞𝐧𝐯.𝐞𝐱𝐚𝐦𝐩𝐥𝐞 → .𝐞𝐧𝐯 and fill it in.
 
+**Key settings:**
+```env
+# llama.cpp server URL (default for docker-compose)
+LLAMA_SERVER_BASE_URL=http://localhost:8080
+
+# Model name (must match model loaded on server)
+MODEL=llama-3.1
+
+# Other settings...
+```
+
 Copy /frontend/.𝐞𝐧𝐯.𝐞𝐱𝐚𝐦𝐩𝐥𝐞 → .𝐞𝐧𝐯 and fill it in.
 
 ## Using the Open-Source LLMs/Embedding Models Locally
 
-We utilize the open-source library [llama-cpp-python](https://github.com/abetlen/llama-cpp-python), a binding for [llama-cpp](https://github.com/ggerganov/llama.cpp),
-allowing us to utilize it within a Python environment.
-`llama-cpp` serves as a C++ backend designed to work efficiently with transformer-based models.
-Running the LLMs architecture on a local PC is impossible due to the large (~7 billion) number of parameters.
-This library enable us to run them either on a `CPU` or `GPU`.
-Additionally, we use the `Quantization and 4-bit precision` to reduce number of bits required to represent the numbers.
-The quantized models are stored in [GGML/GGUF](https://medium.com/@phillipgimmi/what-is-gguf-and-ggml-e364834d241c) format.
+We utilize llama.cpp's OpenAI-compatible server to run local language models. The chatbot communicates with the server via HTTP using the [OpenAI Python SDK](https://github.com/openai/openai-python).
+
+**Architecture Benefits:**
+- **Simplified Deployment**: No hardware-specific compilation needed
+- **Better Scalability**: Multiple API workers can share one model server
+- **Operational Flexibility**: Server and API can be scaled independently
+- **Platform Independent**: Docker-based deployment works anywhere
+
+The llama.cpp server runs as a separate process (or container) and loads GGUF-format quantized models. The Python API connects to it via HTTP on port 8080 (configurable).
+
+For detailed server setup instructions, see [notes/llama-server-docker.md](notes/llama-server-docker.md).
 
 ### Supported LLMs Models
 
