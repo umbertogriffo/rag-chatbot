@@ -4,7 +4,7 @@ from typing import Any
 from entities.document import Document
 from helpers.log import get_logger
 
-from bot.client.lama_cpp_client import LamaCppClient
+from bot.client.openai_client import OpenAIClient
 from bot.conversation.chat_history import ChatHistory
 from bot.conversation.ctx_strategy import BaseSynthesisStrategy
 
@@ -12,7 +12,7 @@ logger = get_logger(__name__)
 
 
 async def refine_question(
-    llm: LamaCppClient, question: str, chat_history: ChatHistory, max_new_tokens: int = 128
+    llm: OpenAIClient, question: str, chat_history: ChatHistory, max_new_tokens: int = 128
 ) -> str:
     """
     Refines the given question based on the chat history.
@@ -52,7 +52,7 @@ async def refine_question(
         return question
 
 
-async def answer(llm: LamaCppClient, question: str, chat_history: ChatHistory, max_new_tokens: int = 512) -> Any:
+async def answer(llm: OpenAIClient, question: str, chat_history: ChatHistory, max_new_tokens: int = 512) -> Any:
     """
     Generates an answer to the given question based on the chat history or a direct prompt.
 
@@ -97,7 +97,7 @@ async def answer(llm: LamaCppClient, question: str, chat_history: ChatHistory, m
 
 
 async def answer_with_context(
-    llm: LamaCppClient,
+    llm: OpenAIClient,
     ctx_synthesis_strategy: BaseSynthesisStrategy,
     question: str,
     chat_history: ChatHistory,

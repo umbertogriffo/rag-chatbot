@@ -33,6 +33,7 @@ pydantic-settings = "^2.6.0,<3.0.0"
 python-multipart = "~=0.0.22"
 sqlmodel = "~=0.0.37"
 alembic = "^1.18.4,<2.0.0"
+openai = "~=1.57.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "~=9.0.2"

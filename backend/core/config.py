@@ -36,6 +36,10 @@ class Settings(BaseSettings):
     # LLM Model Configuration
     MODEL: str = "llama-3.2:1b"
     MAX_NEW_TOKENS: int = 512
+    
+    # llama.cpp Server Configuration
+    LLAMA_SERVER_BASE_URL: str = "http://localhost:8080"
+    LLAMA_SERVER_TIMEOUT: int = 300
 
     # Retrieval Configuration
     EMBEDDING_MODEL: str = "all-MiniLM-L6-v2"
