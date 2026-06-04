@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "chatbot"
-version = "0.6.0"
+version = "0.7.0"
 description = "RAG ChatBot"
 authors = ["Umberto Griffo <1609440+umbertogriffo@users.noreply.github.com>"]
 readme = "README.md"
@@ -33,6 +33,7 @@ pydantic-settings = "^2.6.0,<3.0.0"
 python-multipart = "~=0.0.22"
 sqlmodel = "~=0.0.37"
 alembic = "^1.18.4,<2.0.0"
+openai = "~=2.41.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "~=9.0.2"

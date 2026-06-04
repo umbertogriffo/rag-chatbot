@@ -33,8 +33,18 @@ class Settings(BaseSettings):
 
     DATABASE_URL: str = f"sqlite:///{ROOT_PATH / 'vector_store' / 'registry.db'}"
 
+    # llama.cpp Server Configuration
+    LLAMA_SERVER_BASE_URL: str = "http://localhost:8080"
+
     # LLM Model Configuration
-    MODEL: str = "llama-3.2:1b"
+    MODEL: str = "Llama-3.2-1B-Instruct-Q5_K_M"
+    MODEL_URL: str = (
+        "https://huggingface.co/bartowski/Llama-3.2-1B-Instruct-GGUF/resolve/main/Llama-3.2-1B-Instruct-Q5_K_M.gguf"
+    )
+    MODEL_SYSTEM_TEMPLATE: str = ""
+    MODEL_REASONING: bool = False
+    MODEL_REASONING_START_TAG: str = "<think>"
+    MODEL_REASONING_STOP_TAG: str = "</think>"
     MAX_NEW_TOKENS: int = 512
 
     # Retrieval Configuration

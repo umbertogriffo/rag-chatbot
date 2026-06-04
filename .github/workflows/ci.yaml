@@ -51,16 +51,19 @@ jobs:
           version: ${{ steps.poetry-version.outputs.poetry-version }}
           virtualenvs-in-project: true
 
-      - name: Get llama-cpp version
-        id: llama-cpp-version
-        run: echo "llama-cpp-version=$(cat version/llama_cpp)" >> "$GITHUB_OUTPUT"
-
-      # Installing dependencies and llama-cpp-python without NVIDIA CUDA acceleration.
       - name: Setup environment
         run: |
           poetry check --lock
           poetry install --no-root --no-ansi
-          . .venv/bin/activate && pip3 install llama-cpp-python==${{ steps.llama-cpp-version.outputs.llama-cpp-version }}
+
+      - name: Set up Docker Compose
+        uses: docker/setup-compose-action@v2
+        with:
+          version: 5.0.2
+
+      - name: Run llama.cpp server without NVIDIA CUDA acceleration
+        run: |
+          docker-compose -f docker-compose.yml -f docker-compose.metal.yml up
 
       - name: Run tests
         run: |

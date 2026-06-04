@@ -5,12 +5,16 @@ from alembic import command
 from alembic.config import Config
 from api.deps import get_db_session, get_index, get_llm_client
 from bot.client.lama_cpp_client import LamaCppClient
+from bot.client.openai_client import OpenAIClient
 from bot.memory.embedder import Embedder
 from bot.memory.vector_database.chroma import Chroma
 from bot.model.model_registry import Model, get_model_settings
+from core.model import ModelSettings
 from main import app
 from sqlmodel import Session, create_engine
 from starlette.testclient import TestClient
+
+LLAMA_SERVER_BASE_URL = "http://localhost:8080"
 
 
 @pytest.fixture(scope="session")
@@ -39,6 +43,32 @@ def model_settings(cpu_config):
 @pytest.fixture(scope="session")
 def lamacpp_client(mock_models_folder, model_settings):
     return LamaCppClient(mock_models_folder, model_settings)
+
+
+@pytest.fixture(scope="session")
+def openai_client(mock_models_folder, model_settings):
+    """
+    Create OpenAI-compatible client for tests.
+
+    Note: This requires a running llama.cpp server at llama_server_url.
+    """
+
+    model_settings = ModelSettings(
+        url="https://huggingface.co/bartowski/Llama-3.2-1B-Instruct-GGUF/resolve/main/Llama-3.2-1B-Instruct-Q5_K_M.gguf",
+        name="Llama-3.2-1B-Instruct-Q5_K_M",
+        file_name="Llama-3.2-1B-Instruct-Q5_K_M.gguf",
+        reasoning_start_tag="<think>",
+        reasoning_stop_tag="</think>",
+        system_template="",
+        reasoning=False,
+    )
+
+    return OpenAIClient(
+        base_url=LLAMA_SERVER_BASE_URL,
+        model_folder=mock_models_folder,
+        model_settings=model_settings,
+        timeout=300,
+    )
 
 
 @pytest.fixture
@@ -97,7 +127,7 @@ def session_fixture(db_engine) -> Session:
 
 
 @pytest.fixture(name="client_with_overridden_deps")
-def client_fixture(session: Session, lamacpp_client: LamaCppClient, chroma_instance: Chroma):
+def client_fixture(session: Session, lamacpp_client: OpenAIClient, chroma_instance: Chroma):
     def get_db_session_override():
         return session
 

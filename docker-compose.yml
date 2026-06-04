@@ -21,8 +21,9 @@ services:
       --kv-unified
       --cache-type-k q8_0 --cache-type-v q8_0
       --flash-attn on --fit on
-      --ctx-size 131072
-    # --chat-template-kwargs "{\"enable_thinking\": false}"
+      --ctx-size 4096
+      --verbose
+      --chat-template-kwargs "{\"enable_thinking\": false}"
     deploy:
       resources:
         reservations:
