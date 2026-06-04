@@ -5,8 +5,10 @@ services:
   llama-server:
     # Use CPU-only image
     image: ghcr.io/ggml-org/llama.cpp:server
+    environment: {}
     deploy:
       resources:
         limits:
           cpus: '4'
           memory: 16G
+        reservations: {}
