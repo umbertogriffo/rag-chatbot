@@ -121,6 +121,12 @@ class OpenAIClient:
 
             print(f"=> Model: {file_name} downloaded successfully 🥳")
 
+    def close(self):
+        """
+        Closes the OpenAPI client.
+        """
+        self.client.close()
+
     def generate_answer(self, prompt: str, max_new_tokens: int = 512) -> str:
         """
         Generates an answer based on the given prompt using the language model.
