@@ -1,5 +1,36 @@
 # llama.cpp Server with Docker and CUDA
 
+## Prerequisites
+
+- Docker installed on your machine.
+- NVIDIA GPU with CUDA support (if you want to use the CUDA version).
+- [NVIDIA Container Toolkit installed](https://github.com/NVIDIA/nvidia-container-toolkit) (for CUDA support).
+
+## Installing NVIDIA Container Toolkit
+
+```shell
+curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg \
+  && curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list | \
+    sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
+    sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
+
+# Install nvidia-container-toolkit
+sudo apt-get update
+sudo apt-get install -y nvidia-container-toolkit
+sudo nvidia-ctk runtime configure --runtime=docker
+
+# Restart Docker
+sudo systemctl restart docker
+```
+
+Once configured, test GPU access:
+
+```shell
+sudo docker run --rm --runtime=nvidia --gpus all nvidia/cuda:11.0.3-base-ubuntu20.04 nvidia-smi
+```
+
+## Building and Running the Server
+
 Build the CUDA image specifying the version:
 
 ```shell

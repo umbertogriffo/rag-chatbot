@@ -12,8 +12,8 @@ install_cuda:
 	mkdir -p .venv
 	poetry config virtualenvs.in-project true
 	poetry install --no-root --no-ansi
-	echo "Installing llama-cpp-python with pip to get NVIDIA CUDA acceleration"
-	. .venv/bin/activate && CMAKE_ARGS="-DGGML_CUDA=on" pip3 install llama-cpp-python==$(llama_cpp_version) -v
+	# echo "Installing llama-cpp-python with pip to get NVIDIA CUDA acceleration"
+	# . .venv/bin/activate && CMAKE_ARGS="-DGGML_CUDA=on" pip3 install llama-cpp-python==$(llama_cpp_version) -v
 
 install_metal:
 	echo "Installing..."
@@ -32,6 +32,12 @@ setup_metal: install_metal install_pre_commit migrate_db
 
 migrate_db:
 	cd backend && PYTHONPATH=.:../chatbot poetry run python migration.py
+
+start_llama_server:
+	docker-compose up -d
+
+stop_llama_server:
+	docker-compose down
 
 start:
 	sh start.sh
