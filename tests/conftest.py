@@ -4,11 +4,9 @@ import pytest
 from alembic import command
 from alembic.config import Config
 from api.deps import get_db_session, get_index, get_llm_client
-from bot.client.lama_cpp_client import LamaCppClient
 from bot.client.openai_client import OpenAIClient
 from bot.memory.embedder import Embedder
 from bot.memory.vector_database.chroma import Chroma
-from bot.model.model_registry import Model, get_model_settings
 from core.model import ModelSettings
 from main import app
 from sqlmodel import Session, create_engine
@@ -24,35 +22,7 @@ def mock_models_folder(tmp_path_factory):
 
 
 @pytest.fixture(scope="session")
-def cpu_config():
-    config = {
-        "n_ctx": 512,
-        "n_threads": 2,
-        "n_gpu_layers": 0,
-    }
-    return config
-
-
-@pytest.fixture(scope="session")
-def model_settings(cpu_config):
-    model_setting = get_model_settings(Model.LLAMA_3_2_one.value)
-    model_setting.config = cpu_config
-    return model_setting
-
-
-@pytest.fixture(scope="session")
-def lamacpp_client(mock_models_folder, model_settings):
-    return LamaCppClient(mock_models_folder, model_settings)
-
-
-@pytest.fixture(scope="session")
-def openai_client(mock_models_folder, model_settings):
-    """
-    Create OpenAI-compatible client for tests.
-
-    Note: This requires a running llama.cpp server at llama_server_url.
-    """
-
+def model_settings():
     model_settings = ModelSettings(
         url="https://huggingface.co/bartowski/Llama-3.2-1B-Instruct-GGUF/resolve/main/Llama-3.2-1B-Instruct-Q5_K_M.gguf",
         name="Llama-3.2-1B-Instruct-Q5_K_M",
@@ -62,6 +32,17 @@ def openai_client(mock_models_folder, model_settings):
         system_template="",
         reasoning=False,
     )
+
+    return model_settings
+
+
+@pytest.fixture(scope="session")
+def openai_client(mock_models_folder, model_settings):
+    """
+    Create OpenAI-compatible client for tests.
+
+    Note: This requires a running llama.cpp server at llama_server_url.
+    """
 
     return OpenAIClient(
         base_url=LLAMA_SERVER_BASE_URL,
@@ -127,12 +108,12 @@ def session_fixture(db_engine) -> Session:
 
 
 @pytest.fixture(name="client_with_overridden_deps")
-def client_fixture(session: Session, lamacpp_client: OpenAIClient, chroma_instance: Chroma):
+def client_fixture(session: Session, openai_client: OpenAIClient, chroma_instance: Chroma):
     def get_db_session_override():
         return session
 
     def get_llm_client_override():
-        return lamacpp_client
+        return openai_client
 
     def get_index_client_override():
         return chroma_instance

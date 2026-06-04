@@ -19,10 +19,11 @@ services:
       --top-k 20
       --min-p 0.00
       --kv-unified
-      --cache-type-k q8_0 --cache-type-v q8_0
-      --flash-attn on --fit on
+      --cache-type-k q8_0
+      --cache-type-v q8_0
+      --flash-attn on
+      --fit on
       --ctx-size 4096
-      --verbose
       --chat-template-kwargs "{\"enable_thinking\": false}"
     deploy:
       resources:

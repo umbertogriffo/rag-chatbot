@@ -41,7 +41,7 @@ jobs:
         with:
           version: v5.0.2
 
-      - name: Run llama.cpp server without NVIDIA CUDA acceleration
+      - name: Run llama.cpp server with CPU-only configuration
         run: |
           docker compose -f docker-compose.ci.yml up -d
 
