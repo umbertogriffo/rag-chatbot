@@ -14,25 +14,10 @@ Check out the todo list to see the next steps and improvements we want to implem
 >   * `MacOS Sonoma 14.3.1` running on a MacBook Pro M1 (2020).
 >
 > If you are using another Operating System or different hardware, and you can't load the models, please
-> take a look at the official Llama Cpp Python's GitHub [issue](https://github.com/abetlen/llama-cpp-python/issues).
+> take a look at the official llama.cpp's GitHub [issue](https://github.com/ggml-org/llama.cpp/issues).
 
 > [!WARNING]
-> - `llama_cpp_pyhon` doesn't use `GPU` on `M1` if you are running an `x86` version of `Python`. More
-    info [here](https://github.com/abetlen/llama-cpp-python/issues/756#issuecomment-1870324323).
-> - It's important to note that the large language model sometimes generates hallucinations or false information.
-
-> [!NOTE]
-> To decide which hardware to use/buy to host you local LLMs we recommend you to read this great benchmarks:
-> - [Performance of llama.cpp on Nvidia CUDA](https://github.com/ggml-org/llama.cpp/discussions/15013)
-> - [Performance of llama.cpp on Apple Silicon M-series](https://github.com/ggml-org/llama.cpp/discussions/4167)
->
-> **Decision model:**
-> - `Memory capacity` is the main limit. Check if your model fits in memory (with quantization) https://www.canirun.ai/.
-> - `Memory bandwidth` mostly determines speed (tokens/sec). Check if the bandwidth gives you acceptable speed.
-> - If not, upgrade hardware or optimize the model.
->
-> For instance, it seems better to buy a second-hand or refurbished Mac Studio M2 Max with at least 64GB RAM,
-> since it has 400Gbps of memory bandwidth compared to the M4 Pro, which has just 273Gbps.
+> It's important to note that the large language model sometimes generates hallucinations or false information.
 
 ## Table of contents
 
@@ -43,7 +28,7 @@ Check out the todo list to see the next steps and improvements we want to implem
     - [How to use the make file](#how-to-use-the-make-file)
     - [Environment](#environment)
 - [Using the Open-Source LLMs/Embedding Models Locally](#using-the-open-source-llmsembedding-models-locally)
-    - [Supported LLMs Models](#supported-llms-models)
+    - [Recommended LLMs Models](#recommended-llms-models)
     - [Supported Embedding Models](#supported-embedding-models)
 - [Supported Response Synthesis strategies](#supported-response-synthesis-strategies)
 - [Build the memory index](#build-the-memory-index)
@@ -52,7 +37,7 @@ Check out the todo list to see the next steps and improvements we want to implem
 
 ## Introduction
 
-This project combines the power of [llama.cpp](https://github.com/abetlen/llama-cpp-python) and [Chroma](https://github.com/chroma-core/chroma) to build:
+This project combines the power of [llama.cpp](https://github.com/ggml-org/llama.cpp) and [Chroma](https://github.com/chroma-core/chroma) to build:
 
 * a Conversation-aware Chatbot (ChatGPT like experience).
 * a RAG (Retrieval-augmented generation) ChatBot.
@@ -100,8 +85,11 @@ This is achieved through:
 ## Prerequisites
 
 * Python 3.12+
-* GPU supporting CUDA 12.4+
-* Poetry 2.3.0
+* GPU supporting CUDA 12.4+ or Apple Silicon M-series
+* Poetry 2.3.0+
+* [Docker](https://docs.docker.com/engine/install/) and [Docker Compose](https://docs.docker.com/compose/install/)
+* [NVIDIA Container Toolkit installed](https://github.com/NVIDIA/nvidia-container-toolkit) (optional, for CUDA support)
+ * See [notes/llama-server-docker.md](notes/llama-server-docker.md#installing-nvidia-container-toolkit).
 
 For the UI:
 * Node 22.12+
@@ -143,8 +131,14 @@ To easily install the dependencies and start the services we created a make file
         * Creates an environment and installs all dependencies with NVIDIA CUDA acceleration.
     * Setup with Metal GPU acceleration: ```make setup_metal```
         * Creates an environment and installs all dependencies with Metal GPU acceleration for macOS system only.
+    * Both starts `llama.cpp` server locally via Docker compose.
 * Start: ```make start```
     *  Start both the backend and frontend ensuring that the backend is running and ready before launching the frontend.
+* Stop `llama.cpp` Server: ```make stop_llama_server```
+    * Stop the llama.cpp server if it's running locally.
+* Start Server: ```make start_server```
+    * Instructions for starting llama.cpp server locally.
+    * Requires llama.cpp server binary and model files.
 * Update: ```make update```
     * Update an environment and installs all updated dependencies.
 * Tidy up the code: ```make tidy```
@@ -163,33 +157,48 @@ Copy /frontend/.𝐞𝐧𝐯.𝐞𝐱𝐚𝐦𝐩𝐥𝐞 → .𝐞𝐧𝐯 and 
 
 ## Using the Open-Source LLMs/Embedding Models Locally
 
-We utilize the open-source library [llama-cpp-python](https://github.com/abetlen/llama-cpp-python), a binding for [llama-cpp](https://github.com/ggerganov/llama.cpp),
-allowing us to utilize it within a Python environment.
 `llama-cpp` serves as a C++ backend designed to work efficiently with transformer-based models.
 Running the LLMs architecture on a local PC is impossible due to the large (~7 billion) number of parameters.
 This library enable us to run them either on a `CPU` or `GPU`.
-Additionally, we use the `Quantization and 4-bit precision` to reduce number of bits required to represent the numbers.
+Additionally, we can use the `Quantization and 4-bit precision` to reduce number of bits required to represent the numbers.
 The quantized models are stored in [GGML/GGUF](https://medium.com/@phillipgimmi/what-is-gguf-and-ggml-e364834d241c) format.
 
-### Supported LLMs Models
+It's possible to load whatever `GGUF` model you want from [HuggingFace](https://huggingface.co/), but you can load the ones that fits your hardware capacity and speed requirements.
 
-| 🤖 Model                                                       | Supported | Model Size | Max Context Window | Notes and link to the model card                                                                                                                                     |
-|----------------------------------------------------------------|-----------|------------|--------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `qwen-3.5:0.8b` Qwen 3.5 0.8B                                  | ✅         | 0.8B       | 256k               | Tiny and fast multimodal, great for edge device - [Card](https://huggingface.co/unsloth/Qwen3.5-0.8B-GGUF)                                                           |
-| `qwen-3.5:2b` Qwen 3.5 2B                                      | ✅         | 2B         | 256k               | Multimodal for lightweight agents (small tool calls) - [Card](https://huggingface.co/unsloth/Qwen3.5-2B-GGUF)                                                        |
-| `qwen-3.5:4b` Qwen 3.5 4B                                      | ✅         | 4B         | 256k               | Doesn’t drift from tasks as bad as 2B [Card](https://huggingface.co/unsloth/Qwen3.5-4B-GGUF)                                                                         |
-| `qwen-3.5:9b` Qwen 3.5 9B                                      | ✅         | 9B         | 256k               | **Recommended model** Can handle more complex tasks and competes with larger models like gpt-oss 120B [Card](https://huggingface.co/unsloth/Qwen3.5-9B-GGUF)         |
-| `qwen-2.5:3b` - Qwen2.5 Instruct                               | ✅         | 3B         | 128k               | [Card](https://huggingface.co/Qwen/Qwen2.5-3B-Instruct-GGUF)                                                                                                         |
-| `qwen-2.5:3b-math-reasoning` - Qwen2.5 Instruct Math Reasoning | ✅         | 3B         | 128k               | [Card](https://huggingface.co/ugriffo/Qwen2.5-3B-Instruct-Math-Reasoning-GGUF)                                                                                       |
-| `llama-3.2:1b` Meta Llama 3.2 Instruct                         | ✅         | 1B         | 128k               | Optimized to run locally on a mobile or edge device - [Card](https://huggingface.co/bartowski/Llama-3.2-1B-Instruct-GGUF)                                            |
-| `llama-3.2` Meta Llama 3.2 Instruct                            | ✅         | 3B         | 128k               | Optimized to run locally on a mobile or edge device - [Card](https://huggingface.co/bartowski/Llama-3.2-3B-Instruct-GGUF)                                            |
-| `llama-3.1` Meta Llama 3.1 Instruct                            | ✅         | 8B         | 128k               | **Recommended model** [Card](https://huggingface.co/bartowski/Meta-Llama-3.1-8B-Instruct-GGUF)                                                                       |
-| `deep-seek-r1:7b` - DeepSeek R1 Distill Qwen 7B                | ✅         | 7B         | 128k               | **Experimental** [Card](https://huggingface.co/bartowski/DeepSeek-R1-Distill-Qwen-7B-GGUF)                                                                           |
-| `openchat-3.6` - OpenChat 3.6                                  | ✅         | 8B         | 8192               | [Card](https://huggingface.co/bartowski/openchat-3.6-8b-20240522-GGUF)                                                                                               |
-| `openchat-3.5` - OpenChat 3.5                                  | ✅         | 7B         | 8192               | [Card](https://huggingface.co/TheBloke/openchat-3.5-0106-GGUF)                                                                                                       |
-| `starling` Starling Beta                                       | ✅         | 7B         | 8192               | Is trained from `Openchat-3.5-0106`. It's recommended if you prefer more verbosity over OpenChat - [Card](https://huggingface.co/bartowski/Starling-LM-7B-beta-GGUF) |
-| `phi-3.5` Phi-3.5 Mini  Instruct                               | ✅         | 3.8B       | 128k               | [Card](https://huggingface.co/MaziyarPanahi/Phi-3.5-mini-instruct-GGUF)                                                                                              |
-| `stablelm-zephyr` StableLM Zephyr OpenOrca                     | ✅         | 3B         | 4096               | [Card](https://huggingface.co/TheBloke/stablelm-zephyr-3b-GGUF)                                                                                                      |
+> [!NOTE]
+> To decide which hardware to use/buy to host you local LLMs we recommend you to read this great benchmarks:
+> - [Performance of llama.cpp on Nvidia CUDA](https://github.com/ggml-org/llama.cpp/discussions/15013)
+> - [Performance of llama.cpp on Apple Silicon M-series](https://github.com/ggml-org/llama.cpp/discussions/4167)
+>
+> **Decision model:**
+> - `Memory capacity` is the main limit. Check if your model fits in memory (with quantization) https://www.canirun.ai/.
+> - `Memory bandwidth` mostly determines speed (tokens/sec). Check if the bandwidth gives you acceptable speed.
+> - If not, upgrade hardware or optimize the model.
+>
+> For instance, it seems better to buy a second-hand or refurbished Mac Studio M2 Max with at least 64GB RAM,
+> since it has 400Gbps of memory bandwidth compared to the M4 Pro, which has just 273Gbps.
+
+We recommend you to start with `Qwen 3.5 9B` or `Meta Llama 3.2 Instruct` since they are small enough to run on a cheap GPU with 6GB of VRAM.
+and try larger models like `gpt-oss 120B` if you have the right capacity.
+
+We also recommend few models to start in the table below.
+
+### Recommended LLMs Models
+
+| 🤖 Model                        | Model Size | Max Context Window | Notes and link to the model card                                                                                                                             |
+|---------------------------------|------------|--------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Qwen 3.5 0.8B                   | 0.8B       | 256k               | Tiny and fast multimodal, great for edge device - [Card](https://huggingface.co/unsloth/Qwen3.5-0.8B-GGUF)                                                   |
+| Qwen 3.5 2B                     | 2B         | 256k               | Multimodal for lightweight agents (small tool calls) - [Card](https://huggingface.co/unsloth/Qwen3.5-2B-GGUF)                                                |
+| Qwen 3.5 4B                     | 4B         | 256k               | Doesn’t drift from tasks as bad as 2B [Card](https://huggingface.co/unsloth/Qwen3.5-4B-GGUF)                                                                 |
+| Qwen 3.5 9B                     | 9B         | 256k               | **Recommended model** Can handle more complex tasks and competes with larger models like gpt-oss 120B [Card](https://huggingface.co/unsloth/Qwen3.5-9B-GGUF) |
+| Qwen2.5 Instruct                | 3B         | 128k               | [Card](https://huggingface.co/Qwen/Qwen2.5-3B-Instruct-GGUF)                                                                                                 |
+| Qwen2.5 Instruct Math Reasoning | 3B         | 128k               | [Card](https://huggingface.co/ugriffo/Qwen2.5-3B-Instruct-Math-Reasoning-GGUF)                                                                               |
+| Meta Llama 3.2 Instruct         | 1B         | 128k               | Optimized to run locally on a mobile or edge device - [Card](https://huggingface.co/bartowski/Llama-3.2-1B-Instruct-GGUF)                                    |
+| Meta Llama 3.2 Instruct         | 3B         | 128k               | Optimized to run locally on a mobile or edge device - [Card](https://huggingface.co/bartowski/Llama-3.2-3B-Instruct-GGUF)                                    |
+| Meta Llama 3.1 Instruct         | 8B         | 128k               | **Recommended model** [Card](https://huggingface.co/bartowski/Meta-Llama-3.1-8B-Instruct-GGUF)                                                               |
+| DeepSeek R1 Distill Qwen 7B     | 7B         | 128k               | **Experimental** [Card](https://huggingface.co/bartowski/DeepSeek-R1-Distill-Qwen-7B-GGUF)                                                                   |
+| OpenChat 3.6                    | 8B         | 8192               | [Card](https://huggingface.co/bartowski/openchat-3.6-8b-20240522-GGUF)                                                                                       |
+| Phi-3.5 Mini  Instruct          | 3.8B       | 128k               | [Card](https://huggingface.co/MaziyarPanahi/Phi-3.5-mini-instruct-GGUF)                                                                                      |
 
 ### Supported Embedding Models
 
