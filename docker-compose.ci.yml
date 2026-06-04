@@ -12,7 +12,7 @@ services:
       - "8080:8080"
     environment: {}
     command: >
-      --models-dir /models
+      --model /models/Llama-3.2-1B-Instruct-Q5_K_M.gguf
       --host 0.0.0.0
       --port 8080
       --cache-type-k q8_0
