@@ -1,43 +1,33 @@
 .PHONY: check install setup update test clean start migrate_db
 
-llama_cpp_file=version/llama_cpp
-llama_cpp_version=`cat $(llama_cpp_file)`
-
 check:
 	which pip3
 	which python3
 
-install_cuda:
+install_dependencies:
 	echo "Installing..."
 	mkdir -p .venv
 	poetry config virtualenvs.in-project true
 	poetry install --no-root --no-ansi
-	# echo "Installing llama-cpp-python with pip to get NVIDIA CUDA acceleration"
-	# . .venv/bin/activate && CMAKE_ARGS="-DGGML_CUDA=on" pip3 install llama-cpp-python==$(llama_cpp_version) -v
-
-install_metal:
-	echo "Installing..."
-	mkdir -p .venv
-	poetry config virtualenvs.in-project true
-	poetry install --no-root --no-ansi
-	echo "Installing llama-cpp-python with pip to get Metal GPU acceleration for macOS systems only (it doesn't install CUDA dependencies)"
-	. .venv/bin/activate && CMAKE_ARGS="-DGGML_METAL=on" pip3 install llama-cpp-python==$(llama_cpp_version) -v
 
 install_pre_commit:
 	poetry run pre-commit install
 	poetry run pre-commit install --hook-type pre-commit
 
-setup_cuda: install_cuda install_pre_commit migrate_db
-setup_metal: install_metal install_pre_commit migrate_db
-
 migrate_db:
 	cd backend && PYTHONPATH=.:../chatbot poetry run python migration.py
 
-start_llama_server:
+start_llama_server_cuda:
 	docker-compose up -d
+
+start_llama_server_metal:
+	docker-compose -f docker-compose.yml -f docker-compose.override.yml up
 
 stop_llama_server:
 	docker-compose down
+
+setup_cuda: install_dependencies install_pre_commit migrate_db start_llama_server_cuda
+setup_metal: install_dependencies install_pre_commit migrate_db start_llama_server_metal
 
 start:
 	sh start.sh
