@@ -36,6 +36,15 @@ jobs:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
 
+      - name: Set up Docker Compose
+        uses: docker/setup-compose-action@v2
+        with:
+          version: v5.0.2
+
+      - name: Run llama.cpp server without NVIDIA CUDA acceleration
+        run: |
+          docker compose -f docker-compose.yml -f docker-compose.metal.yml up
+
       - name: Install Python
         uses: actions/setup-python@v5
         with:
@@ -55,15 +64,6 @@ jobs:
         run: |
           poetry check --lock
           poetry install --no-root --no-ansi
-
-      - name: Set up Docker Compose
-        uses: docker/setup-compose-action@v2
-        with:
-          version: v5.0.2
-
-      - name: Run llama.cpp server without NVIDIA CUDA acceleration
-        run: |
-          docker compose -f docker-compose.yml -f docker-compose.metal.yml up
 
       - name: Run tests
         run: |
