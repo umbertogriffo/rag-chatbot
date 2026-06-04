@@ -59,7 +59,7 @@ jobs:
       - name: Set up Docker Compose
         uses: docker/setup-compose-action@v2
         with:
-          version: 5.0.2
+          version: v5.0.2
 
       - name: Run llama.cpp server without NVIDIA CUDA acceleration
         run: |
