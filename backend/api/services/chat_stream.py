@@ -40,7 +40,7 @@ async def stream_chat_response(
             chat_history=chat_history,
             max_new_tokens=settings.MAX_NEW_TOKENS,
         )
-        for output in stream:
+        async for output in stream:
             token = llm_client.parse_token(output)
             if token:
                 full_response += token
@@ -115,7 +115,7 @@ async def stream_rag_response(
             settings.MAX_NEW_TOKENS,
         )
 
-        for output in streamer:
+        async for output in streamer:
             token = llm_client.parse_token(output)
             if token:
                 full_response += token
