@@ -4,7 +4,7 @@
 services:
   llama-server:
     # Use CPU-only image
-    image: ghcr.io/ggml-org/llama.cpp:server
+    image: ghcr.io/ggml-org/llama.cpp:server-b9501
     container_name: rag-chatbot-llama-server
     volumes:
       - ./models:/models
