@@ -1,5 +1,5 @@
 # Docker Compose override for CPU-only deployment
-# To use this file: docker-compose -f docker-compose.yml -f docker-compose.metal.yml up
+# To use this file: docker-compose -f docker-compose.yml -f docker-compose.ci.yml up
 
 services:
   llama-server:
@@ -8,5 +8,5 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '8'
+          cpus: '4'
           memory: 16G
