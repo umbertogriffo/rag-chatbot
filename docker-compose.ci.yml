@@ -31,10 +31,10 @@ services:
 
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8080/health" ]
-      interval: 30s
+      interval: 10s
       timeout: 10s
       retries: 5
-      start_period: 60s
+      start_period: 15s
 
 networks:
   service-network:

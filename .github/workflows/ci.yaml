@@ -45,6 +45,12 @@ jobs:
         run: |
           docker compose -f docker-compose.ci.yml up -d
 
+      - name: Wait for llama.cpp server to be ready
+        run: |
+          echo "Waiting for llama.cpp server to be healthy..."
+          timeout 120 bash -c 'until docker inspect --format="{{.State.Health.Status}}" rag-chatbot-llama-server | grep -q "healthy"; do sleep 2; done'
+          echo "Server is healthy!"
+
       - name: Install Python
         uses: actions/setup-python@v5
         with:
