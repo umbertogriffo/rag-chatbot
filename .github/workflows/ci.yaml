@@ -63,7 +63,7 @@ jobs:
 
       - name: Run llama.cpp server without NVIDIA CUDA acceleration
         run: |
-          docker-compose -f docker-compose.yml -f docker-compose.metal.yml up
+          docker compose -f docker-compose.yml -f docker-compose.metal.yml up
 
       - name: Run tests
         run: |
