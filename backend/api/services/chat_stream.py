@@ -13,14 +13,14 @@ from helpers.log import get_logger
 from helpers.prettier import prettify_source
 from schemas.chat import ChatRequest
 
-from api.deps import ChatHistoryDep, LamaCppClientDep, VectorDatabaseDep
+from api.deps import ChatHistoryDep, LlamaCppClientDep, VectorDatabaseDep
 
 logger = get_logger(__name__)
 
 
 # TODO: https://github.com/umbertogriffo/rag-chatbot/pull/10#discussion_r2936567672
 async def stream_chat_response(
-    websocket: WebSocket, llm_client: LamaCppClientDep, query: ChatRequest, chat_history: ChatHistoryDep
+    websocket: WebSocket, llm_client: LlamaCppClientDep, query: ChatRequest, chat_history: ChatHistoryDep
 ):
     """
     Helper function to stream chat responses token by token.
@@ -66,7 +66,7 @@ async def stream_chat_response(
 # TODO: https://github.com/umbertogriffo/rag-chatbot/pull/10#discussion_r2936567672
 async def stream_rag_response(
     websocket: WebSocket,
-    llm_client: LamaCppClientDep,
+    llm_client: LlamaCppClientDep,
     query: ChatRequest,
     chat_history: ChatHistoryDep,
     index: VectorDatabaseDep,

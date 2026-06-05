@@ -25,7 +25,7 @@ from bot.client.prompt import (
 logger = get_logger(__name__)
 
 
-class OpenAIClient:
+class LlamaCppClient:
     """
     Client for communicating with llama.cpp server via OpenAI REST API.
     """

@@ -4,7 +4,7 @@ import pytest
 from alembic import command
 from alembic.config import Config
 from api.deps import get_db_session, get_index, get_llm_client
-from bot.client.openai_client import OpenAIClient
+from bot.client.openai_client import LlamaCppClient
 from bot.memory.embedder import Embedder
 from bot.memory.vector_database.chroma import Chroma
 from main import app
@@ -12,14 +12,11 @@ from schemas.model import ModelSettings
 from sqlmodel import Session, create_engine
 from starlette.testclient import TestClient
 
+ROOT_FOLDER = Path(__file__).resolve().parents[1]
+MODEL_FOLDER = ROOT_FOLDER / "models"
+
 LLAMA_SERVER_BASE_URL = "http://localhost:8080"
 LLAMA_SERVER_TIMEOUT = 300
-
-
-@pytest.fixture(scope="session")
-def mock_models_folder(tmp_path_factory):
-    models_folder = tmp_path_factory.mktemp("models")
-    return models_folder
 
 
 @pytest.fixture(scope="session")
@@ -38,16 +35,16 @@ def model_settings():
 
 
 @pytest.fixture(scope="session")
-def openai_client(mock_models_folder, model_settings):
+def openai_client(model_settings):
     """
     Create OpenAI-compatible client for tests.
 
     Note: This requires a running llama.cpp server at llama_server_url.
     """
 
-    return OpenAIClient(
+    return LlamaCppClient(
         base_url=LLAMA_SERVER_BASE_URL,
-        model_folder=mock_models_folder,
+        model_folder=MODEL_FOLDER,
         model_settings=model_settings,
         timeout=LLAMA_SERVER_TIMEOUT,
     )
@@ -109,7 +106,7 @@ def session_fixture(db_engine) -> Session:
 
 
 @pytest.fixture(name="client_with_overridden_deps")
-def client_fixture(session: Session, openai_client: OpenAIClient, chroma_instance: Chroma):
+def client_fixture(session: Session, openai_client: LlamaCppClient, chroma_instance: Chroma):
     def get_db_session_override():
         return session
 

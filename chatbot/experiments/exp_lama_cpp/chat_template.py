@@ -1,7 +1,7 @@
 import time
 from pathlib import Path
 
-from bot.client.openai_client import OpenAIClient
+from bot.client.openai_client import LlamaCppClient
 from schemas.model import ModelSettings
 
 LLAMA_SERVER_BASE_URL = "http://localhost:8080"
@@ -21,7 +21,7 @@ if __name__ == "__main__":
         reasoning=False,
     )
 
-    llm = OpenAIClient(
+    llm = LlamaCppClient(
         base_url=LLAMA_SERVER_BASE_URL,
         model_folder=model_folder,
         model_settings=model_settings,

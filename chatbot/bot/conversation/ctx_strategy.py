@@ -5,7 +5,7 @@ from typing import Any
 from entities.document import Document
 from helpers.log import get_logger
 
-from bot.client.openai_client import OpenAIClient
+from bot.client.openai_client import LlamaCppClient
 
 logger = get_logger(__name__)
 
@@ -20,15 +20,15 @@ class BaseSynthesisStrategy:
     Base class for synthesis strategies.
 
     Attributes:
-        llm (OpenAIClient): The language model client used for generating responses.
+        llm (LlamaCppClient): The language model client used for generating responses.
     """
 
-    def __init__(self, llm: OpenAIClient) -> None:
+    def __init__(self, llm: LlamaCppClient) -> None:
         """
         Initialize the synthesis strategy with the provided OpenAIClient.
 
         Args:
-            llm (OpenAIClient): The language model client.
+            llm (LlamaCppClient): The language model client.
         """
         self.llm = llm
 
@@ -54,7 +54,7 @@ class CreateAndRefineStrategy(BaseSynthesisStrategy):
     Strategy for sequential refinement of responses using retrieved contents.
     """
 
-    def __init__(self, llm: OpenAIClient):
+    def __init__(self, llm: LlamaCppClient):
         super().__init__(llm)
 
     async def generate_response(
@@ -115,7 +115,7 @@ class TreeSummarizationStrategy(BaseSynthesisStrategy):
     Asynchronous version of TreeSummarizationStrategy.
     """
 
-    def __init__(self, llm: OpenAIClient):
+    def __init__(self, llm: LlamaCppClient):
         super().__init__(llm)
 
     async def generate_prompt_async(self, loop, question: str, content: Document, idx: int) -> tuple[int, str]:

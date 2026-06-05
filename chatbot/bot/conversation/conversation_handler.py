@@ -4,7 +4,7 @@ from typing import Any
 from entities.document import Document
 from helpers.log import get_logger
 
-from bot.client.openai_client import OpenAIClient
+from bot.client.openai_client import LlamaCppClient
 from bot.conversation.chat_history import ChatHistory
 from bot.conversation.ctx_strategy import BaseSynthesisStrategy
 
@@ -12,13 +12,13 @@ logger = get_logger(__name__)
 
 
 async def refine_question(
-    llm: OpenAIClient, question: str, chat_history: ChatHistory, max_new_tokens: int = 128
+    llm: LlamaCppClient, question: str, chat_history: ChatHistory, max_new_tokens: int = 128
 ) -> str:
     """
     Refines the given question based on the chat history.
 
     Args:
-        llm (OpenAIClient): The language model client for conversation-related tasks.
+        llm (LlamaCppClient): The language model client for conversation-related tasks.
         question (str): The original question.
         chat_history (ChatHistory): A list to store the conversation
         history as tuples of questions and answers.
@@ -52,12 +52,12 @@ async def refine_question(
         return question
 
 
-async def answer(llm: OpenAIClient, question: str, chat_history: ChatHistory, max_new_tokens: int = 512) -> Any:
+async def answer(llm: LlamaCppClient, question: str, chat_history: ChatHistory, max_new_tokens: int = 512) -> Any:
     """
     Generates an answer to the given question based on the chat history or a direct prompt.
 
     Args:
-        llm (OpenAIClient): The language model client for conversation-related tasks.
+        llm (LlamaCppClient): The language model client for conversation-related tasks.
         question (str): The input question for which an answer is generated.
         chat_history (ChatHistory): A list to store the conversation
         history as tuples of questions and answers.
@@ -97,7 +97,7 @@ async def answer(llm: OpenAIClient, question: str, chat_history: ChatHistory, ma
 
 
 async def answer_with_context(
-    llm: OpenAIClient,
+    llm: LlamaCppClient,
     ctx_synthesis_strategy: BaseSynthesisStrategy,
     question: str,
     chat_history: ChatHistory,
@@ -109,7 +109,7 @@ async def answer_with_context(
     If the content is not provided generates an answer based on the chat history or a direct prompt.
 
     Args:
-        llm (OpenAIClient): The language model client for conversation-related tasks.
+        llm (LlamaCppClient): The language model client for conversation-related tasks.
         ctx_synthesis_strategy (BaseSynthesisStrategy): The strategy to use for context synthesis.
         question (str): The input question for which an answer is generated.
         chat_history (ChatHistory): A list to store the conversation
@@ -158,14 +158,14 @@ def extract_content_after_reasoning(text: str, reasoning_stop_tag: str) -> str:
 
 # TODO: Use it later
 async def stream_response_with_reasoning(
-    llm: OpenAIClient, user_input: str, chat_history: ChatHistory, max_new_tokens: int
+    llm: LlamaCppClient, user_input: str, chat_history: ChatHistory, max_new_tokens: int
 ) -> tuple[str, str]:
     """
     Streams a response from the language model (LLM) to the user input, including reasoning, and
     updates the UI in real-time.
 
     Args:
-        llm (OpenAIClient): The language model client used to generate responses.
+        llm (LlamaCppClient): The language model client used to generate responses.
         user_input (str): The input provided by the user.
         chat_history (ChatHistory): The conversation history to provide context for the response.
         max_new_tokens (int): The maximum number of tokens to generate in the response.

@@ -1,11 +1,11 @@
 from pathlib import Path
 
-from bot.client.openai_client import OpenAIClient
+from bot.client.openai_client import LlamaCppClient
 from core.config import settings
 from schemas.model import ModelSettings
 
 
-def create_llm_client(model_folder: Path) -> OpenAIClient:
+def create_llm_client(model_folder: Path) -> LlamaCppClient:
     settings.MODEL_FOLDER.mkdir(parents=True, exist_ok=True)
 
     model_settings = ModelSettings(
@@ -18,7 +18,7 @@ def create_llm_client(model_folder: Path) -> OpenAIClient:
         reasoning=settings.MODEL_REASONING,
     )
 
-    return OpenAIClient(
+    return LlamaCppClient(
         base_url=settings.LLAMA_SERVER_BASE_URL,
         model_folder=model_folder,
         model_settings=model_settings,
