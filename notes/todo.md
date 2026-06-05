@@ -1,8 +1,11 @@
 # Todo
-- add `-hf <user>/<model>[:quant]` support for llama.cpp server:
-  - Hugging Face model repository; quant is optional, case-insensitive, default to Q4_K_M, or falls back to the first file in the repo if Q4_K_M doesn't exist. mmproj is also downloaded automatically if available.
-  - example: `ggml-org/GLM-4.7-Flash-GGUF:Q4_K_M`
-- add presets (config) when using multiple models support for llama.cpp server - https://github.com/ggml-org/llama.cpp/pull/17859
+- llama.cpp server
+  - add `-hf <user>/<model>[:quant]` support for llama.cpp server:
+    - Hugging Face model repository; quant is optional, case-insensitive, default to Q4_K_M, or falls back to the first file in the repo if Q4_K_M doesn't exist. mmproj is also downloaded automatically if available.
+    - example: `ggml-org/GLM-4.7-Flash-GGUF:Q4_K_M`
+  - add presets (config) when using multiple models support for llama.cpp server - https://github.com/ggml-org/llama.cpp/pull/17859
+  - Check the status of https://github.com/ggml-org/llama.cpp/issues/19351
+  - Check the status of https://github.com/ggml-org/llama.cpp/issues/16393
 - Support PDF in the RAG pipeline:
   - [pdf-parsing.md](pdf-parsing.md)
 - Explore Jina AI Embeddings, Rerankers amd Small LMs:
