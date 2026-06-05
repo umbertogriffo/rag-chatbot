@@ -135,6 +135,17 @@ Copy .𝐞𝐧𝐯.𝐞𝐱𝐚𝐦𝐩𝐥𝐞 → .𝐞𝐧𝐯 and fill it in
 
 Copy /frontend/.𝐞𝐧𝐯.𝐞𝐱𝐚𝐦𝐩𝐥𝐞 → .𝐞𝐧𝐯 and fill it in.
 
+To install the UI dependencies, run:
+
+```shell
+cd frontend
+nvm use
+yarn
+
+# Create .env file
+echo "VITE_API_URL=http://localhost:8000" > .env
+```
+
 ### Set the Open-Source LLM Model
 
 `llama-cpp` serves as a C++ backend designed to work efficiently with transformer-based models, which runs either on a `CPU` or `GPU`.
@@ -228,17 +239,6 @@ python chatbot/memory_builder.py --model-name jinaai/jina-embeddings-v5-text-sma
 ## Run the Chatbot
 
 The Chatbot has a UI built with `Vite`, `React` and `TypeScript`, and a backend built with `FastAPI` that serves the LLMs through `llama.cpp` server.
-
-To install the UI dependencies, run:
-
-```shell
-cd frontend
-nvm use
-yarn
-
-# Create .env file
-echo "VITE_API_URL=http://localhost:8000" > .env
-```
 
 To start the backend type:
 
