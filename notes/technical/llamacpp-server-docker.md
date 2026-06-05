@@ -108,4 +108,5 @@ curl -X POST http://localhost:8080/models/unload \
 ## References
 - [Docker With CUDA](https://github.com/ggml-org/llama.cpp/blob/master/docs/docker.md#docker-with-cuda)
 - [LLaMA.cpp HTTP Server](https://github.com/ggml-org/llama.cpp/tree/master/tools/server)
+- [LLaMA.cpp UI](https://github.com/ggml-org/llama.cpp/tree/master/tools/ui)
 - [Self-host LLMs in production with llama.cpp llama-server](https://docs.servicestack.net/ai-server/llama-server#enter-llama-server-the-production-workhorse)

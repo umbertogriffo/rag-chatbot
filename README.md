@@ -27,10 +27,9 @@ Check out the todo list to see the next steps and improvements we want to implem
 - [Bootstrap Environment](#bootstrap-environment)
     - [How to use the make file](#how-to-use-the-make-file)
     - [Environment](#environment)
-- [Using the Open-Source LLMs/Embedding Models Locally](#using-the-open-source-llmsembedding-models-locally)
-    - [Recommended LLMs Models](#recommended-llms-models)
-    - [Supported Embedding Models](#supported-embedding-models)
-- [Supported Response Synthesis strategies](#supported-response-synthesis-strategies)
+    - [Set the Open-Source LLM Model](#set-the-open-source-llm-model)
+    - [Set the Embedding Model](#set-the-embedding-model)
+    - [Set the Response Synthesis strategy](#set-the-response-synthesis-strategy)
 - [Build the memory index](#build-the-memory-index)
 - [Run the Chatbot](#run-the-chatbot)
 - [References](#references)
@@ -118,8 +117,8 @@ To easily install the dependencies and start the services we created a make file
 * Stop `llama.cpp` Server: ```make stop_llama_server```
     * Stop the llama.cpp server if it's running locally.
 * Start Server: ```make start_server```
-    * Instructions for starting llama.cpp server locally.
-    * Requires llama.cpp server binary and model files.
+    * Start the llama.cpp server locally via Docker compose.
+    * It will be available at http://0.0.0.0:8080 (it will show the llama-ui).
 * Update: ```make update```
     * Update an environment and installs all updated dependencies.
 * Tidy up the code: ```make tidy```
@@ -136,35 +135,37 @@ Copy .𝐞𝐧𝐯.𝐞𝐱𝐚𝐦𝐩𝐥𝐞 → .𝐞𝐧𝐯 and fill it in
 
 Copy /frontend/.𝐞𝐧𝐯.𝐞𝐱𝐚𝐦𝐩𝐥𝐞 → .𝐞𝐧𝐯 and fill it in.
 
-## Using the Open-Source LLMs/Embedding Models Locally
+### Set the Open-Source LLM Model
 
-`llama-cpp` serves as a C++ backend designed to work efficiently with transformer-based models.
-Running the LLMs architecture on a local PC is impossible due to the large (~7 billion) number of parameters.
-This library enable us to run them either on a `CPU` or `GPU`.
-Additionally, we can use the `Quantization and 4-bit precision` to reduce number of bits required to represent the numbers.
-The quantized models are stored in [GGML/GGUF](https://medium.com/@phillipgimmi/what-is-gguf-and-ggml-e364834d241c) format.
+`llama-cpp` serves as a C++ backend designed to work efficiently with transformer-based models, which runs either on a `CPU` or `GPU`.
+It uses quantized models which are stored in [GGML/GGUF](https://medium.com/@phillipgimmi/what-is-gguf-and-ggml-e364834d241c) format.
 
-It's possible to load whatever `GGUF` model you want from [HuggingFace](https://huggingface.co/), but you can load the ones that fits your hardware capacity and speed requirements.
+We can load whatever `GGUF` model we want from [HuggingFace](https://huggingface.co/).
+In the .𝐞𝐧𝐯 we need to set the `MODEL` variable with the name of the model we want to load, and the `MODEL_URL` variable with the URL of the model in GGUF format:
+```
+MODEL="Meta-Llama-3.1-8B-Instruct-Q4_K_M"
+MODEL_URL="https://huggingface.co/bartowski/Meta-Llama-3.1-8B-Instruct-GGUF/resolve/main/Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf"
+```
+
+The chosen model will be downloaded in the `/models` folder and loaded in the `llama.cpp` server.
 
 > [!NOTE]
-> To decide which hardware to use/buy to host you local LLMs we recommend you to read this great benchmarks:
+> We can load models that fits our hardware capacity and speed requirements.
+> To decide which hardware to use/buy to host local LLMs we recommend to read this great benchmarks:
 > - [Performance of llama.cpp on Nvidia CUDA](https://github.com/ggml-org/llama.cpp/discussions/15013)
 > - [Performance of llama.cpp on Apple Silicon M-series](https://github.com/ggml-org/llama.cpp/discussions/4167)
 >
 > **Decision model:**
-> - `Memory capacity` is the main limit. Check if your model fits in memory (with quantization) https://www.canirun.ai/.
-> - `Memory bandwidth` mostly determines speed (tokens/sec). Check if the bandwidth gives you acceptable speed.
+> - `Memory capacity` is the main limit. Check if the model fits in memory (with quantization) https://www.canirun.ai/.
+> - `Memory bandwidth` mostly determines speed (tokens/sec). Check if the bandwidth gives an acceptable speed.
 > - If not, upgrade hardware or optimize the model.
 >
 > For instance, it seems better to buy a second-hand or refurbished Mac Studio M2 Max with at least 64GB RAM,
 > since it has 400Gbps of memory bandwidth compared to the M4 Pro, which has just 273Gbps.
 
-We recommend you to start with `Qwen 3.5 9B` or `Meta Llama 3.2 Instruct` since they are small enough to run on a cheap GPU with 6GB of VRAM.
-and try larger models like `gpt-oss 120B` if you have the right capacity.
+We recommend to start with `Qwen 3.5 9B` or `Meta Llama 3.2 Instruct 3B` since they are small enough to run on a cheap GPU with 6GB of VRAM and try larger models like `gpt-oss 120B` if you have the right capacity.
 
 We also recommend few models to start in the table below.
-
-### Recommended LLMs Models
 
 | 🤖 Model                        | Model Size | Max Context Window | Notes and link to the model card                                                                                                                             |
 |---------------------------------|------------|--------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -179,11 +180,17 @@ We also recommend few models to start in the table below.
 | Meta Llama 3.1 Instruct         | 8B         | 128k               | **Recommended model** [Card](https://huggingface.co/bartowski/Meta-Llama-3.1-8B-Instruct-GGUF)                                                               |
 | DeepSeek R1 Distill Qwen 7B     | 7B         | 128k               | **Experimental** [Card](https://huggingface.co/bartowski/DeepSeek-R1-Distill-Qwen-7B-GGUF)                                                                   |
 
-### Supported Embedding Models
+### Set the Embedding Model
 
 For the semantic search, we support all the embedding models from `Sentence Transformers` but we tested those on the table below.
-To find the list of best embeddings models for the retrieval task in your language (or multiple languages) go to the [Massive Text Embedding Benchmark (MTEB) Leaderboard](https://huggingface.co/spaces/mteb/leaderboard).
-We do recommend you to use the [jina-embeddings-v5-text](https://huggingface.co/collections/jinaai/jina-embeddings-v5-text) models,
+
+In the .𝐞𝐧𝐯 we need to set the `EMBEDDING_MODEL` variable with the name of the model we want to load:
+```
+EMBEDDING_MODEL="all-MiniLM-L6-v2"
+```
+
+To find the list of best embeddings models for the retrieval task in the language (or multiple languages) go to the [Massive Text Embedding Benchmark (MTEB) Leaderboard](https://huggingface.co/spaces/mteb/leaderboard).
+We do recommend to use the [jina-embeddings-v5-text](https://huggingface.co/collections/jinaai/jina-embeddings-v5-text) models,
 which are small (239M & 677M parameters) with SOTA performance for multilingual retrieval tasks, and they perform very well on the MTEB benchmark.
 
 | 🧠 Embedding Model                                                               | Supported | Model Size | Max Tokens | Retrieval score (MTEB) | Notes and link to the model card                                                                    |
@@ -194,7 +201,12 @@ which are small (239M & 677M parameters) with SOTA performance for multilingual 
 | `jinaai/jina-embeddings-v5-text-small-retrieval` - jina-embeddings-v5-text-small | ✅         | 0.596B     | 32k        | 64.88                  | **Recommended model** [Card](https://huggingface.co/jinaai/jina-embeddings-v5-text-small-retrieval) |
 | `jinaai/jina-embeddings-v5-text-nano-retrieval` - jina-embeddings-v5-text-nano   | ✅         | 0.212B     | 8k         | 63.26                  | [Card](https://huggingface.co/jinaai/jina-embeddings-v5-text-nano-retrieval)                        |
 
-## Supported Response Synthesis strategies
+### Set the Response Synthesis strategy
+
+In the .𝐞𝐧𝐯 we need to set the `SYNTHESIS_STRATEGY` variable with the name of the strategy we want to use for the response synthesis:
+```
+SYNTHESIS_STRATEGY="tree-summarization"
+```
 
 | ✨ Response Synthesis strategy                                           | Supported | Notes |
 |-------------------------------------------------------------------------|-----------|-------|
@@ -204,7 +216,7 @@ which are small (239M & 677M parameters) with SOTA performance for multilingual 
 
 ## Build the memory index
 
-You could download some Markdown pages from the [Blendle Employee Handbook](https://blendle.notion.site/Blendle-s-Employee-Handbook-7692ffe24f07450785f093b94bbe1a09) and put them under `docs`.
+We can download some Markdown pages from the [Blendle Employee Handbook](https://blendle.notion.site/Blendle-s-Employee-Handbook-7692ffe24f07450785f093b94bbe1a09) and put them under `docs`.
 
 Build the memory index by running:
 
@@ -249,13 +261,13 @@ The application will be available at http://localhost:5173, with the backend API
 
 ![conversation-aware-chatbot.gif](images/conversation-aware-chatbot.gif)
 
-You can enable the RAG Mode feature in the UI to ask questions based on the context provided by the Markdown files you loaded and indexed in the previous step:
+We can enable the RAG Mode feature in the UI to ask questions based on the context provided by the Markdown files you loaded and indexed in the previous step:
 
 ![rag_chatbot_example.gif](images%2Frag_chatbot_example.gif)
 
-You can also upload a Markdown file using the file uploader.
+We can also upload a Markdown file using the file uploader.
 The document management section shows the uploaded and indexed documents.
-Once you upload one or multiple files, they will be: uploaded → chunked → embedded → upserted to Chroma.
+Once we upload one or multiple files, they will be: uploaded → chunked → embedded → upserted to Chroma.
 
 ![rag_chatbot_load_doc_example.gif](images/rag_chatbot_load_doc_example.gif)
 
