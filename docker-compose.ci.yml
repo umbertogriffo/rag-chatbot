@@ -4,6 +4,8 @@
 services:
   llama-server:
     # Use CPU-only image
+    # TODO: load the image tag from an environment variable or .env file
+    # https://docs.docker.com/compose/how-tos/environment-variables/variable-interpolation/
     image: ghcr.io/ggml-org/llama.cpp:server-b9501
     container_name: rag-chatbot-llama-server
     volumes:
