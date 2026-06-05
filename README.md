@@ -86,10 +86,10 @@ This is achieved through:
 * Python 3.12+
 * GPU supporting CUDA 12.4+ or Apple Silicon M-series
 * Poetry 2.3.0+
- * See [notes/poetry.md](notes/technical/poetry.md#install-poetry).
+  * See [notes/poetry.md](notes/technical/poetry.md#install-poetry).
 * [Docker](https://docs.docker.com/engine/install/) 24.0.6+ and [Docker Compose](https://docs.docker.com/compose/install/) 5.0.2+
 * [NVIDIA Container Toolkit installed](https://github.com/NVIDIA/nvidia-container-toolkit) (optional, for CUDA support)
- * See [notes/llama-server-docker.md](notes/technical/llamacpp-server-docker.md#installing-nvidia-container-toolkit).
+  * See [notes/llama-server-docker.md](notes/technical/llamacpp-server-docker.md#installing-nvidia-container-toolkit).
 
 For the UI:
 * Node 22.12+
