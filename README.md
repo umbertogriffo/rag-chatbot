@@ -152,6 +152,7 @@ echo "VITE_API_URL=http://localhost:8000" > .env
 It uses quantized models which are stored in [GGML/GGUF](https://medium.com/@phillipgimmi/what-is-gguf-and-ggml-e364834d241c) format.
 
 We can load whatever `GGUF` model we want from [HuggingFace](https://huggingface.co/).
+
 In the .𝐞𝐧𝐯 we need to set the `MODEL` variable with the name of the model we want to load, and the `MODEL_URL` variable with the URL of the model in GGUF format:
 ```
 MODEL="Meta-Llama-3.1-8B-Instruct-Q4_K_M"
