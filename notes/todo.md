@@ -1,4 +1,5 @@
 # Todo
+- https://github.com/ggml-org/llama.cpp/pull/17859
 - Support PDF in the RAG pipeline:
   - [pdf-parsing.md](pdf-parsing.md)
 - Explore Jina AI Embeddings, Rerankers amd Small LMs:

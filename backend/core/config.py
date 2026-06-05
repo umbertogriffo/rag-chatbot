@@ -35,6 +35,7 @@ class Settings(BaseSettings):
 
     # llama.cpp Server Configuration
     LLAMA_SERVER_BASE_URL: str = "http://localhost:8080"
+    LLAMA_SERVER_TIMEOUT: int = 300
 
     # LLM Model Configuration
     MODEL: str = "Llama-3.2-1B-Instruct-Q5_K_M"

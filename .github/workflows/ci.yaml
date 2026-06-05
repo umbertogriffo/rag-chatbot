@@ -41,26 +41,6 @@ jobs:
         with:
           version: v5.0.2
 
-      - name: Cache model files
-        uses: actions/cache@v4
-        with:
-          path: models
-          key: llama-model-Llama-3.2-1B-Instruct-Q5_K_M
-          restore-keys: |
-            llama-model-
-
-      - name: Download model if not cached
-        run: |
-          MODEL_FILE="models/Llama-3.2-1B-Instruct-Q5_K_M.gguf"
-          if [ ! -f "$MODEL_FILE" ]; then
-            echo "Downloading model..."
-            curl -L -o "$MODEL_FILE" "https://huggingface.co/bartowski/Llama-3.2-1B-Instruct-GGUF/resolve/main/Llama-3.2-1B-Instruct-Q5_K_M.gguf"
-            echo "Model downloaded successfully"
-          else
-            echo "Model already exists (from cache)"
-          fi
-          ls -lh models/
-
       - name: Run llama.cpp server with CPU-only configuration
         run: |
           docker compose -f docker-compose.ci.yml up -d

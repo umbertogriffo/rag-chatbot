@@ -3,10 +3,10 @@ from pathlib import Path
 from typing import AsyncIterator, Iterator
 
 import requests
-from core.model import ModelSettings
 from helpers.log import experimental, get_logger
 from openai import AsyncOpenAI, OpenAI
 from openai.types.chat import ChatCompletion, ChatCompletionChunk
+from schemas.model import ModelSettings
 from tqdm import tqdm
 
 from bot.client.prompt import (
@@ -64,6 +64,8 @@ class OpenAIClient:
 
         self._validate_connection()
         self._auto_download()
+        self.reload_models_from_disk()
+        self.load_model()
 
     def _validate_connection(self) -> None:
         """
@@ -120,6 +122,67 @@ class OpenAIClient:
                 return
 
             print(f"=> Model: {file_name} downloaded successfully 🥳")
+
+    def reload_models_from_disk(self):
+        """
+        Force llama.cpp server to reload list of models from disk.
+        """
+
+        reload_url = f"{self.base_url}/models"
+        try:
+            reload_response = requests.get(
+                reload_url,
+                params={"reload": 1},
+                timeout=self.timeout,
+            )
+            reload_response.raise_for_status()
+            logger.info("Models list reloaded from disk")
+
+        except Exception as e:
+            logger.error(f"Failed to reload models from disk: {e}")
+            raise RuntimeError("Failed to reload models from disk.")
+
+    def load_model(self) -> None:
+        """
+        Load the model into the llama.cpp server.
+        """
+
+        server_url = self.base_url.removesuffix("/v1")
+        load_url = f"{server_url}/models/load"
+
+        try:
+            response = requests.post(
+                load_url,
+                headers={"Content-Type": "application/json"},
+                json={"model": self.model_settings.name},
+                timeout=self.timeout,
+            )
+            response.raise_for_status()
+            logger.info(f"Model {self.model_settings.file_name} loaded successfully")
+        except Exception as e:
+            logger.error(f"Failed to load model {self.model_settings.file_name}: {e}")
+            raise RuntimeError(f"Failed to load model {self.model_settings.file_name}. ")
+
+    def unload_model(self) -> None:
+        """
+        Unload the model into the llama.cpp server.
+        """
+
+        server_url = self.base_url.removesuffix("/v1")
+        unload_url = f"{server_url}/models/unload"
+
+        try:
+            response = requests.post(
+                unload_url,
+                headers={"Content-Type": "application/json"},
+                json={"model": self.model_settings.name},
+                timeout=self.timeout,
+            )
+            response.raise_for_status()
+            logger.info(f"Model {self.model_settings.file_name} unloaded successfully")
+        except Exception as e:
+            logger.error(f"Failed to unload model {self.model_settings.file_name}: {e}")
+            raise RuntimeError(f"Failed to unload model {self.model_settings.file_name}. ")
 
     def close(self):
         """

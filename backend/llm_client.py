@@ -2,7 +2,7 @@ from pathlib import Path
 
 from bot.client.openai_client import OpenAIClient
 from core.config import settings
-from core.model import ModelSettings
+from schemas.model import ModelSettings
 
 
 def create_llm_client(model_folder: Path) -> OpenAIClient:
@@ -22,5 +22,5 @@ def create_llm_client(model_folder: Path) -> OpenAIClient:
         base_url=settings.LLAMA_SERVER_BASE_URL,
         model_folder=model_folder,
         model_settings=model_settings,
-        timeout=300,
+        timeout=settings.LLAMA_SERVER_TIMEOUT,
     )

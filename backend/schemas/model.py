@@ -1,10 +1,8 @@
-from dataclasses import dataclass
-
 from bot.client.prompt import SYSTEM_TEMPLATE
+from pydantic import BaseModel
 
 
-@dataclass
-class ModelSettings:
+class ModelSettings(BaseModel):
     url: str
     name: str
     file_name: str

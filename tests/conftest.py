@@ -7,12 +7,13 @@ from api.deps import get_db_session, get_index, get_llm_client
 from bot.client.openai_client import OpenAIClient
 from bot.memory.embedder import Embedder
 from bot.memory.vector_database.chroma import Chroma
-from core.model import ModelSettings
 from main import app
+from schemas.model import ModelSettings
 from sqlmodel import Session, create_engine
 from starlette.testclient import TestClient
 
 LLAMA_SERVER_BASE_URL = "http://localhost:8080"
+LLAMA_SERVER_TIMEOUT = 300
 
 
 @pytest.fixture(scope="session")
@@ -48,7 +49,7 @@ def openai_client(mock_models_folder, model_settings):
         base_url=LLAMA_SERVER_BASE_URL,
         model_folder=mock_models_folder,
         model_settings=model_settings,
-        timeout=300,
+        timeout=LLAMA_SERVER_TIMEOUT,
     )
 
 

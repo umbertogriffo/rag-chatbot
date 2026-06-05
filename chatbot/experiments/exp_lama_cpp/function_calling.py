@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 
 from bot.client.openai_client import OpenAIClient
-from core.model import ModelSettings
+from schemas.model import ModelSettings
 
 LLAMA_SERVER_BASE_URL = "http://localhost:8080"
 

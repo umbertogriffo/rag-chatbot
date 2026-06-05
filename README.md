@@ -87,33 +87,14 @@ This is achieved through:
 * Python 3.12+
 * GPU supporting CUDA 12.4+ or Apple Silicon M-series
 * Poetry 2.3.0+
+ * See [notes/poetry.md](notes/technical/poetry.md#install-poetry).
 * [Docker](https://docs.docker.com/engine/install/) 24.0.6+ and [Docker Compose](https://docs.docker.com/compose/install/) 5.0.2+
 * [NVIDIA Container Toolkit installed](https://github.com/NVIDIA/nvidia-container-toolkit) (optional, for CUDA support)
- * See [notes/llama-server-docker.md](notes/llama-server-docker.md#installing-nvidia-container-toolkit).
+ * See [notes/llama-server-docker.md](notes/technical/llamacpp-server-docker.md#installing-nvidia-container-toolkit).
 
 For the UI:
 * Node 22.12+
 * Yarn 1.22+
-
-### Install Poetry
-
-Install Poetry with `pipx` by following
-this [link](https://python-poetry.org/docs/#installing-with-pipx).
-
-You must use the current adopted version of Poetry
-defined [here](https://github.com/umbertogriffo/rag-chatbot/blob/main/version/poetry).
-
-If you have poetry already installed and is not the right version, you can downgrade (or upgrade) poetry through:
-
-```
-poetry self update <version>
-```
-
-or with `pipx`:
-
-```
-pipx install poetry==<version> --force
-```
 
 ## Bootstrap Environment
 
@@ -234,7 +215,7 @@ python chatbot/memory_builder.py --model-name jinaai/jina-embeddings-v5-text-sma
 
 ## Run the Chatbot
 
-The Chatbot has a UI built with `Vite`, `React` and `TypeScript`, and a backend built with `FastAPI` that serves the LLMs through `llama-cpp-python`.
+The Chatbot has a UI built with `Vite`, `React` and `TypeScript`, and a backend built with `FastAPI` that serves the LLMs through `llama.cpp` server.
 
 To install the UI dependencies, run:
 
