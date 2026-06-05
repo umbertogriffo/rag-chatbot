@@ -13,6 +13,7 @@ React + TypeScript + Vite
 # Install frontend dependencies
 cd frontend
 nvm use
+npm install -g yarn
 yarn
 
 # Create .env file

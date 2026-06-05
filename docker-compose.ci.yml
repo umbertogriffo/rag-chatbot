@@ -1,5 +1,5 @@
 # Docker Compose override for CPU-only deployment
-# To use this file: docker-compose -f docker-compose.ci.yml up -d
+# To use this file: docker compose -f docker-compose.ci.yml up -d
 
 services:
   llama-server:
