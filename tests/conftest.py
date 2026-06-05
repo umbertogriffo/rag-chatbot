@@ -50,9 +50,14 @@ def openai_client(model_settings):
     )
 
 
+@pytest.fixture(scope="session")
+def embedding(model_settings):
+    return Embedder()
+
+
 @pytest.fixture
-def chroma_instance(tmp_path):
-    return Chroma(embedding=Embedder(), persist_directory=str(tmp_path), is_persistent=True)
+def chroma_instance(tmp_path, embedding):
+    return Chroma(embedding=embedding, persist_directory=str(tmp_path), is_persistent=True)
 
 
 @pytest.fixture(scope="session")

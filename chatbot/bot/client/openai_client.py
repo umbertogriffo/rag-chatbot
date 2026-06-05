@@ -65,7 +65,6 @@ class LlamaCppClient:
         self._validate_connection()
         self._auto_download()
         self.reload_models_from_disk()
-        self.load_model()
 
     def _validate_connection(self) -> None:
         """
