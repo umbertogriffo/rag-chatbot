@@ -158,6 +158,9 @@ MODEL="Meta-Llama-3.1-8B-Instruct-Q4_K_M"
 MODEL_URL="https://huggingface.co/bartowski/Meta-Llama-3.1-8B-Instruct-GGUF/resolve/main/Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf"
 ```
 
+> [!IMPORTANT]
+> The Chatbot must be restarted after changing the model.
+
 The chosen model will be downloaded in the `/models` folder and loaded in the `llama.cpp` server.
 
 > [!NOTE]
