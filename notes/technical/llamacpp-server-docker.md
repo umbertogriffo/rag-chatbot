@@ -67,6 +67,7 @@ The server will be available at `http://localhost:8000`.
 `llama.cpp server` now ships with router mode, which lets you dynamically load, unload, and switch between multiple models without restarting.
 
 https://huggingface.co/blog/ggml-org/model-management-in-llamacpp
+https://github.com/ggml-org/llama.cpp/tree/master/tools/server#using-multiple-models
 
 Run the server:
 ```shell

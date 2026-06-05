@@ -1,11 +1,12 @@
 # Todo
-- llama.cpp server
-  - add `-hf <user>/<model>[:quant]` support for llama.cpp server:
+- Manage multiple models easily with llama.cpp server
+  - add `-hf <user>/<model>[:quant]` to add Hugging Face models to the cache support for llama.cpp server:
     - Hugging Face model repository; quant is optional, case-insensitive, default to Q4_K_M, or falls back to the first file in the repo if Q4_K_M doesn't exist. mmproj is also downloaded automatically if available.
     - example: `ggml-org/GLM-4.7-Flash-GGUF:Q4_K_M`
-  - add presets (config) when using multiple models support for llama.cpp server - https://github.com/ggml-org/llama.cpp/pull/17859
-  - Check the status of https://github.com/ggml-org/llama.cpp/issues/19351
-  - Check the status of https://github.com/ggml-org/llama.cpp/issues/16393
+  - add [model presets](https://github.com/ggml-org/llama.cpp/tree/master/tools/server#model-presets) (`llama-server --models-preset ./my-models.ini`) when using multiple models support for llama.cpp server - https://github.com/ggml-org/llama.cpp/pull/17859
+    - https://github.com/ngxson/llama.cpp/blob/xsn/server_model_management_v1_2/tools/server/README.md#using-multiple-models
+    - https://github.com/ggml-org/llama.cpp/pull/17470
+  - Check the status of [Feature Request: tool to list and delete cached models](https://github.com/ggml-org/llama.cpp/issues/16393)
 - Support PDF in the RAG pipeline:
   - [pdf-parsing.md](pdf-parsing.md)
 - Explore Jina AI Embeddings, Rerankers amd Small LMs:
