@@ -55,8 +55,6 @@
     - https://github.com/timescale/pgai - PostgreSQL extension for AI.
     - https://github.com/letta-ai/letta
 - Investigate llama.cpp:
-  - server:
-    - https://github.com/ggml-org/llama.cpp/tree/master/tools/server
   - webui:
     - https://github.com/ggml-org/llama.cpp/discussions/16938
     - https://github.com/ggml-org/llama.cpp/tree/master/tools/server/webui

@@ -197,8 +197,6 @@ We also recommend few models to start in the table below.
 | Meta Llama 3.2 Instruct         | 3B         | 128k               | Optimized to run locally on a mobile or edge device - [Card](https://huggingface.co/bartowski/Llama-3.2-3B-Instruct-GGUF)                                    |
 | Meta Llama 3.1 Instruct         | 8B         | 128k               | **Recommended model** [Card](https://huggingface.co/bartowski/Meta-Llama-3.1-8B-Instruct-GGUF)                                                               |
 | DeepSeek R1 Distill Qwen 7B     | 7B         | 128k               | **Experimental** [Card](https://huggingface.co/bartowski/DeepSeek-R1-Distill-Qwen-7B-GGUF)                                                                   |
-| OpenChat 3.6                    | 8B         | 8192               | [Card](https://huggingface.co/bartowski/openchat-3.6-8b-20240522-GGUF)                                                                                       |
-| Phi-3.5 Mini  Instruct          | 3.8B       | 128k               | [Card](https://huggingface.co/MaziyarPanahi/Phi-3.5-mini-instruct-GGUF)                                                                                      |
 
 ### Supported Embedding Models
 
@@ -291,9 +289,6 @@ Once you upload one or multiple files, they will be: uploaded → chunked → em
     * [Understanding Multimodal LLMs](https://www.linkedin.com/comm/pulse/understanding-multimodal-llms-sebastian-raschka-phd-t7h5c)
     * [Direct preference optimization (DPO): Complete overview](https://www.superannotate.com/blog/direct-preference-optimization-dpo)
 * LLM Frameworks:
-    * llama.cpp:
-        * [llama.cpp](https://github.com/ggerganov/llama.cpp)
-        * [llama-cpp-python](https://github.com/abetlen/llama-cpp-python)
     * Deepval - A framework for evaluating LLMs:
       * https://github.com/confident-ai/deepeval
     * [Structured Outputs](https://github.com/dottxt-ai/outlines)
@@ -332,9 +327,6 @@ Once you upload one or multiple files, they will be: uploaded → chunked → em
     * [Building Response Synthesis from Scratch](https://gpt-index.readthedocs.io/en/latest/examples/low_level/response_synthesis.html#)
     * [Conversational awareness](https://langstream.ai/2023/10/13/rag-chatbot-with-conversation/)
     * [RAG is Dead, Again?](https://jina.ai/news/rag-is-dead-again/)
-* Chatbot UI:
-    * [Open WebUI](https://github.com/open-webui/open-webui)
-        * [Running AI Locally Using Ollama on Ubuntu Linux](https://itsfoss.com/ollama-setup-linux/)
 * Text Processing and Cleaning:
     * [clean-text](https://github.com/jfilter/clean-text/tree/main)
     * [Fast Semantic Text Deduplication](https://github.com/MinishLab/semhash)
@@ -342,6 +334,5 @@ Once you upload one or multiple files, they will be: uploaded → chunked → em
     * [lit-gpt](https://github.com/Lightning-AI/lit-gpt)
     * [api-for-open-llm](https://github.com/xusenlinzy/api-for-open-llm)
     * [AnythingLLM](https://useanything.com/)
-    * [FastServe - Serve Llama-cpp with FastAPI](https://github.com/aniketmaurya/fastserve)
     * [Alpaca](https://github.com/Jeffser/Alpaca?tab=readme-ov-file)
     * [LiteLLM](https://github.com/BerriAI/litellm)
