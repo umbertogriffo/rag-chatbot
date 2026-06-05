@@ -12,6 +12,7 @@ on:
       - "pyproject.toml"
       - "poetry.lock"
       - "!.gitignore"
+      - "!notes/**"
       - "!README.md"
   pull_request:
     types: [opened, reopened, synchronize, ready_for_review]
@@ -23,6 +24,7 @@ on:
       - "pyproject.toml"
       - "poetry.lock"
       - "!.gitignore"
+      - "!notes/**"
       - "!README.md"
 
 jobs:
