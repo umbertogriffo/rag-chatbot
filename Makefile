@@ -18,13 +18,13 @@ migrate_db:
 	cd backend && PYTHONPATH=.:../chatbot poetry run python migration.py
 
 start_llama_server_cuda:
-	docker-compose up -d
+	docker compose up -d
 
 start_llama_server_metal:
-	docker-compose -f docker-compose.yml -f docker-compose.metal.yml up
+	docker compose -f docker-compose.yml -f docker-compose.metal.yml up
 
 stop_llama_server:
-	docker-compose down
+	docker compose down
 
 setup_cuda: install_dependencies install_pre_commit migrate_db start_llama_server_cuda
 setup_metal: install_dependencies install_pre_commit migrate_db start_llama_server_metal

@@ -12,10 +12,10 @@ def create_llm_client(model_folder: Path) -> OpenAIClient:
         url=settings.MODEL_URL,
         name=settings.MODEL,
         file_name=f"{settings.MODEL}.gguf",
-        reasoning_start_tag=settings.REASONING_START_TAG,
-        reasoning_stop_tag=settings.REASONING_STOP_TAG,
-        system_template=settings.SYSTEM_TEMPLATE,
-        reasoning=settings.REASONING,
+        reasoning_start_tag=settings.MODEL_REASONING_START_TAG,
+        reasoning_stop_tag=settings.MODEL_REASONING_STOP_TAG,
+        system_template=settings.MODEL_SYSTEM_TEMPLATE,
+        reasoning=settings.MODEL_REASONING,
     )
 
     return OpenAIClient(
