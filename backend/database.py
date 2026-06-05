@@ -16,7 +16,7 @@ def create_db_engine(verbose: bool = False, **kwargs):
     Returns:
         engine: The SQLAlchemy engine instance.
     """
-    logger.info("Initialized a postgresql database engine.")
+    logger.info("Initialized the database engine.")
 
     # Using check_same_thread=False allows FastAPI to use the same SQLite database in different threads.
     # This is necessary only when using SQLite.

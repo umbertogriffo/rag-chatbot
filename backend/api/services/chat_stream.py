@@ -13,14 +13,14 @@ from helpers.log import get_logger
 from helpers.prettier import prettify_source
 from schemas.chat import ChatRequest
 
-from api.deps import ChatHistoryDep, LamaCppClientDep, VectorDatabaseDep
+from api.deps import ChatHistoryDep, LlamaCppClientDep, VectorDatabaseDep
 
 logger = get_logger(__name__)
 
 
 # TODO: https://github.com/umbertogriffo/rag-chatbot/pull/10#discussion_r2936567672
 async def stream_chat_response(
-    websocket: WebSocket, llm_client: LamaCppClientDep, query: ChatRequest, chat_history: ChatHistoryDep
+    websocket: WebSocket, llm_client: LlamaCppClientDep, query: ChatRequest, chat_history: ChatHistoryDep
 ):
     """
     Helper function to stream chat responses token by token.
@@ -40,7 +40,7 @@ async def stream_chat_response(
             chat_history=chat_history,
             max_new_tokens=settings.MAX_NEW_TOKENS,
         )
-        for output in stream:
+        async for output in stream:
             token = llm_client.parse_token(output)
             if token:
                 full_response += token
@@ -66,7 +66,7 @@ async def stream_chat_response(
 # TODO: https://github.com/umbertogriffo/rag-chatbot/pull/10#discussion_r2936567672
 async def stream_rag_response(
     websocket: WebSocket,
-    llm_client: LamaCppClientDep,
+    llm_client: LlamaCppClientDep,
     query: ChatRequest,
     chat_history: ChatHistoryDep,
     index: VectorDatabaseDep,
@@ -115,7 +115,7 @@ async def stream_rag_response(
             settings.MAX_NEW_TOKENS,
         )
 
-        for output in streamer:
+        async for output in streamer:
             token = llm_client.parse_token(output)
             if token:
                 full_response += token

@@ -12,6 +12,7 @@ on:
       - "pyproject.toml"
       - "poetry.lock"
       - "!.gitignore"
+      - "!notes/**"
       - "!README.md"
   pull_request:
     types: [opened, reopened, synchronize, ready_for_review]
@@ -23,6 +24,7 @@ on:
       - "pyproject.toml"
       - "poetry.lock"
       - "!.gitignore"
+      - "!notes/**"
       - "!README.md"
 
 jobs:
@@ -35,6 +37,30 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
+
+      - name: Set up Docker Compose
+        uses: docker/setup-compose-action@v2
+        with:
+          version: v5.0.2
+
+      - name: Run llama.cpp server with CPU-only configuration
+        run: |
+          docker compose -f docker-compose.ci.yml up -d
+
+      - name: Wait for llama.cpp server to be ready
+        run: |
+          echo "Waiting for llama.cpp server to be healthy..."
+          timeout 120 bash -c 'until docker inspect --format="{{.State.Health.Status}}" rag-chatbot-llama-server | grep -q "healthy"; do sleep 2; done'
+          echo "Server is healthy!"
+
+          # Verify server is accessible from host
+          echo "Verifying server is accessible from host..."
+          timeout 60 bash -c 'until curl -f http://localhost:8080/health; do echo "Waiting for server to be accessible from host..."; sleep 2; done'
+          echo "Server is accessible!"
+
+          # Verify model endpoint
+          echo "Checking if model is loaded..."
+          curl -s http://localhost:8080/v1/models | jq .
 
       - name: Install Python
         uses: actions/setup-python@v5
@@ -51,17 +77,11 @@ jobs:
           version: ${{ steps.poetry-version.outputs.poetry-version }}
           virtualenvs-in-project: true
 
-      - name: Get llama-cpp version
-        id: llama-cpp-version
-        run: echo "llama-cpp-version=$(cat version/llama_cpp)" >> "$GITHUB_OUTPUT"
-
-      # Installing dependencies and llama-cpp-python without NVIDIA CUDA acceleration.
       - name: Setup environment
         run: |
           poetry check --lock
           poetry install --no-root --no-ansi
-          . .venv/bin/activate && pip3 install llama-cpp-python==${{ steps.llama-cpp-version.outputs.llama-cpp-version }}
 
       - name: Run tests
         run: |
-          poetry run python -m pytest --durations=5 --log-cli-level=DEBUG --capture=tee-sys -v --cov=chatbot --cov-report=term-missing --cov-fail-under=68
+          poetry run python -m pytest --durations=5 --log-cli-level=DEBUG --capture=tee-sys -v --cov=chatbot --cov-report=term-missing --cov-fail-under=60

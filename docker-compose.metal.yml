@@ -1,0 +1,46 @@
+# Docker Compose override for CPU-only deployment
+# To use this file: docker compose -f docker-compose.metal.yml up
+
+services:
+  llama-server:
+    # Use CPU-only image
+    # TODO: load the image tag from an environment variable or .env file
+    # https://docs.docker.com/compose/how-tos/environment-variables/variable-interpolation/
+    image: ghcr.io/ggml-org/llama.cpp:server-b9501
+    container_name: rag-chatbot-llama-server
+    volumes:
+      - ./models:/models
+    ports:
+      - "8080:8080"
+    environment: {}
+    command: >
+      --models-dir /models
+      --host 0.0.0.0
+      --port 8080
+      --cache-type-k q8_0
+      --cache-type-v q8_0
+      --flash-attn on
+      --ctx-size 4096
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 8G
+        reservations: {}
+
+    networks:
+      - service-network
+
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/health" ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 15s
+
+networks:
+  service-network:
+    driver: bridge
+
+volumes:
+  models:

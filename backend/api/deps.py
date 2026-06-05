@@ -5,7 +5,7 @@ Defines dependencies used by the endpoints.
 from typing import Annotated, Generator
 
 import state
-from bot.client.lama_cpp_client import LamaCppClient
+from bot.client.llamacpp_client import LlamaCppClient
 from bot.conversation.chat_history import ChatHistory
 from bot.memory.vector_database.chroma import Chroma
 from chat_history import chat_history
@@ -13,7 +13,7 @@ from fastapi import Depends
 from sqlmodel import Session
 
 
-def get_llm_client() -> Generator[LamaCppClient, None, None]:
+def get_llm_client() -> Generator[LlamaCppClient, None, None]:
     """
     Dependency to get the LLM client instance.
     """
@@ -42,7 +42,7 @@ def get_db_session() -> Generator[Session, None, None]:
         yield session
 
 
-LamaCppClientDep = Annotated[LamaCppClient, Depends(get_llm_client)]
+LlamaCppClientDep = Annotated[LlamaCppClient, Depends(get_llm_client)]
 ChatHistoryDep = Annotated[ChatHistory, Depends(get_chat_history)]
 VectorDatabaseDep = Annotated[Chroma, Depends(get_index)]
 SessionDep = Annotated[Session, Depends(get_db_session)]

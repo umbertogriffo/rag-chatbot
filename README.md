@@ -14,25 +14,10 @@ Check out the todo list to see the next steps and improvements we want to implem
 >   * `MacOS Sonoma 14.3.1` running on a MacBook Pro M1 (2020).
 >
 > If you are using another Operating System or different hardware, and you can't load the models, please
-> take a look at the official Llama Cpp Python's GitHub [issue](https://github.com/abetlen/llama-cpp-python/issues).
+> take a look at the official llama.cpp's GitHub [issue](https://github.com/ggml-org/llama.cpp/issues).
 
 > [!WARNING]
-> - `llama_cpp_pyhon` doesn't use `GPU` on `M1` if you are running an `x86` version of `Python`. More
-    info [here](https://github.com/abetlen/llama-cpp-python/issues/756#issuecomment-1870324323).
-> - It's important to note that the large language model sometimes generates hallucinations or false information.
-
-> [!NOTE]
-> To decide which hardware to use/buy to host you local LLMs we recommend you to read this great benchmarks:
-> - [Performance of llama.cpp on Nvidia CUDA](https://github.com/ggml-org/llama.cpp/discussions/15013)
-> - [Performance of llama.cpp on Apple Silicon M-series](https://github.com/ggml-org/llama.cpp/discussions/4167)
->
-> **Decision model:**
-> - `Memory capacity` is the main limit. Check if your model fits in memory (with quantization) https://www.canirun.ai/.
-> - `Memory bandwidth` mostly determines speed (tokens/sec). Check if the bandwidth gives you acceptable speed.
-> - If not, upgrade hardware or optimize the model.
->
-> For instance, it seems better to buy a second-hand or refurbished Mac Studio M2 Max with at least 64GB RAM,
-> since it has 400Gbps of memory bandwidth compared to the M4 Pro, which has just 273Gbps.
+> It's important to note that the large language model sometimes generates hallucinations or false information.
 
 ## Table of contents
 
@@ -42,17 +27,16 @@ Check out the todo list to see the next steps and improvements we want to implem
 - [Bootstrap Environment](#bootstrap-environment)
     - [How to use the make file](#how-to-use-the-make-file)
     - [Environment](#environment)
-- [Using the Open-Source LLMs/Embedding Models Locally](#using-the-open-source-llmsembedding-models-locally)
-    - [Supported LLMs Models](#supported-llms-models)
-    - [Supported Embedding Models](#supported-embedding-models)
-- [Supported Response Synthesis strategies](#supported-response-synthesis-strategies)
+    - [Set the Open-Source LLM Model](#set-the-open-source-llm-model)
+    - [Set the Embedding Model](#set-the-embedding-model)
+    - [Set the Response Synthesis strategy](#set-the-response-synthesis-strategy)
 - [Build the memory index](#build-the-memory-index)
 - [Run the Chatbot](#run-the-chatbot)
 - [References](#references)
 
 ## Introduction
 
-This project combines the power of [llama.cpp](https://github.com/abetlen/llama-cpp-python) and [Chroma](https://github.com/chroma-core/chroma) to build:
+This project combines the power of [llama.cpp](https://github.com/ggml-org/llama.cpp) and [Chroma](https://github.com/chroma-core/chroma) to build:
 
 * a Conversation-aware Chatbot (ChatGPT like experience).
 * a RAG (Retrieval-augmented generation) ChatBot.
@@ -100,32 +84,16 @@ This is achieved through:
 ## Prerequisites
 
 * Python 3.12+
-* GPU supporting CUDA 12.4+
-* Poetry 2.3.0
+* GPU supporting CUDA 12.4+ or Apple Silicon M-series
+* Poetry 2.3.0+
+ * See [notes/poetry.md](notes/technical/poetry.md#install-poetry).
+* [Docker](https://docs.docker.com/engine/install/) 24.0.6+ and [Docker Compose](https://docs.docker.com/compose/install/) 5.0.2+
+* [NVIDIA Container Toolkit installed](https://github.com/NVIDIA/nvidia-container-toolkit) (optional, for CUDA support)
+ * See [notes/llama-server-docker.md](notes/technical/llamacpp-server-docker.md#installing-nvidia-container-toolkit).
 
 For the UI:
 * Node 22.12+
 * Yarn 1.22+
-
-### Install Poetry
-
-Install Poetry with `pipx` by following
-this [link](https://python-poetry.org/docs/#installing-with-pipx).
-
-You must use the current adopted version of Poetry
-defined [here](https://github.com/umbertogriffo/rag-chatbot/blob/main/version/poetry).
-
-If you have poetry already installed and is not the right version, you can downgrade (or upgrade) poetry through:
-
-```
-poetry self update <version>
-```
-
-or with `pipx`:
-
-```
-pipx install poetry==<version> --force
-```
 
 ## Bootstrap Environment
 
@@ -143,8 +111,14 @@ To easily install the dependencies and start the services we created a make file
         * Creates an environment and installs all dependencies with NVIDIA CUDA acceleration.
     * Setup with Metal GPU acceleration: ```make setup_metal```
         * Creates an environment and installs all dependencies with Metal GPU acceleration for macOS system only.
+    * Both starts `llama.cpp` server locally via Docker compose.
 * Start: ```make start```
     *  Start both the backend and frontend ensuring that the backend is running and ready before launching the frontend.
+* Stop `llama.cpp` Server: ```make stop_llama_server```
+    * Stop the llama.cpp server if it's running locally.
+* Start Server: ```make start_server```
+    * Start the llama.cpp server locally via Docker compose.
+    * It will be available at http://0.0.0.0:8080 (it will show the llama-ui).
 * Update: ```make update```
     * Update an environment and installs all updated dependencies.
 * Tidy up the code: ```make tidy```
@@ -161,74 +135,6 @@ Copy .𝐞𝐧𝐯.𝐞𝐱𝐚𝐦𝐩𝐥𝐞 → .𝐞𝐧𝐯 and fill it in
 
 Copy /frontend/.𝐞𝐧𝐯.𝐞𝐱𝐚𝐦𝐩𝐥𝐞 → .𝐞𝐧𝐯 and fill it in.
 
-## Using the Open-Source LLMs/Embedding Models Locally
-
-We utilize the open-source library [llama-cpp-python](https://github.com/abetlen/llama-cpp-python), a binding for [llama-cpp](https://github.com/ggerganov/llama.cpp),
-allowing us to utilize it within a Python environment.
-`llama-cpp` serves as a C++ backend designed to work efficiently with transformer-based models.
-Running the LLMs architecture on a local PC is impossible due to the large (~7 billion) number of parameters.
-This library enable us to run them either on a `CPU` or `GPU`.
-Additionally, we use the `Quantization and 4-bit precision` to reduce number of bits required to represent the numbers.
-The quantized models are stored in [GGML/GGUF](https://medium.com/@phillipgimmi/what-is-gguf-and-ggml-e364834d241c) format.
-
-### Supported LLMs Models
-
-| 🤖 Model                                                       | Supported | Model Size | Max Context Window | Notes and link to the model card                                                                                                                                     |
-|----------------------------------------------------------------|-----------|------------|--------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `qwen-3.5:0.8b` Qwen 3.5 0.8B                                  | ✅         | 0.8B       | 256k               | Tiny and fast multimodal, great for edge device - [Card](https://huggingface.co/unsloth/Qwen3.5-0.8B-GGUF)                                                           |
-| `qwen-3.5:2b` Qwen 3.5 2B                                      | ✅         | 2B         | 256k               | Multimodal for lightweight agents (small tool calls) - [Card](https://huggingface.co/unsloth/Qwen3.5-2B-GGUF)                                                        |
-| `qwen-3.5:4b` Qwen 3.5 4B                                      | ✅         | 4B         | 256k               | Doesn’t drift from tasks as bad as 2B [Card](https://huggingface.co/unsloth/Qwen3.5-4B-GGUF)                                                                         |
-| `qwen-3.5:9b` Qwen 3.5 9B                                      | ✅         | 9B         | 256k               | **Recommended model** Can handle more complex tasks and competes with larger models like gpt-oss 120B [Card](https://huggingface.co/unsloth/Qwen3.5-9B-GGUF)         |
-| `qwen-2.5:3b` - Qwen2.5 Instruct                               | ✅         | 3B         | 128k               | [Card](https://huggingface.co/Qwen/Qwen2.5-3B-Instruct-GGUF)                                                                                                         |
-| `qwen-2.5:3b-math-reasoning` - Qwen2.5 Instruct Math Reasoning | ✅         | 3B         | 128k               | [Card](https://huggingface.co/ugriffo/Qwen2.5-3B-Instruct-Math-Reasoning-GGUF)                                                                                       |
-| `llama-3.2:1b` Meta Llama 3.2 Instruct                         | ✅         | 1B         | 128k               | Optimized to run locally on a mobile or edge device - [Card](https://huggingface.co/bartowski/Llama-3.2-1B-Instruct-GGUF)                                            |
-| `llama-3.2` Meta Llama 3.2 Instruct                            | ✅         | 3B         | 128k               | Optimized to run locally on a mobile or edge device - [Card](https://huggingface.co/bartowski/Llama-3.2-3B-Instruct-GGUF)                                            |
-| `llama-3.1` Meta Llama 3.1 Instruct                            | ✅         | 8B         | 128k               | **Recommended model** [Card](https://huggingface.co/bartowski/Meta-Llama-3.1-8B-Instruct-GGUF)                                                                       |
-| `deep-seek-r1:7b` - DeepSeek R1 Distill Qwen 7B                | ✅         | 7B         | 128k               | **Experimental** [Card](https://huggingface.co/bartowski/DeepSeek-R1-Distill-Qwen-7B-GGUF)                                                                           |
-| `openchat-3.6` - OpenChat 3.6                                  | ✅         | 8B         | 8192               | [Card](https://huggingface.co/bartowski/openchat-3.6-8b-20240522-GGUF)                                                                                               |
-| `openchat-3.5` - OpenChat 3.5                                  | ✅         | 7B         | 8192               | [Card](https://huggingface.co/TheBloke/openchat-3.5-0106-GGUF)                                                                                                       |
-| `starling` Starling Beta                                       | ✅         | 7B         | 8192               | Is trained from `Openchat-3.5-0106`. It's recommended if you prefer more verbosity over OpenChat - [Card](https://huggingface.co/bartowski/Starling-LM-7B-beta-GGUF) |
-| `phi-3.5` Phi-3.5 Mini  Instruct                               | ✅         | 3.8B       | 128k               | [Card](https://huggingface.co/MaziyarPanahi/Phi-3.5-mini-instruct-GGUF)                                                                                              |
-| `stablelm-zephyr` StableLM Zephyr OpenOrca                     | ✅         | 3B         | 4096               | [Card](https://huggingface.co/TheBloke/stablelm-zephyr-3b-GGUF)                                                                                                      |
-
-### Supported Embedding Models
-
-For the semantic search, we support all the embedding models from `Sentence Transformers` but we tested those on the table below.
-To find the list of best embeddings models for the retrieval task in your language (or multiple languages) go to the [Massive Text Embedding Benchmark (MTEB) Leaderboard](https://huggingface.co/spaces/mteb/leaderboard).
-We do recommend you to use the [jina-embeddings-v5-text](https://huggingface.co/collections/jinaai/jina-embeddings-v5-text) models,
-which are small (239M & 677M parameters) with SOTA performance for multilingual retrieval tasks, and they perform very well on the MTEB benchmark.
-
-| 🧠 Embedding Model                                                               | Supported | Model Size | Max Tokens | Retrieval score (MTEB) | Notes and link to the model card                                                                    |
-|----------------------------------------------------------------------------------|-----------|------------|------------|------------------------|-----------------------------------------------------------------------------------------------------|
-| `all-MiniLM-L6-v2` - Sentence Transformers All MiniLM L6 v2                      | ✅         | 0.023B     | 512        | 33.30                  | [Card](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2)                               |
-| `all-MiniLM-L12-v2` - Sentence Transformers All MiniLM L12 v2                    | ✅         | 0.033B     | 256        | 33.37                  | [Card](https://huggingface.co/sentence-transformers/all-MiniLM-L12-v2)                              |
-| `all-mpnet-base-v2` - Sentence Transformers All Mpnet base v2                    | ✅         | 0.109B     | 384        | 33.80                  | [Card](https://huggingface.co/sentence-transformers/all-mpnet-base-v2)                              |
-| `jinaai/jina-embeddings-v5-text-small-retrieval` - jina-embeddings-v5-text-small | ✅         | 0.596B     | 32k        | 64.88                  | **Recommended model** [Card](https://huggingface.co/jinaai/jina-embeddings-v5-text-small-retrieval) |
-| `jinaai/jina-embeddings-v5-text-nano-retrieval` - jina-embeddings-v5-text-nano   | ✅         | 0.212B     | 8k         | 63.26                  | [Card](https://huggingface.co/jinaai/jina-embeddings-v5-text-nano-retrieval)                        |
-
-## Supported Response Synthesis strategies
-
-| ✨ Response Synthesis strategy                                           | Supported | Notes |
-|-------------------------------------------------------------------------|-----------|-------|
-| `create-and-refine` Create and Refine                                   | ✅         |       |
-| `tree-summarization` **Recommended** - Tree Summarization               | ✅         |       |
-
-
-## Build the memory index
-
-You could download some Markdown pages from the [Blendle Employee Handbook](https://blendle.notion.site/Blendle-s-Employee-Handbook-7692ffe24f07450785f093b94bbe1a09) and put them under `docs`.
-
-Build the memory index by running:
-
-```shell
-make migrate_db
-python chatbot/memory_builder.py --model-name jinaai/jina-embeddings-v5-text-small-retrieval --chunk-size 1000 --chunk-overlap 50
-```
-
-## Run the Chatbot
-
-The Chatbot has a UI built with `Vite`, `React` and `TypeScript`, and a backend built with `FastAPI` that serves the LLMs through `llama-cpp-python`.
-
 To install the UI dependencies, run:
 
 ```shell
@@ -239,6 +145,103 @@ yarn
 # Create .env file
 echo "VITE_API_URL=http://localhost:8000" > .env
 ```
+
+### Set the Open-Source LLM Model
+
+`llama-cpp` serves as a C++ backend designed to work efficiently with transformer-based models, which runs either on a `CPU` or `GPU`.
+It uses quantized models which are stored in [GGML/GGUF](https://medium.com/@phillipgimmi/what-is-gguf-and-ggml-e364834d241c) format.
+
+We can load whatever `GGUF` model we want from [HuggingFace](https://huggingface.co/).
+In the .𝐞𝐧𝐯 we need to set the `MODEL` variable with the name of the model we want to load, and the `MODEL_URL` variable with the URL of the model in GGUF format:
+```
+MODEL="Meta-Llama-3.1-8B-Instruct-Q4_K_M"
+MODEL_URL="https://huggingface.co/bartowski/Meta-Llama-3.1-8B-Instruct-GGUF/resolve/main/Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf"
+```
+
+> [!IMPORTANT]
+> The Chatbot must be restarted after changing the model.
+
+The chosen model will be downloaded in the `/models` folder and loaded in the `llama.cpp` server.
+
+> [!NOTE]
+> We can load models that fits our hardware capacity and speed requirements.
+> To decide which hardware to use/buy to host local LLMs we recommend to read this great benchmarks:
+> - [Performance of llama.cpp on Nvidia CUDA](https://github.com/ggml-org/llama.cpp/discussions/15013)
+> - [Performance of llama.cpp on Apple Silicon M-series](https://github.com/ggml-org/llama.cpp/discussions/4167)
+>
+> **Decision model:**
+> - `Memory capacity` is the main limit. Check if the model fits in memory (with quantization) https://www.canirun.ai/.
+> - `Memory bandwidth` mostly determines speed (tokens/sec). Check if the bandwidth gives an acceptable speed.
+> - If not, upgrade hardware or optimize the model.
+>
+> For instance, it seems better to buy a second-hand or refurbished Mac Studio M2 Max with at least 64GB RAM,
+> since it has 400Gbps of memory bandwidth compared to the M4 Pro, which has just 273Gbps.
+
+We recommend to start with `Qwen 3.5 9B` or `Meta Llama 3.2 Instruct 3B` since they are small enough to run on a cheap GPU with 6GB of VRAM and try larger models like `gpt-oss 120B` if you have the right capacity.
+
+We also recommend few models to start in the table below.
+
+| 🤖 Model                        | Model Size | Max Context Window | Notes and link to the model card                                                                                                                             |
+|---------------------------------|------------|--------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Qwen 3.5 0.8B                   | 0.8B       | 256k               | Tiny and fast multimodal, great for edge device - [Card](https://huggingface.co/unsloth/Qwen3.5-0.8B-GGUF)                                                   |
+| Qwen 3.5 2B                     | 2B         | 256k               | Multimodal for lightweight agents (small tool calls) - [Card](https://huggingface.co/unsloth/Qwen3.5-2B-GGUF)                                                |
+| Qwen 3.5 4B                     | 4B         | 256k               | Doesn’t drift from tasks as bad as 2B [Card](https://huggingface.co/unsloth/Qwen3.5-4B-GGUF)                                                                 |
+| Qwen 3.5 9B                     | 9B         | 256k               | **Recommended model** Can handle more complex tasks and competes with larger models like gpt-oss 120B [Card](https://huggingface.co/unsloth/Qwen3.5-9B-GGUF) |
+| Qwen2.5 Instruct                | 3B         | 128k               | [Card](https://huggingface.co/Qwen/Qwen2.5-3B-Instruct-GGUF)                                                                                                 |
+| Qwen2.5 Instruct Math Reasoning | 3B         | 128k               | [Card](https://huggingface.co/ugriffo/Qwen2.5-3B-Instruct-Math-Reasoning-GGUF)                                                                               |
+| Meta Llama 3.2 Instruct         | 1B         | 128k               | Optimized to run locally on a mobile or edge device - [Card](https://huggingface.co/bartowski/Llama-3.2-1B-Instruct-GGUF)                                    |
+| Meta Llama 3.2 Instruct         | 3B         | 128k               | Optimized to run locally on a mobile or edge device - [Card](https://huggingface.co/bartowski/Llama-3.2-3B-Instruct-GGUF)                                    |
+| Meta Llama 3.1 Instruct         | 8B         | 128k               | **Recommended model** [Card](https://huggingface.co/bartowski/Meta-Llama-3.1-8B-Instruct-GGUF)                                                               |
+| DeepSeek R1 Distill Qwen 7B     | 7B         | 128k               | **Experimental** [Card](https://huggingface.co/bartowski/DeepSeek-R1-Distill-Qwen-7B-GGUF)                                                                   |
+
+### Set the Embedding Model
+
+For the semantic search, we support all the embedding models from `Sentence Transformers` but we tested those on the table below.
+
+In the .𝐞𝐧𝐯 we need to set the `EMBEDDING_MODEL` variable with the name of the model we want to load:
+```
+EMBEDDING_MODEL="all-MiniLM-L6-v2"
+```
+
+To find the list of best embeddings models for the retrieval task in the language (or multiple languages) go to the [Massive Text Embedding Benchmark (MTEB) Leaderboard](https://huggingface.co/spaces/mteb/leaderboard).
+We do recommend to use the [jina-embeddings-v5-text](https://huggingface.co/collections/jinaai/jina-embeddings-v5-text) models,
+which are small (239M & 677M parameters) with SOTA performance for multilingual retrieval tasks, and they perform very well on the MTEB benchmark.
+
+| 🧠 Embedding Model                                                               | Supported | Model Size | Max Tokens | Retrieval score (MTEB) | Notes and link to the model card                                                                    |
+|----------------------------------------------------------------------------------|-----------|------------|------------|------------------------|-----------------------------------------------------------------------------------------------------|
+| `all-MiniLM-L6-v2` - Sentence Transformers All MiniLM L6 v2                      | ✅         | 0.023B     | 512        | 33.30                  | [Card](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2)                               |
+| `all-MiniLM-L12-v2` - Sentence Transformers All MiniLM L12 v2                    | ✅         | 0.033B     | 256        | 33.37                  | [Card](https://huggingface.co/sentence-transformers/all-MiniLM-L12-v2)                              |
+| `all-mpnet-base-v2` - Sentence Transformers All Mpnet base v2                    | ✅         | 0.109B     | 384        | 33.80                  | [Card](https://huggingface.co/sentence-transformers/all-mpnet-base-v2)                              |
+| `jinaai/jina-embeddings-v5-text-small-retrieval` - jina-embeddings-v5-text-small | ✅         | 0.596B     | 32k        | 64.88                  | **Recommended model** [Card](https://huggingface.co/jinaai/jina-embeddings-v5-text-small-retrieval) |
+| `jinaai/jina-embeddings-v5-text-nano-retrieval` - jina-embeddings-v5-text-nano   | ✅         | 0.212B     | 8k         | 63.26                  | [Card](https://huggingface.co/jinaai/jina-embeddings-v5-text-nano-retrieval)                        |
+
+### Set the Response Synthesis strategy
+
+In the .𝐞𝐧𝐯 we need to set the `SYNTHESIS_STRATEGY` variable with the name of the strategy we want to use for the response synthesis:
+```
+SYNTHESIS_STRATEGY="tree-summarization"
+```
+
+| ✨ Response Synthesis strategy                                           | Supported | Notes |
+|-------------------------------------------------------------------------|-----------|-------|
+| `create-and-refine` Create and Refine                                   | ✅         |       |
+| `tree-summarization` **Recommended** - Tree Summarization               | ✅         |       |
+
+
+## Build the memory index
+
+We can download some Markdown pages from the [Blendle Employee Handbook](https://blendle.notion.site/Blendle-s-Employee-Handbook-7692ffe24f07450785f093b94bbe1a09) and put them under `docs`.
+
+Build the memory index by running:
+
+```shell
+make migrate_db
+python chatbot/memory_builder.py --model-name jinaai/jina-embeddings-v5-text-small-retrieval --chunk-size 1000 --chunk-overlap 50
+```
+
+## Run the Chatbot
+
+The Chatbot has a UI built with `Vite`, `React` and `TypeScript`, and a backend built with `FastAPI` that serves the LLMs through `llama.cpp` server.
 
 To start the backend type:
 
@@ -261,13 +264,13 @@ The application will be available at http://localhost:5173, with the backend API
 
 ![conversation-aware-chatbot.gif](images/conversation-aware-chatbot.gif)
 
-You can enable the RAG Mode feature in the UI to ask questions based on the context provided by the Markdown files you loaded and indexed in the previous step:
+We can enable the RAG Mode feature in the UI to ask questions based on the context provided by the Markdown files you loaded and indexed in the previous step:
 
 ![rag_chatbot_example.gif](images%2Frag_chatbot_example.gif)
 
-You can also upload a Markdown file using the file uploader.
+We can also upload a Markdown file using the file uploader.
 The document management section shows the uploaded and indexed documents.
-Once you upload one or multiple files, they will be: uploaded → chunked → embedded → upserted to Chroma.
+Once we upload one or multiple files, they will be: uploaded → chunked → embedded → upserted to Chroma.
 
 ![rag_chatbot_load_doc_example.gif](images/rag_chatbot_load_doc_example.gif)
 
@@ -282,9 +285,6 @@ Once you upload one or multiple files, they will be: uploaded → chunked → em
     * [Understanding Multimodal LLMs](https://www.linkedin.com/comm/pulse/understanding-multimodal-llms-sebastian-raschka-phd-t7h5c)
     * [Direct preference optimization (DPO): Complete overview](https://www.superannotate.com/blog/direct-preference-optimization-dpo)
 * LLM Frameworks:
-    * llama.cpp:
-        * [llama.cpp](https://github.com/ggerganov/llama.cpp)
-        * [llama-cpp-python](https://github.com/abetlen/llama-cpp-python)
     * Deepval - A framework for evaluating LLMs:
       * https://github.com/confident-ai/deepeval
     * [Structured Outputs](https://github.com/dottxt-ai/outlines)
@@ -323,9 +323,6 @@ Once you upload one or multiple files, they will be: uploaded → chunked → em
     * [Building Response Synthesis from Scratch](https://gpt-index.readthedocs.io/en/latest/examples/low_level/response_synthesis.html#)
     * [Conversational awareness](https://langstream.ai/2023/10/13/rag-chatbot-with-conversation/)
     * [RAG is Dead, Again?](https://jina.ai/news/rag-is-dead-again/)
-* Chatbot UI:
-    * [Open WebUI](https://github.com/open-webui/open-webui)
-        * [Running AI Locally Using Ollama on Ubuntu Linux](https://itsfoss.com/ollama-setup-linux/)
 * Text Processing and Cleaning:
     * [clean-text](https://github.com/jfilter/clean-text/tree/main)
     * [Fast Semantic Text Deduplication](https://github.com/MinishLab/semhash)
@@ -333,6 +330,5 @@ Once you upload one or multiple files, they will be: uploaded → chunked → em
     * [lit-gpt](https://github.com/Lightning-AI/lit-gpt)
     * [api-for-open-llm](https://github.com/xusenlinzy/api-for-open-llm)
     * [AnythingLLM](https://useanything.com/)
-    * [FastServe - Serve Llama-cpp with FastAPI](https://github.com/aniketmaurya/fastserve)
     * [Alpaca](https://github.com/Jeffser/Alpaca?tab=readme-ov-file)
     * [LiteLLM](https://github.com/BerriAI/litellm)

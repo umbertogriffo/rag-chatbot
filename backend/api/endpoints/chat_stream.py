@@ -2,7 +2,7 @@ from fastapi import APIRouter, Response, WebSocket, WebSocketDisconnect
 from helpers.log import get_logger
 from schemas.chat import ChatRequest
 
-from api.deps import ChatHistoryDep, LamaCppClientDep, VectorDatabaseDep
+from api.deps import ChatHistoryDep, LlamaCppClientDep, VectorDatabaseDep
 from api.services.chat_stream import stream_chat_response, stream_rag_response
 
 logger = get_logger(__name__)
@@ -24,7 +24,7 @@ async def clear_chat_history(chat_history: ChatHistoryDep):
     path="/chat/stream",
 )
 async def chat_stream(
-    websocket: WebSocket, llm_client: LamaCppClientDep, chat_history: ChatHistoryDep, index: VectorDatabaseDep
+    websocket: WebSocket, llm_client: LlamaCppClientDep, chat_history: ChatHistoryDep, index: VectorDatabaseDep
 ):
     """WebSocket endpoint for streaming chat responses token by token."""
     await websocket.accept()

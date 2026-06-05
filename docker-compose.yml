@@ -1,0 +1,52 @@
+services:
+  # llama.cpp server for running LLM inference
+  # https://github.com/ggml-org/llama.cpp/pkgs/container/llama.cpp
+  # https://github.com/ggml-org/llama.cpp/tree/master/tools/server
+  llama-server:
+    # TODO: load the image tag from an environment variable or .env file
+    # https://docs.docker.com/compose/how-tos/environment-variables/variable-interpolation/
+    image: ghcr.io/ggml-org/llama.cpp:server-cuda-b9501
+    container_name: rag-chatbot-llama-server
+    volumes:
+      - ./models:/models
+    ports:
+      - "8080:8080"
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+    command: >
+      --models-dir /models
+      --host 0.0.0.0
+      --port 8080
+      --temp 0.6
+      --top-p 0.95
+      --top-k 20
+      --min-p 0.00
+      --kv-unified
+      --cache-type-k q8_0
+      --cache-type-v q8_0
+      --flash-attn on
+      --fit on
+      --ctx-size 4096
+      --chat-template-kwargs "{\"enable_thinking\": false}"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    networks:
+      - service-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+networks:
+  service-network:
+    driver: bridge
+
+volumes:
+  models:

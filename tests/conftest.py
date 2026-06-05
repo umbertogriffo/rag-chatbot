@@ -4,46 +4,60 @@ import pytest
 from alembic import command
 from alembic.config import Config
 from api.deps import get_db_session, get_index, get_llm_client
-from bot.client.lama_cpp_client import LamaCppClient
+from bot.client.llamacpp_client import LlamaCppClient
 from bot.memory.embedder import Embedder
 from bot.memory.vector_database.chroma import Chroma
-from bot.model.model_registry import Model, get_model_settings
 from main import app
+from schemas.model import ModelSettings
 from sqlmodel import Session, create_engine
 from starlette.testclient import TestClient
 
+ROOT_FOLDER = Path(__file__).resolve().parents[1]
+MODEL_FOLDER = ROOT_FOLDER / "models"
 
-@pytest.fixture(scope="session")
-def mock_models_folder(tmp_path_factory):
-    models_folder = tmp_path_factory.mktemp("models")
-    return models_folder
-
-
-@pytest.fixture(scope="session")
-def cpu_config():
-    config = {
-        "n_ctx": 512,
-        "n_threads": 2,
-        "n_gpu_layers": 0,
-    }
-    return config
+LLAMA_SERVER_BASE_URL = "http://localhost:8080"
+LLAMA_SERVER_TIMEOUT = 300
 
 
 @pytest.fixture(scope="session")
-def model_settings(cpu_config):
-    model_setting = get_model_settings(Model.LLAMA_3_2_one.value)
-    model_setting.config = cpu_config
-    return model_setting
+def model_settings():
+    model_settings = ModelSettings(
+        url="https://huggingface.co/bartowski/Llama-3.2-1B-Instruct-GGUF/resolve/main/Llama-3.2-1B-Instruct-Q5_K_M.gguf",
+        name="Llama-3.2-1B-Instruct-Q5_K_M",
+        file_name="Llama-3.2-1B-Instruct-Q5_K_M.gguf",
+        reasoning_start_tag="<think>",
+        reasoning_stop_tag="</think>",
+        system_template="",
+        reasoning=False,
+    )
+
+    return model_settings
 
 
 @pytest.fixture(scope="session")
-def lamacpp_client(mock_models_folder, model_settings):
-    return LamaCppClient(mock_models_folder, model_settings)
+def openai_client(model_settings):
+    """
+    Create OpenAI-compatible client for tests.
+
+    Note: This requires a running llama.cpp server at llama_server_url.
+    """
+
+    return LlamaCppClient(
+        base_url=LLAMA_SERVER_BASE_URL,
+        model_folder=MODEL_FOLDER,
+        model_settings=model_settings,
+        timeout=LLAMA_SERVER_TIMEOUT,
+    )
+
+
+@pytest.fixture(scope="session")
+def embedding(model_settings):
+    return Embedder()
 
 
 @pytest.fixture
-def chroma_instance(tmp_path):
-    return Chroma(embedding=Embedder(), persist_directory=str(tmp_path), is_persistent=True)
+def chroma_instance(tmp_path, embedding):
+    return Chroma(embedding=embedding, persist_directory=str(tmp_path), is_persistent=True)
 
 
 @pytest.fixture(scope="session")
@@ -97,12 +111,12 @@ def session_fixture(db_engine) -> Session:
 
 
 @pytest.fixture(name="client_with_overridden_deps")
-def client_fixture(session: Session, lamacpp_client: LamaCppClient, chroma_instance: Chroma):
+def client_fixture(session: Session, openai_client: LlamaCppClient, chroma_instance: Chroma):
     def get_db_session_override():
         return session
 
     def get_llm_client_override():
-        return lamacpp_client
+        return openai_client
 
     def get_index_client_override():
         return chroma_instance

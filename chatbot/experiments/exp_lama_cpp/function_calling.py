@@ -1,8 +1,10 @@
 import json
 from pathlib import Path
 
-from bot.client.lama_cpp_client import LamaCppClient
-from bot.model.model_registry import get_model_settings
+from bot.client.openai_client import LlamaCppClient
+from schemas.model import ModelSettings
+
+LLAMA_SERVER_BASE_URL = "http://localhost:8080"
 
 
 # Example dummy function hard coded to return the same weather
@@ -63,9 +65,22 @@ if __name__ == "__main__":
     print(get_current_weather(location="Madrid", unit="celsius"))
     print(search_text(query="Adobe"))
 
-    model_settings = get_model_settings("llama-3.1-tool")
+    model_settings = ModelSettings(
+        url="https://huggingface.co/bartowski/Meta-Llama-3.1-8B-Instruct-GGUF/resolve/main/Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf",
+        name="Meta-Llama-3.1-8B-Instruct-Q4_K_M",
+        file_name="Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf",
+        reasoning_start_tag="<think>",
+        reasoning_stop_tag="</think>",
+        system_template="",
+        reasoning=False,
+    )
 
-    llm = LamaCppClient(model_folder, model_settings)
+    llm = LlamaCppClient(
+        base_url=LLAMA_SERVER_BASE_URL,
+        model_folder=model_folder,
+        model_settings=model_settings,
+        timeout=300,
+    )
 
     tools = llm.retrieve_tools(prompt="Tell me something about Rome", tools=TOOLS_CONFIG, tool_choice=None)
     print(tools)
@@ -96,4 +111,4 @@ if __name__ == "__main__":
             max_new_tokens=256,
         )
         for output in stream:
-            print(output["choices"][0]["delta"].get("content", ""), end="", flush=True)
+            print(output.choices[0].delta.content or "", end="", flush=True)

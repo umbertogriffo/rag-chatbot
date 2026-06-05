@@ -4,7 +4,7 @@ from typing import Any
 from entities.document import Document
 from helpers.log import get_logger
 
-from bot.client.lama_cpp_client import LamaCppClient
+from bot.client.llamacpp_client import LlamaCppClient
 from bot.conversation.chat_history import ChatHistory
 from bot.conversation.ctx_strategy import BaseSynthesisStrategy
 
@@ -12,15 +12,15 @@ logger = get_logger(__name__)
 
 
 async def refine_question(
-    llm: LamaCppClient, question: str, chat_history: ChatHistory, max_new_tokens: int = 128
+    llm: LlamaCppClient, question: str, chat_history: ChatHistory, max_new_tokens: int = 128
 ) -> str:
     """
     Refines the given question based on the chat history.
 
     Args:
-        llm (LlmClient): The language model client for conversation-related tasks.
+        llm (LlamaCppClient): The language model client for conversation-related tasks.
         question (str): The original question.
-        chat_history (List[Tuple[str, str]]): A list to store the conversation
+        chat_history (ChatHistory): A list to store the conversation
         history as tuples of questions and answers.
         max_new_tokens (int, optional): The maximum number of tokens to generate in the answer.
             Defaults to 128.
@@ -52,14 +52,14 @@ async def refine_question(
         return question
 
 
-async def answer(llm: LamaCppClient, question: str, chat_history: ChatHistory, max_new_tokens: int = 512) -> Any:
+async def answer(llm: LlamaCppClient, question: str, chat_history: ChatHistory, max_new_tokens: int = 512) -> Any:
     """
     Generates an answer to the given question based on the chat history or a direct prompt.
 
     Args:
-        llm (LlmClient): The language model client for conversation-related tasks.
+        llm (LlamaCppClient): The language model client for conversation-related tasks.
         question (str): The input question for which an answer is generated.
-        chat_history (List[Tuple[str, str]]): A list to store the conversation
+        chat_history (ChatHistory): A list to store the conversation
         history as tuples of questions and answers.
         max_new_tokens (int, optional): The maximum number of tokens to generate in the answer.
             Defaults to 512.
@@ -97,7 +97,7 @@ async def answer(llm: LamaCppClient, question: str, chat_history: ChatHistory, m
 
 
 async def answer_with_context(
-    llm: LamaCppClient,
+    llm: LlamaCppClient,
     ctx_synthesis_strategy: BaseSynthesisStrategy,
     question: str,
     chat_history: ChatHistory,
@@ -109,10 +109,10 @@ async def answer_with_context(
     If the content is not provided generates an answer based on the chat history or a direct prompt.
 
     Args:
-        llm (LlmClient): The language model client for conversation-related tasks.
+        llm (LlamaCppClient): The language model client for conversation-related tasks.
         ctx_synthesis_strategy (BaseSynthesisStrategy): The strategy to use for context synthesis.
         question (str): The input question for which an answer is generated.
-        chat_history (List[Tuple[str, str]]): A list to store the conversation
+        chat_history (ChatHistory): A list to store the conversation
         history as tuples of questions and answers.
         retrieved_contents (list[Document]): A list of documents retrieved for context.
         max_new_tokens (int, optional): The maximum number of tokens to generate in the answer. Defaults to 512.
@@ -158,14 +158,14 @@ def extract_content_after_reasoning(text: str, reasoning_stop_tag: str) -> str:
 
 # TODO: Use it later
 async def stream_response_with_reasoning(
-    llm: LamaCppClient, user_input: str, chat_history: ChatHistory, max_new_tokens: int
+    llm: LlamaCppClient, user_input: str, chat_history: ChatHistory, max_new_tokens: int
 ) -> tuple[str, str]:
     """
     Streams a response from the language model (LLM) to the user input, including reasoning, and
     updates the UI in real-time.
 
     Args:
-        llm (LamaCppClient): The language model client used to generate responses.
+        llm (LlamaCppClient): The language model client used to generate responses.
         user_input (str): The input provided by the user.
         chat_history (ChatHistory): The conversation history to provide context for the response.
         max_new_tokens (int): The maximum number of tokens to generate in the response.
