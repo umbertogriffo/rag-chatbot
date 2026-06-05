@@ -1,6 +1,7 @@
 from pathlib import Path
+from urllib.parse import urlparse
 
-from bot.client.openai_client import LlamaCppClient
+from bot.client.llamacpp_client import LlamaCppClient
 from core.config import settings
 from schemas.model import ModelSettings
 
@@ -8,10 +9,13 @@ from schemas.model import ModelSettings
 def create_llm_client(model_folder: Path) -> LlamaCppClient:
     settings.MODEL_FOLDER.mkdir(parents=True, exist_ok=True)
 
+    model_url_path = urlparse(settings.MODEL_URL).path
+    model_file_name = Path(model_url_path).name or f"{settings.MODEL}.gguf"
+
     model_settings = ModelSettings(
         url=settings.MODEL_URL,
         name=settings.MODEL,
-        file_name=f"{settings.MODEL}.gguf",
+        file_name=model_file_name,
         reasoning_start_tag=settings.MODEL_REASONING_START_TAG,
         reasoning_stop_tag=settings.MODEL_REASONING_STOP_TAG,
         system_template=settings.MODEL_SYSTEM_TEMPLATE,

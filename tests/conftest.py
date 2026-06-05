@@ -4,7 +4,7 @@ import pytest
 from alembic import command
 from alembic.config import Config
 from api.deps import get_db_session, get_index, get_llm_client
-from bot.client.openai_client import LlamaCppClient
+from bot.client.llamacpp_client import LlamaCppClient
 from bot.memory.embedder import Embedder
 from bot.memory.vector_database.chroma import Chroma
 from main import app
