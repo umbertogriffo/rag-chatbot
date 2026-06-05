@@ -21,7 +21,7 @@ start_llama_server_cuda:
 	docker compose up -d
 
 start_llama_server_metal:
-	docker compose -f docker-compose.yml -f docker-compose.metal.yml up
+	docker compose -f docker-compose.yml -f docker-compose.metal.yml up -d
 
 stop_llama_server:
 	docker compose down
