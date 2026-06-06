@@ -1,4 +1,4 @@
-.PHONY: check install setup update test clean start migrate_db
+.PHONY: check update test clean start migrate_db
 
 check:
 	which pip3
