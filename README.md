@@ -89,7 +89,7 @@ This is achieved through:
   * See [notes/poetry.md](notes/technical/poetry.md#install-poetry).
 * [Docker](https://docs.docker.com/engine/install/) 24.0.6+ and [Docker Compose](https://docs.docker.com/compose/install/) 5.0.2+
 * [NVIDIA Container Toolkit installed](https://github.com/NVIDIA/nvidia-container-toolkit) (optional, for CUDA support)
-  * See [notes/llama-server-docker.md](notes/technical/llamacpp-server-docker.md#installing-nvidia-container-toolkit).
+  * See [notes/llama-server-docker.md](notes/technical/llamacpp/server-docker.md#installing-nvidia-container-toolkit).
 
 For the UI:
 * Node 22.12+
@@ -182,18 +182,18 @@ We recommend to start with `Qwen 3.5 9B` or `Meta Llama 3.2 Instruct 3B` since t
 
 We also recommend few models to start in the table below.
 
-| 🤖 Model                        | Model Size | Max Context Window | Notes and link to the model card                                                                                                                             |
-|---------------------------------|------------|--------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Qwen 3.5 0.8B                   | 0.8B       | 256k               | Tiny and fast multimodal, great for edge device - [Card](https://huggingface.co/unsloth/Qwen3.5-0.8B-GGUF)                                                   |
-| Qwen 3.5 2B                     | 2B         | 256k               | Multimodal for lightweight agents (small tool calls) - [Card](https://huggingface.co/unsloth/Qwen3.5-2B-GGUF)                                                |
-| Qwen 3.5 4B                     | 4B         | 256k               | Doesn’t drift from tasks as bad as 2B [Card](https://huggingface.co/unsloth/Qwen3.5-4B-GGUF)                                                                 |
-| Qwen 3.5 9B                     | 9B         | 256k               | **Recommended model** Can handle more complex tasks and competes with larger models like gpt-oss 120B [Card](https://huggingface.co/unsloth/Qwen3.5-9B-GGUF) |
-| Qwen2.5 Instruct                | 3B         | 128k               | [Card](https://huggingface.co/Qwen/Qwen2.5-3B-Instruct-GGUF)                                                                                                 |
-| Qwen2.5 Instruct Math Reasoning | 3B         | 128k               | [Card](https://huggingface.co/ugriffo/Qwen2.5-3B-Instruct-Math-Reasoning-GGUF)                                                                               |
-| Meta Llama 3.2 Instruct         | 1B         | 128k               | Optimized to run locally on a mobile or edge device - [Card](https://huggingface.co/bartowski/Llama-3.2-1B-Instruct-GGUF)                                    |
-| Meta Llama 3.2 Instruct         | 3B         | 128k               | Optimized to run locally on a mobile or edge device - [Card](https://huggingface.co/bartowski/Llama-3.2-3B-Instruct-GGUF)                                    |
-| Meta Llama 3.1 Instruct         | 8B         | 128k               | **Recommended model** [Card](https://huggingface.co/bartowski/Meta-Llama-3.1-8B-Instruct-GGUF)                                                               |
-| DeepSeek R1 Distill Qwen 7B     | 7B         | 128k               | **Experimental** [Card](https://huggingface.co/bartowski/DeepSeek-R1-Distill-Qwen-7B-GGUF)                                                                   |
+| 🤖 Model                    | Model Size         | Max Context Window | Notes and link to the model card                                                                                                                             |
+|-----------------------------|--------------------|--------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Qwen 3.6 27B                | 27B                | 262k               | **Recommended model** [Card](https://huggingface.co/unsloth/Qwen3.6-35B-A3B-GGUF)                                                                            |
+| Qwen 3.6 35B A3B            | 35B (3B activated) | 262k               | [Card](https://huggingface.co/unsloth/Qwen3.6-27B-GGUF)                                                                                                      |
+| Qwen 3.5 0.8B               | 0.8B               | 256k               | Tiny and fast multimodal, great for edge device - [Card](https://huggingface.co/unsloth/Qwen3.5-0.8B-GGUF)                                                   |
+| Qwen 3.5 2B                 | 2B                 | 256k               | Multimodal for lightweight agents (small tool calls) - [Card](https://huggingface.co/unsloth/Qwen3.5-2B-GGUF)                                                |
+| Qwen 3.5 4B                 | 4B                 | 256k               | Doesn’t drift from tasks as bad as 2B [Card](https://huggingface.co/unsloth/Qwen3.5-4B-GGUF)                                                                 |
+| Qwen 3.5 9B                 | 9B                 | 256k               | **Recommended model** Can handle more complex tasks and competes with larger models like gpt-oss 120B [Card](https://huggingface.co/unsloth/Qwen3.5-9B-GGUF) |
+| Meta Llama 3.2 Instruct     | 1B                 | 128k               | Optimized to run locally on a mobile or edge device - [Card](https://huggingface.co/bartowski/Llama-3.2-1B-Instruct-GGUF)                                    |
+| Meta Llama 3.2 Instruct     | 3B                 | 128k               | Optimized to run locally on a mobile or edge device - [Card](https://huggingface.co/bartowski/Llama-3.2-3B-Instruct-GGUF)                                    |
+| Meta Llama 3.1 Instruct     | 8B                 | 128k               | **Old but still recommended** [Card](https://huggingface.co/bartowski/Meta-Llama-3.1-8B-Instruct-GGUF)                                                       |
+| DeepSeek R1 Distill Qwen 7B | 7B                 | 128k               | **Experimental** [Card](https://huggingface.co/bartowski/DeepSeek-R1-Distill-Qwen-7B-GGUF)                                                                   |
 
 ### Set the Embedding Model
 

@@ -1,7 +1,6 @@
 services:
   # llama.cpp server for running LLM inference
   # https://github.com/ggml-org/llama.cpp/pkgs/container/llama.cpp
-  # https://github.com/ggml-org/llama.cpp/tree/master/tools/server
   llama-server:
     # TODO: load the image tag from an environment variable or .env file
     # https://docs.docker.com/compose/how-tos/environment-variables/variable-interpolation/
