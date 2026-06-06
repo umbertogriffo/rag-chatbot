@@ -140,6 +140,7 @@ To install the UI dependencies, run:
 ```shell
 cd frontend
 nvm use
+npm install -g yarn
 yarn
 
 # Create .env file
