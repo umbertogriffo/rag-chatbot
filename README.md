@@ -172,7 +172,9 @@ The chosen model will be downloaded in the `/models` folder and loaded in the `l
 > - [Performance of llama.cpp on Apple Silicon M-series](https://github.com/ggml-org/llama.cpp/discussions/4167)
 >
 > **Decision model:**
-> - `Memory capacity` is the main limit. Check if the model fits in memory (with quantization) https://www.canirun.ai/.
+> - `Memory capacity` is the main limit. Check if the model fits in memory (with quantization):
+>   - [CanIRun.ai](https://www.canirun.ai/) - Find out which AI models your machine can actually run.
+>   - [whichllm](https://github.com/Andyyyy64/whichllm) - Auto-detects your GPU/CPU/RAM and ranks the top models from `HuggingFace` that fit your system.
 > - `Memory bandwidth` mostly determines speed (tokens/sec). Check if the bandwidth gives an acceptable speed.
 > - If not, upgrade hardware or optimize the model.
 >
