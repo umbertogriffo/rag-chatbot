@@ -11,6 +11,7 @@ from memory_builder import split_chunks
 from schemas.documents import DocumentInfo, DocumentListResponse, DocumentUploadResponse
 
 from api.deps import SessionDep, VectorDatabaseDep
+from api.exceptions import DocumentLoadError, VectorDBError
 
 logger = get_logger(__name__)
 
@@ -96,16 +97,37 @@ async def upload_document(
         document = loaded_docs[0]
         page_content = document.page_content
 
-    except Exception as exc:
-        logger.warning(
-            f"Failed to load uploaded file '{file.filename}': {exc}",
-        )
-        # Clean up the saved file on error
+    except FileNotFoundError as exc:
+        logger.error(f"File not found after upload: {file.filename}")
         if file_path.exists():
             file_path.unlink()
         raise HTTPException(
-            status_code=400,
-            detail=f"Failed to process document '{file.filename}': {str(exc)}",
+            status_code=500,
+            detail="Internal error: uploaded file was lost during processing"
+        )
+    except ValueError as exc:
+        # Document parsing/validation error
+        logger.warning(f"Invalid document format '{file.filename}': {exc}")
+        if file_path.exists():
+            file_path.unlink()
+        raise DocumentLoadError(file.filename, str(exc))
+    except IOError as exc:
+        # File I/O error (disk full, permissions, etc.)
+        logger.error(f"I/O error processing '{file.filename}': {exc}")
+        if file_path.exists():
+            file_path.unlink()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to read document '{file.filename}': storage error"
+        )
+    except Exception as exc:
+        # Catch-all for unexpected errors
+        logger.exception(f"Unexpected error loading '{file.filename}': {exc}")
+        if file_path.exists():
+            file_path.unlink()
+        raise HTTPException(
+            status_code=500,
+            detail=f"An unexpected error occurred while processing '{file.filename}'"
         )
 
     version_hash = generate_id(page_content)
