@@ -240,25 +240,14 @@ Build the memory index by running:
 
 ```shell
 make migrate_db
-python chatbot/memory_builder.py --model-name jinaai/jina-embeddings-v5-text-small-retrieval --chunk-size 1000 --chunk-overlap 50
+cd scripts && PYTHONPATH=.:../backend python memory_builder.py --model-name jinaai/jina-embeddings-v5-text-small-retrieval --chunk-size 1000 --chunk-overlap 50
 ```
 
 ## Run the Chatbot
 
 The Chatbot has a UI built with `Vite`, `React` and `TypeScript`, and a backend built with `FastAPI` that serves the LLMs through `llama.cpp` server.
 
-To start the backend type:
-
-```shell
-cd backend && PYTHONPATH=.:../chatbot uvicorn main:app --reload
-```
-
-To start the frontend (in a new terminal):
-```shell
-cd frontend && yarn dev
-```
-
-or to start both ensuring that the backend is running and ready before launching the frontend just run:
+To start both the backend and frontend ensuring that the backend is running and ready before launching the frontend just run:
 
 ```shell
 make start

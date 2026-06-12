@@ -15,7 +15,7 @@ install_pre_commit:
 	poetry run pre-commit install --hook-type pre-commit
 
 migrate_db:
-	cd backend && PYTHONPATH=.:../chatbot poetry run python migration.py
+	cd backend && poetry run python migration.py
 
 start_llama_server_cuda:
 	docker compose up -d

@@ -3,12 +3,12 @@ from typing import Any, Iterable
 
 import chromadb
 import chromadb.config
-from bot.memory.embedder import Embedder
-from bot.memory.vector_database.distance_metric import DistanceMetric, get_relevance_score_fn
 from chromadb.utils.batch_utils import create_batches
 from cleantext import clean
-from entities.document import Document
 from helpers.log import get_logger
+from memory.embedder import Embedder
+from memory.vector_database.distance_metric import DistanceMetric, get_relevance_score_fn
+from services.ingest_documents_service.document import Document
 
 logger = get_logger(__name__)
 

@@ -1,4 +1,4 @@
-from bot.memory.vector_database.id_generator import (
+from memory.vector_database.id_generator import (
     generate_id,
     normalize_text,
 )

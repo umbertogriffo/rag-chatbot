@@ -1,4 +1,4 @@
-from core.config import settings
+from config import settings
 from helpers.log import get_logger
 from sqlalchemy import Engine, event, text
 from sqlmodel import create_engine

@@ -1,5 +1,7 @@
 import pytest
-from bot.memory.document_registry import DocumentRecord, DocumentRegistry
+from services.ingest_documents_service.document_registry import DocumentRegistry
+
+from models.document_record import DocumentRecord
 
 
 @pytest.fixture

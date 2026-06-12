@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 import state
 import uvicorn
 from api.routes import api_router
-from core.config import settings
+from config import settings
 from database import create_db_engine
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware

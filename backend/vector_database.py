@@ -1,8 +1,8 @@
 from pathlib import Path
 
-from bot.memory.embedder import Embedder
-from bot.memory.vector_database.chroma import Chroma
-from core.config import settings
+from config import settings
+from memory.embedder import Embedder
+from memory.vector_database.chroma import Chroma
 
 
 def init_index(vector_store_path: Path) -> Chroma:

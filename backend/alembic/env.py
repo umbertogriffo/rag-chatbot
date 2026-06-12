@@ -1,8 +1,7 @@
 from logging.config import fileConfig
 
 from alembic import context
-from bot.memory.document_registry import DocumentRecord  # noqa: F401 – registers the model
-from core.config import settings
+from config import settings
 from helpers.log import get_logger
 from sqlalchemy import engine_from_config, pool
 from sqlmodel import SQLModel

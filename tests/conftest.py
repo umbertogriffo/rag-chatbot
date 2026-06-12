@@ -4,10 +4,10 @@ import pytest
 from alembic import command
 from alembic.config import Config
 from api.deps import get_db_session, get_index, get_llm_client
-from bot.memory.embedder import Embedder
-from bot.memory.vector_database.chroma import Chroma
 from llm_providers.llamacpp_client import LlamaCppClient
 from main import app
+from memory.embedder import Embedder
+from memory.vector_database.chroma import Chroma
 from schemas.model import ModelSettings
 from sqlmodel import Session, create_engine
 from starlette.testclient import TestClient
@@ -73,7 +73,7 @@ def db_engine(tmp_path_factory, session_mocker):
     db_url = f"sqlite:///{db_path}"
 
     # Use monkeypatch to set DATABASE_URL environment variable
-    session_mocker.patch("core.config.settings.DATABASE_URL", db_url)
+    session_mocker.patch("config.settings.DATABASE_URL", db_url)
 
     # Get path to alembic.ini
     src_dir = Path(__file__).parents[1] / "backend"

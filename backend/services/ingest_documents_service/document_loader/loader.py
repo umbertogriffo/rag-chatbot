@@ -2,10 +2,11 @@ import concurrent.futures
 from pathlib import Path
 from typing import Any
 
-from entities.document import Document
 from helpers.log import get_logger
 from tqdm import tqdm
 from unstructured.partition.auto import partition
+
+from services.ingest_documents_service.document import Document
 
 logger = get_logger(__name__)
 

@@ -2,9 +2,10 @@ import asyncio
 from enum import Enum
 from typing import Any
 
-from entities.document import Document
 from helpers.log import get_logger
 from llm_providers.llamacpp_client import LlamaCppClient
+
+from services.ingest_documents_service.document import Document
 
 logger = get_logger(__name__)
 

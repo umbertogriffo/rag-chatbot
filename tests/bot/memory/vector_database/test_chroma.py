@@ -1,8 +1,8 @@
 import pytest
-from bot.memory.embedder import Embedder
-from bot.memory.vector_database.chroma import Chroma
-from bot.memory.vector_database.id_generator import generate_id
-from entities.document import Document
+from memory.embedder import Embedder
+from memory.vector_database.chroma import Chroma
+from memory.vector_database.id_generator import generate_id
+from services.ingest_documents_service.document import Document
 
 
 @pytest.fixture

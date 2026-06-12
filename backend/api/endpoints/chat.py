@@ -1,4 +1,4 @@
-from core.config import settings
+from config import settings
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from helpers.log import get_logger

@@ -2,8 +2,8 @@
 
 # Start backend in background
 cd backend || exit
-PYTHONPATH=.:../chatbot poetry run python migration.py
-PYTHONPATH=.:../chatbot uvicorn main:app &
+poetry run python migration.py
+uvicorn main:app &
 BACKEND_PID=$!
 
 # Cleanup on exit

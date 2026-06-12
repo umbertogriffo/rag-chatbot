@@ -1,5 +1,8 @@
-from document_loader.format import Format
-from document_loader.text_splitter import RecursiveCharacterTextSplitter, create_recursive_text_splitter
+from services.ingest_documents_service.document_loader.format import Format
+from services.ingest_documents_service.document_loader.text_splitter import (
+    RecursiveCharacterTextSplitter,
+    create_recursive_text_splitter,
+)
 
 
 def test_recursive_character_text_splitter_keep_separators() -> None:

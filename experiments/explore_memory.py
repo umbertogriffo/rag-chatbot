@@ -1,16 +1,16 @@
 from pathlib import Path
 
 import chromadb
-from bot.memory.embedder import Embedder
-from bot.memory.vector_database.chroma import Chroma
 from helpers.prettier import prettify_source
+from memory.embedder import Embedder
+from memory.vector_database.chroma import Chroma
 
 if __name__ == "__main__":
-    root_folder = Path(__file__).resolve().parent.parent.parent
+    ROOT_FOLDER = Path(__file__).resolve().parents[1]
     # Contains an extract of documents uploaded to the RAG bot;
-    declarative_vector_store_path = root_folder / "vector_store" / "exp_docs_index"
+    declarative_vector_store_path = ROOT_FOLDER / "vector_store" / "exp_docs_index"
     # Contains an extract of things the user said in the past;
-    episodic_vector_store_path = root_folder / "vector_store" / "episodic_index"
+    episodic_vector_store_path = ROOT_FOLDER / "vector_store" / "episodic_index"
 
     embedding = Embedder()
     index = Chroma(is_persistent=True, persist_directory=str(declarative_vector_store_path), embedding=embedding)
