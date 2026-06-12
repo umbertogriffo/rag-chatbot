@@ -114,11 +114,13 @@ To easily install the dependencies and start the services we created a make file
     * Both starts `llama.cpp` server locally via Docker compose.
 * Start: ```make start```
     *  Start both the backend and frontend ensuring that the backend is running and ready before launching the frontend.
-* Stop `llama.cpp` Server: ```make stop_llama_server```
-    * Stop the llama.cpp server if it's running locally.
-* Start Server: ```make start_server```
+* Start llama.cpp server
+    * on CUDA: ```make start_llama_server_cuda```
+    * on Metal: ```make start_llama_server_metal```
     * Start the llama.cpp server locally via Docker compose.
     * It will be available at http://0.0.0.0:8080 (it will show the llama-ui).
+* Stop `llama.cpp` Server: ```make stop_llama_server```
+    * Stop the llama.cpp server if it's running locally.
 * Update: ```make update```
     * Update an environment and installs all updated dependencies.
 * Tidy up the code: ```make tidy```

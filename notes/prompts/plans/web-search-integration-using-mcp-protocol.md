@@ -430,15 +430,17 @@ def init_mcp_tools():
 #### **Step 3.3: Update Main Lifespan**
 
 **File**: `backend/main.py`
+
 ```python
 from state import init_mcp_tools
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Initialize global state
-    state.engine = create_db_engine()
+    state.db_engine = create_db_engine()
     state.llm_client = create_llm_client(settings.MODEL_FOLDER)
-    state.index = init_index(settings.VECTOR_STORE_PATH)
+    state.vector_database = init_index(settings.VECTOR_STORE_PATH)
 
     # Initialize MCP tools
     if settings.WEB_SEARCH_ENABLED:

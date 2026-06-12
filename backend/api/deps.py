@@ -30,14 +30,14 @@ def get_index() -> Generator[Chroma, None, None]:
     """
     Dependency to get the vector database index instance.
     """
-    yield state.index
+    yield state.vector_database
 
 
 def get_db_session() -> Generator[Session, None, None]:
     """
     Create a new database session and close the session after the operation has ended.
     """
-    with Session(state.engine) as session:
+    with Session(state.db_engine) as session:
         yield session
 
 

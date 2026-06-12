@@ -9,6 +9,6 @@ from memory.vector_database.chroma import Chroma
 from sqlalchemy import Engine
 
 # Global singleton instances
-engine: Engine | None = None
+db_engine: Engine | None = None
 llm_client: LlamaCppClient | None = None
-index: Chroma | None = None
+vector_database: Chroma | None = None

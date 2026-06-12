@@ -2,7 +2,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from database import create_db_engine
+from database import init_db_engine
 from helpers.log import get_logger
 from memory.embedder import Embedder
 from memory.vector_database.chroma import Chroma
@@ -57,7 +57,7 @@ def build_memory_index(
     embedding = Embedder(model_name=model_name)
     vector_database = Chroma(is_persistent=True, persist_directory=str(vector_store_path), embedding=embedding)
 
-    session = Session(create_db_engine())
+    session = Session(init_db_engine())
     registry = DocumentRegistry(session)
 
     # ------------------------------------------------------------------

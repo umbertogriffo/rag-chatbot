@@ -35,7 +35,7 @@ def model_settings():
 
 
 @pytest.fixture(scope="session")
-def openai_client(model_settings):
+def llamacpp_client(model_settings):
     """
     Create OpenAI-compatible client for tests.
 
@@ -111,12 +111,12 @@ def session_fixture(db_engine) -> Session:
 
 
 @pytest.fixture(name="client_with_overridden_deps")
-def client_fixture(session: Session, openai_client: LlamaCppClient, chroma_instance: Chroma):
+def client_fixture(session: Session, llamacpp_client: LlamaCppClient, chroma_instance: Chroma):
     def get_db_session_override():
         return session
 
     def get_llm_client_override():
-        return openai_client
+        return llamacpp_client
 
     def get_index_client_override():
         return chroma_instance

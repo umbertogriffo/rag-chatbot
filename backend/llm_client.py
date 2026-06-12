@@ -6,7 +6,7 @@ from llm_providers.llamacpp_client import LlamaCppClient
 from schemas.model import ModelSettings
 
 
-def create_llm_client(model_folder: Path) -> LlamaCppClient:
+def init_llm_client(model_folder: Path) -> LlamaCppClient:
     settings.MODEL_FOLDER.mkdir(parents=True, exist_ok=True)
 
     model_url_path = urlparse(settings.MODEL_URL).path
