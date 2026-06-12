@@ -1,12 +1,12 @@
 import re
 from typing import Any
 
-from entities.document import Document
+from chat_history import ChatHistory
 from helpers.log import get_logger
+from llm_providers.llamacpp_client import LlamaCppClient
 
-from bot.client.llamacpp_client import LlamaCppClient
-from bot.conversation.chat_history import ChatHistory
-from bot.conversation.ctx_strategy import BaseSynthesisStrategy
+from services.chat_service.ctx_strategy import BaseSynthesisStrategy
+from services.ingest_documents_service.document import Document
 
 logger = get_logger(__name__)
 

@@ -1,12 +1,12 @@
 from pathlib import Path
 from urllib.parse import urlparse
 
-from bot.client.llamacpp_client import LlamaCppClient
-from core.config import settings
+from config import settings
+from llm_providers.llamacpp_client import LlamaCppClient
 from schemas.model import ModelSettings
 
 
-def create_llm_client(model_folder: Path) -> LlamaCppClient:
+def init_llm_client(model_folder: Path) -> LlamaCppClient:
     settings.MODEL_FOLDER.mkdir(parents=True, exist_ok=True)
 
     model_url_path = urlparse(settings.MODEL_URL).path

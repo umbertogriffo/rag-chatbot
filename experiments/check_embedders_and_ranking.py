@@ -2,10 +2,10 @@ import time
 from pathlib import Path
 
 import torch
-from bot.memory.embedder import Embedder
-from bot.memory.vector_database.chroma import Chroma
+from memory.embedder import Embedder
+from memory.vector_database.chroma import Chroma
 
-ROOT_FOLDER = Path(__file__).resolve().parents[2]
+ROOT_FOLDER = Path(__file__).resolve().parents[1]
 EXPERIMENTS_FOLDER = Path(__file__).parent
 
 

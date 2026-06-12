@@ -1,13 +1,13 @@
 import time
 from pathlib import Path
 
-from bot.client.openai_client import LlamaCppClient
+from llm_providers.llamacpp_client import LlamaCppClient
 from schemas.model import ModelSettings
 
 LLAMA_SERVER_BASE_URL = "http://localhost:8080"
 
 if __name__ == "__main__":
-    root_folder = Path(__file__).resolve().parent.parent.parent.parent
+    root_folder = Path(__file__).resolve().parents[2]
     model_folder = root_folder / "models"
     Path(model_folder).parent.mkdir(parents=True, exist_ok=True)
 

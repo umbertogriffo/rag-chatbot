@@ -1,4 +1,4 @@
-from core.config import settings
+from config import settings
 from helpers.log import get_logger
 from sqlalchemy import Engine, event, text
 from sqlmodel import create_engine
@@ -6,7 +6,7 @@ from sqlmodel import create_engine
 logger = get_logger(__name__)
 
 
-def create_db_engine(verbose: bool = False, **kwargs):
+def init_db_engine(verbose: bool = False, **kwargs):
     """
     Create the SQLAlchemy engine for database interactions.
 

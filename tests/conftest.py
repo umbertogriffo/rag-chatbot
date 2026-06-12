@@ -4,10 +4,10 @@ import pytest
 from alembic import command
 from alembic.config import Config
 from api.deps import get_db_session, get_index, get_llm_client
-from bot.client.llamacpp_client import LlamaCppClient
-from bot.memory.embedder import Embedder
-from bot.memory.vector_database.chroma import Chroma
+from llm_providers.llamacpp_client import LlamaCppClient
 from main import app
+from memory.embedder import Embedder
+from memory.vector_database.chroma import Chroma
 from schemas.model import ModelSettings
 from sqlmodel import Session, create_engine
 from starlette.testclient import TestClient
@@ -35,7 +35,7 @@ def model_settings():
 
 
 @pytest.fixture(scope="session")
-def openai_client(model_settings):
+def llamacpp_client(model_settings):
     """
     Create OpenAI-compatible client for tests.
 
@@ -73,7 +73,7 @@ def db_engine(tmp_path_factory, session_mocker):
     db_url = f"sqlite:///{db_path}"
 
     # Use monkeypatch to set DATABASE_URL environment variable
-    session_mocker.patch("core.config.settings.DATABASE_URL", db_url)
+    session_mocker.patch("config.settings.DATABASE_URL", db_url)
 
     # Get path to alembic.ini
     src_dir = Path(__file__).parents[1] / "backend"
@@ -111,12 +111,12 @@ def session_fixture(db_engine) -> Session:
 
 
 @pytest.fixture(name="client_with_overridden_deps")
-def client_fixture(session: Session, openai_client: LlamaCppClient, chroma_instance: Chroma):
+def client_fixture(session: Session, llamacpp_client: LlamaCppClient, chroma_instance: Chroma):
     def get_db_session_override():
         return session
 
     def get_llm_client_override():
-        return openai_client
+        return llamacpp_client
 
     def get_index_client_override():
         return chroma_instance

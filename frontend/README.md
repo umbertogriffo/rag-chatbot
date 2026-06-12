@@ -26,7 +26,7 @@ To run the application:
 
 Start the backend:
 ```
-cd backend && PYTHONPATH=.:../chatbot uvicorn main:app --reload
+cd backend && uvicorn main:app --reload
 ```
 
 Start the frontend (in a new terminal):

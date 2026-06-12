@@ -1,4 +1,4 @@
-from bot.conversation.conversation_handler import extract_content_after_reasoning
+from services.chat_service.conversation_handler import extract_content_after_reasoning
 
 
 def test_extract_content_after_reasoning():

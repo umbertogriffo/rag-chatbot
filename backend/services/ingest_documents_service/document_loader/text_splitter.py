@@ -28,9 +28,8 @@ import re
 from abc import ABC, abstractmethod
 from typing import Any, Callable, Iterable
 
-from entities.document import Document
-
-from document_loader.format import get_separators
+from services.ingest_documents_service.document import Document
+from services.ingest_documents_service.document_loader.format import Format, get_separators
 
 logger = logging.getLogger(__name__)
 
@@ -269,3 +268,24 @@ def create_recursive_text_splitter(format: str, **kwargs: Any) -> RecursiveChara
     """
     separators = get_separators(format)
     return RecursiveCharacterTextSplitter(separators=separators, **kwargs)
+
+
+def split_chunks(sources: list, chunk_size: int = 1000, chunk_overlap: int = 50) -> list:
+    """
+    Splits a list of sources into smaller chunks.
+
+    Args:
+        sources (List): The list of sources to be split into chunks.
+        chunk_size (int, optional): The maximum size of each chunk. Defaults to 1000.
+        chunk_overlap (int, optional): The amount of overlap between consecutive chunks. Defaults to 50.
+
+    Returns:
+        List: A list of smaller chunks obtained from the input sources.
+    """
+    chunks = []
+    splitter = create_recursive_text_splitter(
+        format=Format.MARKDOWN.value, chunk_size=chunk_size, chunk_overlap=chunk_overlap
+    )
+    for chunk in splitter.split_documents(sources):
+        chunks.append(chunk)
+    return chunks

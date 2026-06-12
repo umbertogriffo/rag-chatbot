@@ -5,11 +5,10 @@ Defines dependencies used by the endpoints.
 from typing import Annotated, Generator
 
 import state
-from bot.client.llamacpp_client import LlamaCppClient
-from bot.conversation.chat_history import ChatHistory
-from bot.memory.vector_database.chroma import Chroma
-from chat_history import chat_history
+from chat_history import ChatHistory, chat_history
 from fastapi import Depends
+from llm_providers.llamacpp_client import LlamaCppClient
+from memory.vector_database.chroma import Chroma
 from sqlmodel import Session
 
 
@@ -31,14 +30,14 @@ def get_index() -> Generator[Chroma, None, None]:
     """
     Dependency to get the vector database index instance.
     """
-    yield state.index
+    yield state.vector_database
 
 
 def get_db_session() -> Generator[Session, None, None]:
     """
     Create a new database session and close the session after the operation has ended.
     """
-    with Session(state.engine) as session:
+    with Session(state.db_engine) as session:
         yield session
 
 

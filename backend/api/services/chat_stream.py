@@ -1,17 +1,17 @@
 import time
 
-from bot.conversation.conversation_handler import (
+from config import settings
+from fastapi import WebSocket
+from helpers.log import get_logger
+from helpers.prettier import prettify_source
+from schemas.chat import ChatRequest
+from services.chat_service.conversation_handler import (
     answer,
     answer_with_context,
     extract_content_after_reasoning,
     refine_question,
 )
-from bot.conversation.ctx_strategy import get_ctx_synthesis_strategy
-from core.config import settings
-from fastapi import WebSocket
-from helpers.log import get_logger
-from helpers.prettier import prettify_source
-from schemas.chat import ChatRequest
+from services.chat_service.ctx_strategy import get_ctx_synthesis_strategy
 
 from api.deps import ChatHistoryDep, LlamaCppClientDep, VectorDatabaseDep
 

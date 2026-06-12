@@ -5,7 +5,7 @@ from pathlib import Path
 
 from alembic import command
 from alembic.config import Config
-from core.config import settings
+from config import settings
 from helpers.log import get_logger
 
 logger = get_logger(__name__)

@@ -114,11 +114,13 @@ To easily install the dependencies and start the services we created a make file
     * Both starts `llama.cpp` server locally via Docker compose.
 * Start: ```make start```
     *  Start both the backend and frontend ensuring that the backend is running and ready before launching the frontend.
-* Stop `llama.cpp` Server: ```make stop_llama_server```
-    * Stop the llama.cpp server if it's running locally.
-* Start Server: ```make start_server```
+* Start llama.cpp server
+    * on CUDA: ```make start_llama_server_cuda```
+    * on Metal: ```make start_llama_server_metal```
     * Start the llama.cpp server locally via Docker compose.
     * It will be available at http://0.0.0.0:8080 (it will show the llama-ui).
+* Stop `llama.cpp` Server: ```make stop_llama_server```
+    * Stop the llama.cpp server if it's running locally.
 * Update: ```make update```
     * Update an environment and installs all updated dependencies.
 * Tidy up the code: ```make tidy```
@@ -240,25 +242,14 @@ Build the memory index by running:
 
 ```shell
 make migrate_db
-python chatbot/memory_builder.py --model-name jinaai/jina-embeddings-v5-text-small-retrieval --chunk-size 1000 --chunk-overlap 50
+cd scripts && PYTHONPATH=.:../backend python memory_builder.py --model-name jinaai/jina-embeddings-v5-text-small-retrieval --chunk-size 1000 --chunk-overlap 50
 ```
 
 ## Run the Chatbot
 
 The Chatbot has a UI built with `Vite`, `React` and `TypeScript`, and a backend built with `FastAPI` that serves the LLMs through `llama.cpp` server.
 
-To start the backend type:
-
-```shell
-cd backend && PYTHONPATH=.:../chatbot uvicorn main:app --reload
-```
-
-To start the frontend (in a new terminal):
-```shell
-cd frontend && yarn dev
-```
-
-or to start both ensuring that the backend is running and ready before launching the frontend just run:
+To start both the backend and frontend ensuring that the backend is running and ready before launching the frontend just run:
 
 ```shell
 make start

@@ -1,4 +1,4 @@
-from bot.client.prompt import SYSTEM_TEMPLATE
+from llm_providers.prompt import SYSTEM_TEMPLATE
 from pydantic import BaseModel
 
 

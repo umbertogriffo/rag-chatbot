@@ -1,14 +1,14 @@
 from pathlib import Path
 from typing import Annotated
 
-from bot.memory.document_registry import DocumentRegistry
-from bot.memory.vector_database.id_generator import generate_id
-from core.config import settings
-from document_loader.loader import DirectoryLoader
+from config import settings
 from fastapi import APIRouter, File, HTTPException, UploadFile
 from helpers.log import get_logger
-from memory_builder import split_chunks
+from memory.vector_database.id_generator import generate_id
 from schemas.documents import DocumentInfo, DocumentListResponse, DocumentUploadResponse
+from services.ingest_documents_service.document_loader.loader import DirectoryLoader
+from services.ingest_documents_service.document_loader.text_splitter import split_chunks
+from services.ingest_documents_service.document_registry import DocumentRegistry
 
 from api.deps import SessionDep, VectorDatabaseDep
 
