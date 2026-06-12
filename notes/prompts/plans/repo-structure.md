@@ -297,3 +297,6 @@ agents/
 | Test organization  | Good    | Better (unit/integration/e2e)      |
 
 This structure follows patterns from production AI systems and will scale well as you add more agents, tools, and monitoring capabilities.
+
+Look also at:
+https://github.com/neural-maze/agent-api-cookiecutter
