@@ -9,7 +9,7 @@ from openai.types.chat import ChatCompletion, ChatCompletionChunk
 from schemas.model import ModelSettings
 from tqdm import tqdm
 
-from bot.client.prompt import (
+from llm_providers.prompt import (
     CTX_PROMPT_TEMPLATE,
     QA_PROMPT_TEMPLATE,
     REFINED_ANSWER_CONVERSATION_AWARENESS_PROMPT_TEMPLATE,

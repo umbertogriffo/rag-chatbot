@@ -1,8 +1,8 @@
 from pathlib import Path
 from urllib.parse import urlparse
 
-from bot.client.llamacpp_client import LlamaCppClient
 from core.config import settings
+from llm_providers.llamacpp_client import LlamaCppClient
 from schemas.model import ModelSettings
 
 

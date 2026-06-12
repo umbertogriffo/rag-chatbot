@@ -4,8 +4,8 @@ Holds singleton instances that are initialized during app startup.
 """
 
 
-from bot.client.llamacpp_client import LlamaCppClient
 from bot.memory.vector_database.chroma import Chroma
+from llm_providers.llamacpp_client import LlamaCppClient
 from sqlalchemy import Engine
 
 # Global singleton instances

@@ -4,8 +4,7 @@ from typing import Any
 
 from entities.document import Document
 from helpers.log import get_logger
-
-from bot.client.llamacpp_client import LlamaCppClient
+from llm_providers.llamacpp_client import LlamaCppClient
 
 logger = get_logger(__name__)
 
